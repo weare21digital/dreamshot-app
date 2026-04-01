@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#19194d",
+              "accent-gold": "#d4af37",
+              "background-light": "#f6f6f8",
+              "background-dark": "#14141e",
+            },
+            fontFamily: {
+              "display": ["Newsreader", "serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .vignette-overlay {
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.4) 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10">
+<div class="text-primary dark:text-slate-100 flex size-12 shrink-0 items-center cursor-pointer" data-icon="ArrowLeft">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</div>
+<h2 class="text-primary dark:text-slate-100 text-xl font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Style Detail</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-transparent text-primary dark:text-slate-100 gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0">
+<span class="material-symbols-outlined text-2xl">info</span>
+</button>
+</div>
+</div>
+<div class="@container px-4 py-2">
+<div class="relative w-full aspect-[4/5] @[480px]:aspect-square bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden rounded-xl shadow-2xl" data-alt="Elegant regency era portrait of a noble person" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCk6MeTXjlPc27sRsc1P4YWxM7nWJT0wwRItYxURPJ37HeOzsieA6qqICDVixbfb83bJM-SWTvntEs-jZq2xJMmoZPcZVyO0VBSKLFyt7NW3qE3dUk7MVpJl5XMD7M5nY7fcCZeWfDhQcXjejiOj-AqtiN5oBBrOlg7ms4I8xdkvcoIQP8tB5ykLBywvjc1IvmYjQQMXlyjV7yHGOtOODWkEynVNrTnrRb5IVKaQgxnKhpO5SrNe-PAG3yAcGdE0nkKkZw8zLbyRvA");'>
+<div class="absolute inset-0 vignette-overlay pointer-events-none"></div>
+<div class="absolute bottom-4 left-4 right-4 text-white/90 italic text-sm">Example: Duchess of Somerset Style</div>
+</div>
+</div>
+<div class="px-6 py-6">
+<div class="flex justify-between items-center mb-2">
+<h1 class="text-primary dark:text-slate-100 tracking-tight text-4xl font-bold leading-tight">Regency Portrait</h1>
+<div class="flex items-center gap-1 bg-primary/10 dark:bg-primary/40 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-accent-gold text-lg">stars</span>
+<span class="text-primary dark:text-slate-100 font-bold text-sm uppercase tracking-wider">Premium</span>
+</div>
+</div>
+<div class="w-16 h-1 bg-accent-gold mb-6 rounded-full"></div>
+<p class="text-slate-700 dark:text-slate-300 text-lg leading-relaxed mb-8">
+                Step into the elegance of the 19th-century elite. This style features soft lighting, refined period attire, and a regal atmosphere inspired by classic oil paintings of the English aristocracy. Perfect for those seeking a touch of historical grandeur and timeless sophistication.
+            </p>
+<div class="flex flex-col gap-4 max-w-md mx-auto">
+<button class="flex items-center justify-between overflow-hidden rounded-lg h-16 px-6 bg-primary border-2 border-accent-gold text-accent-gold hover:bg-primary/90 transition-colors shadow-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">photo_camera</span>
+<span class="text-lg font-bold uppercase tracking-widest">Create Photo</span>
+</div>
+<span class="text-sm font-medium opacity-80">(20 coins)</span>
+</button>
+<button class="flex items-center justify-between overflow-hidden rounded-lg h-16 px-6 bg-primary border-2 border-accent-gold text-accent-gold hover:bg-primary/90 transition-colors shadow-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">movie</span>
+<span class="text-lg font-bold uppercase tracking-widest">Create Video</span>
+</div>
+<span class="text-sm font-medium opacity-80">(50 coins)</span>
+</button>
+</div>
+<div class="mt-10 flex flex-col items-center gap-4 border-t border-slate-200 dark:border-slate-800 pt-8">
+<h3 class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-[0.2em]">Style Features</h3>
+<div class="flex flex-wrap justify-center gap-6">
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-primary/60 dark:text-slate-400">palette</span>
+<span class="text-xs text-slate-500">Soft Tones</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-primary/60 dark:text-slate-400">auto_awesome</span>
+<span class="text-xs text-slate-500">Glow Filter</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-primary/60 dark:text-slate-400">check_circle</span>
+<span class="text-xs text-slate-500">HD Detail</span>
+</div>
+</div>
+</div>
+</div>
+<div class="h-12 bg-background-light dark:bg-background-dark"></div>
+</div>
+</body></html>

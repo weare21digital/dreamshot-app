@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#19194d",
+                "gold-accent": "#c5a059",
+                "background-light": "#fdfaf1",
+                "background-dark": "#14141e",
+              },
+              fontFamily: {
+                "display": ["Newsreader", "serif"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<title>Royal Portrait Gallery</title>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-primary">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<!-- Header Section -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10 border-b border-primary/10">
+<div class="text-primary dark:text-slate-100 flex size-12 shrink-0 items-center">
+<span class="material-symbols-outlined text-3xl">menu</span>
+</div>
+<h2 class="text-primary dark:text-slate-100 text-2xl font-bold leading-tight tracking-tight flex-1 text-center">Royal Gallery</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-transparent text-primary dark:text-slate-100 p-0">
+<span class="material-symbols-outlined text-2xl">search</span>
+</button>
+</div>
+</div>
+<!-- Filter Tabs -->
+<div class="pb-1 bg-background-light dark:bg-background-dark">
+<div class="flex border-b border-primary/10 px-4 gap-8 justify-center">
+<a class="flex flex-col items-center justify-center border-b-[3px] border-primary text-primary dark:text-slate-100 pb-[13px] pt-4" href="#">
+<p class="text-sm font-bold leading-normal tracking-wide">All Creations</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-transparent text-primary/60 dark:text-slate-400 pb-[13px] pt-4 hover:text-primary" href="#">
+<p class="text-sm font-bold leading-normal tracking-wide">Portraits</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-transparent text-primary/60 dark:text-slate-400 pb-[13px] pt-4 hover:text-primary" href="#">
+<p class="text-sm font-bold leading-normal tracking-wide">Cinematics</p>
+</a>
+</div>
+</div>
+<!-- Gallery Grid -->
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 mb-20">
+<!-- Item 1: Portrait -->
+<div class="relative group cursor-pointer overflow-hidden rounded-xl border-2 border-gold-accent/20 hover:border-gold-accent transition-all">
+<div class="bg-cover bg-center flex flex-col gap-3 aspect-[3/4] transition-transform duration-500 group-hover:scale-105" data-alt="Victorian style noble portrait with gold frame" style='background-image: linear-gradient(0deg, rgba(25, 25, 77, 0.6) 0%, rgba(0, 0, 0, 0) 40%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuB5hKoPFRAyJLbDrkeqw_TvebrQh61pQAOB9I8AsH82hD1sbF0xKyGguDnxtyOPkI90WjQtV8RWVvQHN94jMEci9mYQEjWReO7oG9E9fPKM48x25l0er75sYuq2tP3KCz4yqMPRA-Ug8yk2ULjQTzNlifSbk1pDOuW9DHxjTfZIwmJ68zIeqfObHaw75o0B9uJbm41ob-nLG6K1USUFQJ3p2S8sw4YY_urBSuArZyQrcB-nt0usYAum9hPnBswpfdewvbkyifIRy-A");'>
+</div>
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-primary/90 p-1.5 rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary dark:text-gold-accent text-sm">photo_camera</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3">
+<p class="text-white text-sm font-semibold truncate">Duke of Wellington</p>
+</div>
+</div>
+<!-- Item 2: Video -->
+<div class="relative group cursor-pointer overflow-hidden rounded-xl border-2 border-gold-accent/20 hover:border-gold-accent transition-all">
+<div class="bg-cover bg-center flex flex-col gap-3 aspect-[3/4] transition-transform duration-500 group-hover:scale-105" data-alt="Cinematic moving portrait of a queen" style='background-image: linear-gradient(0deg, rgba(25, 25, 77, 0.6) 0%, rgba(0, 0, 0, 0) 40%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuAJVD3Fmzxjho4mmAhrFsN1tTtq075T17uK1pco3NJKiKnSuFX92Sn_D4Zoh4mCH6e2X_uM72ou-8vGO4qjlV6xwPgPsb6DoMv4CdEmuYn_NiWlatL4HT7fe3vfpJN82dJ2QAvP8ugKoRA_WDr7sZgMHJfNXj5wZ88zyJu2nAq3uwoD9OanmjIwCvLHoIyA8Nnhvb9GGPCSTBq2gohE-ScP0BZJe140Z4ZgT2qc0hDpXmiRXQ6MsCUI8PN3COXaOGKtBRGcV5ShObQ");'>
+</div>
+<div class="absolute top-3 right-3 bg-gold-accent p-1.5 rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-white text-sm">videocam</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3">
+<p class="text-white text-sm font-semibold truncate">Royal Coronation</p>
+</div>
+</div>
+<!-- Item 3: Portrait -->
+<div class="relative group cursor-pointer overflow-hidden rounded-xl border-2 border-gold-accent/20 hover:border-gold-accent transition-all">
+<div class="bg-cover bg-center flex flex-col gap-3 aspect-[3/4] transition-transform duration-500 group-hover:scale-105" data-alt="Renaissance style merchant portrait" style='background-image: linear-gradient(0deg, rgba(25, 25, 77, 0.6) 0%, rgba(0, 0, 0, 0) 40%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuAALhl1_gUh9S-KedYiCJgpFYuvbpiNhOOi4FDNPp88jPMZnvB_-RFJwbZXuQMHljA0CPKOy6aP5qL8zLHZ_10GY4vdd8RPzMS_RWcvjrhNOIvMNaEzRJPUZVV3nXZ2h9BH8C_IWMvcndGjK7A9NOansEFOZYgqrlXzxbIN_ryhlCB9FNvq5e3RoIjBYMBa8Bi3VQNJpIWOhunTD97C3SeVziPZmCNDdlCGJenehi3tw3Ssg7o9wAzzSmbQBtUYa5eQBLxvs28JglA");'>
+</div>
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-primary/90 p-1.5 rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary dark:text-gold-accent text-sm">photo_camera</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3">
+<p class="text-white text-sm font-semibold truncate">Merchant King</p>
+</div>
+</div>
+<!-- Item 4: Video -->
+<div class="relative group cursor-pointer overflow-hidden rounded-xl border-2 border-gold-accent/20 hover:border-gold-accent transition-all">
+<div class="bg-cover bg-center flex flex-col gap-3 aspect-[3/4] transition-transform duration-500 group-hover:scale-105" data-alt="Animated historical battle scene background" style='background-image: linear-gradient(0deg, rgba(25, 25, 77, 0.6) 0%, rgba(0, 0, 0, 0) 40%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuB-BpzwVFDih52WMRlNbeFZMNjTY27__IPPUICzPMFSH1kaRns65DGa8vsaaY1B3izrpl-mCdrJ5ZE0YeLIKP6NbqHLIVkcHlXc0f0au9_ylSHZwqUj9H90p1nm4oyGtgLIl3PRVwMUWn65xUzHAk--XkQFmi38HTDZpmhIoGN-ucjuxq9O5k51XADBwb-lff2Tcc6SVZHqVtgKtoUusUTOd_w6PjSEKqxLucz_0JvY6IvhQwFzY_mO34z_snmxfavBTuJt7KPyXWY");'>
+</div>
+<div class="absolute top-3 right-3 bg-gold-accent p-1.5 rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-white text-sm">videocam</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3">
+<p class="text-white text-sm font-semibold truncate">Battle of Gentry</p>
+</div>
+</div>
+<!-- Item 5: Portrait -->
+<div class="relative group cursor-pointer overflow-hidden rounded-xl border-2 border-gold-accent/20 hover:border-gold-accent transition-all">
+<div class="bg-cover bg-center flex flex-col gap-3 aspect-[3/4] transition-transform duration-500 group-hover:scale-105" data-alt="Classical oil painting of a noblewoman" style='background-image: linear-gradient(0deg, rgba(25, 25, 77, 0.6) 0%, rgba(0, 0, 0, 0) 40%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuC_ufjJnTbXF01LeUMMZzlpsG5_QaDO_zAFNBAIZ_EehypCi_NnbuTK0PqSJ-7hgs2OOr-87PYuoqgT0CYLGTXHxT6BEO1z4ca8M_wXy1mjjcu9e-OpWMuFUmGmcYx8X00sW3l7b4NdCtx-wetOwAInb58t7_sniVXAIXoYhZqWkq5TrPedEBwDON9qfD5uWoPH4olqLKGiE_7fJkvYfMqspWuvMbIzugDRUwH-u2H29-KJrqWblhKE6l2MlVe67M-ylfotauLnYpo");'>
+</div>
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-primary/90 p-1.5 rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary dark:text-gold-accent text-sm">photo_camera</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3">
+<p class="text-white text-sm font-semibold truncate">The Empress</p>
+</div>
+</div>
+<!-- Item 6: Video -->
+<div class="relative group cursor-pointer overflow-hidden rounded-xl border-2 border-gold-accent/20 hover:border-gold-accent transition-all">
+<div class="bg-cover bg-center flex flex-col gap-3 aspect-[3/4] transition-transform duration-500 group-hover:scale-105" data-alt="Short film snippet of a royal ball" style='background-image: linear-gradient(0deg, rgba(25, 25, 77, 0.6) 0%, rgba(0, 0, 0, 0) 40%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuAk81pMIn7-NoPjZzQvuS6lAFro0BCoHht-gVOCRbkxQELKvMCKyiqLt2AIAVB2ft4h_2W4hnONnDMt8-wQhAhZoC7w_Vw97oswJY3KQp5rQiPVe1YsBSBvk8EZZCHAHcH_KrRKvmKCVG8n51s4EQ-OEfeP5Hc-q1p_WPkbht7o3M6d4wTsSbxRq6FyYxd2RAJLythAP7DcDkhwXDq_W6fL81y6eadoy4G92iOG-rNK8coHuiuqiJTWyPGgypj3kTqs_hndxFPzdl4");'>
+</div>
+<div class="absolute top-3 right-3 bg-gold-accent p-1.5 rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-white text-sm">videocam</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3">
+<p class="text-white text-sm font-semibold truncate">Evening Gala</p>
+</div>
+</div>
+</div>
+<!-- Quick Actions Grid -->
+<div class="grid grid-cols-2 gap-3 p-4 bg-primary/5">
+<div class="flex flex-1 gap-3 rounded-xl border border-gold-accent/30 bg-white/50 dark:bg-primary/20 p-4 items-center cursor-pointer hover:bg-white transition-colors">
+<div class="text-primary flex items-center">
+<span class="material-symbols-outlined">add_photo_alternate</span>
+</div>
+<h2 class="text-primary text-base font-bold leading-tight">New Portrait</h2>
+</div>
+<div class="flex flex-1 gap-3 rounded-xl border border-gold-accent/30 bg-white/50 dark:bg-primary/20 p-4 items-center cursor-pointer hover:bg-white transition-colors">
+<div class="text-primary flex items-center">
+<span class="material-symbols-outlined">movie_edit</span>
+</div>
+<h2 class="text-primary text-base font-bold leading-tight">Create Video</h2>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<div class="fixed bottom-0 w-full flex gap-2 border-t border-primary/10 bg-background-light dark:bg-background-dark px-4 pb-6 pt-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary/40 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">home</span>
+<p class="text-[10px] font-bold leading-normal tracking-wide">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary dark:text-gold-accent" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">gallery_thumbnail</span>
+<p class="text-[10px] font-bold leading-normal tracking-wide">Gallery</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary/40 dark:text-slate-500" href="#">
+<div class="bg-primary text-white p-2 rounded-full -mt-6 shadow-lg border-4 border-background-light">
+<span class="material-symbols-outlined">auto_fix_high</span>
+</div>
+<p class="text-[10px] font-bold leading-normal tracking-wide">Magic</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary/40 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">settings_cinematic_blur</span>
+<p class="text-[10px] font-bold leading-normal tracking-wide">Tools</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary/40 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">person</span>
+<p class="text-[10px] font-bold leading-normal tracking-wide">Profile</p>
+</a>
+</div>
+</div>
+</body></html>

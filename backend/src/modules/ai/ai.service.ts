@@ -1,0 +1,417 @@
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ReplaceBackgroundDto } from './dto/replace-background.dto';
+import { VideoSubmitDto } from './dto/video-generation.dto';
+import { VideoPortraitDto } from './dto/video-portrait.dto';
+
+@Injectable()
+export class AiService {
+  private readonly imageModel = process.env.FAL_IMAGE_MODEL || 'fal-ai/pulid';
+
+  /** Upload a base64 image to fal.ai CDN and return the hosted URL */
+  private async uploadToFal(base64: string, mimeType: string): Promise<string> {
+    const apiKey = this.getFalApiKey();
+    const buffer = Buffer.from(base64, 'base64');
+    const ext = mimeType.includes('png') ? 'png' : 'jpg';
+
+    const initResponse = await fetch('https://rest.alpha.fal.ai/storage/upload/initiate', {
+      method: 'POST',
+      headers: {
+        Authorization: `Key ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        file_name: `input.${ext}`,
+        content_type: mimeType,
+      }),
+    });
+
+    if (!initResponse.ok) {
+      console.log('[uploadToFal] init failed:', initResponse.status, await initResponse.text().catch(() => ''));
+      // Fallback: try data URI directly
+      return `data:${mimeType};base64,${base64}`;
+    }
+
+    const initData = (await initResponse.json()) as { upload_url?: string; file_url?: string };
+    if (!initData.upload_url || !initData.file_url) {
+      return `data:${mimeType};base64,${base64}`;
+    }
+
+    const uploadResponse = await fetch(initData.upload_url, {
+      method: 'PUT',
+      headers: { 'Content-Type': mimeType },
+      body: buffer,
+    });
+
+    if (!uploadResponse.ok) {
+      console.log('[uploadToFal] upload failed:', uploadResponse.status);
+      return `data:${mimeType};base64,${base64}`;
+    }
+
+    console.log('[uploadToFal] success:', initData.file_url);
+    return initData.file_url;
+  }
+
+  private readonly styleSuffixMap: Record<string, string> = {
+    realistic: 'photorealistic, natural skin tones, lifelike details, realistic camera optics',
+    anime: 'anime style, cel-shaded, clean line art, vibrant colors, high detail',
+    cinematic: 'cinematic lighting, dramatic contrast, film-like color grading, high dynamic range',
+    illustration: 'digital illustration style, painterly texture, stylized but clear subject separation',
+    fantasy: 'fantasy art style, magical atmosphere, rich colors, ethereal lighting',
+    studio: 'clean studio look, professional softbox lighting, polished commercial style',
+  };
+
+  async submitImageGeneration(dto: ReplaceBackgroundDto): Promise<{
+    requestId: string;
+    status: string;
+    statusUrl?: string;
+    responseUrl?: string;
+    cancelUrl?: string;
+  }> {
+    const imageBase64 = dto.imageBase64?.trim();
+    if (!imageBase64) {
+      throw new BadRequestException('imageBase64 is required');
+    }
+
+    const mimeType = dto.mimeType || 'image/jpeg';
+    const apiKey = this.getFalApiKey();
+    const imageUrl = await this.uploadToFal(imageBase64, mimeType);
+
+    const stylePreset = dto.stylePreset || 'realistic';
+    const styleSuffix = this.styleSuffixMap[stylePreset] || this.styleSuffixMap.realistic;
+
+    const prompt = `${dto.prompt}. ${styleSuffix}. High quality royal portrait painting, single person, anatomically correct, two arms only.`;
+
+    const response = await fetch(`https://queue.fal.run/${this.imageModel}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Key ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        reference_images: [{ image_url: imageUrl }],
+        prompt,
+        negative_prompt: 'extra arms, extra hands, extra fingers, extra limbs, multiple arms, four arms, 3 arms, duplicate limbs, fused limbs, malformed hands, bad anatomy, flaws in the eyes, flaws in the face, lowres, low quality, worst quality, artifacts, noise, text, watermark, glitch, deformed, mutated, ugly, disfigured, blurry, modern clothing, t-shirt, casual wear',
+        num_images: 1,
+        guidance_scale: 1.2,
+        num_inference_steps: 12,
+        image_size: { width: 1024, height: 1536 },
+        id_scale: 0.8,
+        mode: 'fidelity',
+      }),
+    });
+
+    const data = (await response.json()) as {
+      request_id?: string;
+      status?: string;
+      status_url?: string;
+      response_url?: string;
+      cancel_url?: string;
+      detail?: string;
+    };
+
+    console.log('[submitImage] fal response:', response.status, JSON.stringify(data).slice(0, 300));
+
+    if (!response.ok || !data.request_id) {
+      throw new InternalServerErrorException(data?.detail || 'Failed to submit image generation');
+    }
+
+    return {
+      requestId: data.request_id,
+      status: data.status || 'IN_QUEUE',
+      statusUrl: data.status_url,
+      responseUrl: data.response_url,
+      cancelUrl: data.cancel_url,
+    };
+  }
+
+  async getImageStatus(requestId: string, statusUrl?: string): Promise<{ status: string }> {
+    if (!statusUrl) {
+      return { status: 'FAILED' };
+    }
+    const apiKey = this.getFalApiKey();
+
+    const response = await fetch(statusUrl, {
+      method: 'GET',
+      headers: { Authorization: `Key ${apiKey}` },
+    });
+
+    const text = await response.text();
+    let data: { status?: string; detail?: string };
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new InternalServerErrorException(`Unexpected fal.ai response: ${text.slice(0, 200)}`);
+    }
+
+    if (!response.ok || !data.status) {
+      throw new InternalServerErrorException(data?.detail || 'Failed to check image status');
+    }
+
+    return { status: data.status };
+  }
+
+  async getImageResult(requestId: string, responseUrl?: string): Promise<{ imageUrl: string }> {
+    if (!responseUrl) {
+      throw new InternalServerErrorException('No response URL available for this job');
+    }
+    const apiKey = this.getFalApiKey();
+
+    const response = await fetch(responseUrl, {
+      method: 'GET',
+      headers: { Authorization: `Key ${apiKey}` },
+    });
+
+    const text = await response.text();
+    let data: {
+      images?: Array<{ url?: string }>;
+      detail?: string;
+    };
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new InternalServerErrorException(`Unexpected fal.ai response: ${text.slice(0, 200)}`);
+    }
+
+    const imageUrl = data?.images?.[0]?.url;
+
+    if (!response.ok || !imageUrl) {
+      throw new InternalServerErrorException(data?.detail || 'Failed to retrieve image result');
+    }
+
+    return { imageUrl };
+  }
+
+  async cancelImageGeneration(requestId: string): Promise<{ cancelled: boolean }> {
+    const apiKey = this.getFalApiKey();
+
+    const response = await fetch(`https://queue.fal.run/${this.imageModel}/requests/${requestId}/cancel`, {
+      method: 'PUT',
+      headers: { Authorization: `Key ${apiKey}` },
+    });
+
+    return { cancelled: response.ok };
+  }
+
+  // ---------- Video Generation (fal.ai) ----------
+
+  private readonly videoModel = process.env.FAL_VIDEO_MODEL || 'fal-ai/wan/v2.2-5b/image-to-video';
+
+  private getFalApiKey(): string {
+    const key = process.env.FAL_API_KEY;
+    if (!key) {
+      throw new InternalServerErrorException('FAL_API_KEY is not configured on backend');
+    }
+    return key;
+  }
+
+  async submitVideoGeneration(dto: VideoSubmitDto): Promise<{
+    requestId: string;
+    status: string;
+    statusUrl?: string;
+    responseUrl?: string;
+    cancelUrl?: string;
+  }> {
+    const apiKey = this.getFalApiKey();
+    const mimeType = dto.mimeType || 'image/jpeg';
+    const imageDataUri = `data:${mimeType};base64,${dto.imageBase64}`;
+
+    const response = await fetch(`https://queue.fal.run/${this.videoModel}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Key ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        image_url: imageDataUri,
+        prompt: dto.prompt,
+      }),
+    });
+
+    const data = (await response.json()) as {
+      request_id?: string;
+      status?: string;
+      status_url?: string;
+      response_url?: string;
+      cancel_url?: string;
+      detail?: string;
+    };
+
+    if (!response.ok || !data.request_id) {
+      throw new InternalServerErrorException(data?.detail || 'Failed to submit video generation');
+    }
+
+    return {
+      requestId: data.request_id,
+      status: data.status || 'IN_QUEUE',
+      statusUrl: data.status_url,
+      responseUrl: data.response_url,
+      cancelUrl: data.cancel_url,
+    };
+  }
+
+  async getVideoStatus(requestId: string, statusUrl?: string): Promise<{ status: string }> {
+    // debug log removed — too noisy during polling
+    // If no statusUrl provided, this is a pre-fix job — just return FAILED so the client stops polling
+    if (!statusUrl) {
+      return { status: 'FAILED' };
+    }
+    const apiKey = this.getFalApiKey();
+
+    const response = await fetch(statusUrl, {
+      method: 'GET',
+      headers: { Authorization: `Key ${apiKey}` },
+    });
+
+    const text = await response.text();
+    let data: { status?: string; detail?: string };
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new InternalServerErrorException(`Unexpected fal.ai response: ${text.slice(0, 200)}`);
+    }
+
+    if (!response.ok || !data.status) {
+      throw new InternalServerErrorException(data?.detail || 'Failed to check video status');
+    }
+
+    return { status: data.status };
+  }
+
+  async getVideoResult(requestId: string, responseUrl?: string): Promise<{ videoUrl: string }> {
+    if (!responseUrl) {
+      throw new InternalServerErrorException('No response URL available for this job');
+    }
+    const apiKey = this.getFalApiKey();
+
+    const response = await fetch(responseUrl, {
+      method: 'GET',
+      headers: { Authorization: `Key ${apiKey}` },
+    });
+
+    const text = await response.text();
+    let data: {
+      video?: { url?: string };
+      output?: { video?: { url?: string } };
+      detail?: string;
+    };
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new InternalServerErrorException(`Unexpected fal.ai response: ${text.slice(0, 200)}`);
+    }
+
+    const videoUrl = data?.video?.url || data?.output?.video?.url;
+
+    if (!response.ok || !videoUrl) {
+      throw new InternalServerErrorException(data?.detail || 'Failed to retrieve video result');
+    }
+
+    return { videoUrl };
+  }
+
+  async cancelVideoGeneration(requestId: string): Promise<{ cancelled: boolean }> {
+    const apiKey = this.getFalApiKey();
+
+    const response = await fetch(`https://queue.fal.run/${this.videoModel}/requests/${requestId}/cancel`, {
+      method: 'PUT',
+      headers: { Authorization: `Key ${apiKey}` },
+    });
+
+    return { cancelled: response.ok };
+  }
+
+  // ---------- Portrait-to-Video Pipeline (PuLID → Wan) ----------
+
+  async submitPortraitVideo(dto: VideoPortraitDto): Promise<{
+    requestId: string;
+    status: string;
+    statusUrl?: string;
+    responseUrl?: string;
+    portraitUrl?: string;
+  }> {
+    const imageBase64 = dto.imageBase64?.trim();
+    if (!imageBase64) {
+      throw new BadRequestException('imageBase64 is required');
+    }
+
+    const mimeType = dto.mimeType || 'image/jpeg';
+    const apiKey = this.getFalApiKey();
+    const imageUrl = await this.uploadToFal(imageBase64, mimeType);
+
+    const stylePreset = dto.stylePreset || 'realistic';
+    const styleSuffix = this.styleSuffixMap[stylePreset] || this.styleSuffixMap.realistic;
+
+    // Step 1: Generate portrait with PuLID (synchronous call)
+    const portraitPrompt = `${dto.prompt}. ${styleSuffix}. High quality royal portrait painting, single person, anatomically correct, two arms only.`;
+
+    const portraitResponse = await fetch(`https://fal.run/${this.imageModel}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Key ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        reference_images: [{ image_url: imageUrl }],
+        prompt: portraitPrompt,
+        negative_prompt: 'extra arms, extra hands, extra fingers, extra limbs, multiple arms, four arms, 3 arms, duplicate limbs, fused limbs, malformed hands, bad anatomy, flaws in the eyes, flaws in the face, lowres, low quality, worst quality, artifacts, noise, text, watermark, glitch, deformed, mutated, ugly, disfigured, blurry, modern clothing, t-shirt, casual wear',
+        num_images: 1,
+        guidance_scale: 1.2,
+        num_inference_steps: 12,
+        image_size: { width: 1024, height: 1536 },
+        id_scale: 0.8,
+        mode: 'fidelity',
+      }),
+    });
+
+    const portraitText = await portraitResponse.text();
+    let portraitData: { images?: Array<{ url?: string }>; detail?: string };
+    try {
+      portraitData = JSON.parse(portraitText);
+    } catch {
+      throw new InternalServerErrorException(`Unexpected fal.ai portrait response: ${portraitText.slice(0, 200)}`);
+    }
+
+    if (!portraitResponse.ok) {
+      throw new InternalServerErrorException(portraitData?.detail || `Portrait generation failed (${portraitResponse.status})`);
+    }
+
+    const portraitUrl = portraitData?.images?.[0]?.url;
+    if (!portraitUrl) {
+      throw new InternalServerErrorException('Portrait generation returned no image');
+    }
+
+    // Step 2: Submit portrait to video generation queue (Wan)
+    const videoResponse = await fetch(`https://queue.fal.run/${this.videoModel}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Key ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        image_url: portraitUrl,
+        prompt: dto.videoPrompt,
+      }),
+    });
+
+    const videoData = (await videoResponse.json()) as {
+      request_id?: string;
+      status?: string;
+      status_url?: string;
+      response_url?: string;
+      cancel_url?: string;
+      detail?: string;
+    };
+
+    if (!videoResponse.ok || !videoData.request_id) {
+      throw new InternalServerErrorException(videoData?.detail || 'Failed to submit video generation');
+    }
+
+    return {
+      requestId: videoData.request_id,
+      status: videoData.status || 'IN_QUEUE',
+      statusUrl: videoData.status_url,
+      responseUrl: videoData.response_url,
+      portraitUrl,
+    };
+  }
+}

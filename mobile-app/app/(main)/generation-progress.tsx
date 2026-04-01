@@ -1,0 +1,395 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Text } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ROYAL_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
+import { useGenerationJob, useGeneratePhoto, useGenerateVideo } from '../../src/features/royal';
+import { useAppTheme } from '../../src/contexts/ThemeContext';
+
+const GOLD = '#C9A84C';
+const NAVY = '#1A1A4E';
+
+const REGENCY_QUOTES = [
+  'Every diamond must endure pressure before it shines...',
+  'The Queen demands perfection. Please wait...',
+  'A true portrait captures not just the face, but the soul...',
+  'Patience is the companion of wisdom...',
+  'Great beauty requires great patience...',
+  'The artist is at work on your likeness...',
+  'Elegance is the only beauty that never fades...',
+  'Your Majesty, the court painter requests a moment more...',
+  'A masterpiece cannot be rushed...',
+  'The finest things in life are worth the wait...',
+  'Poise, grace, and patience — the marks of true royalty...',
+  'The royal atelier is preparing your portrait...',
+  'Even the crown jewels took time to polish...',
+  'Rome was not built in a day, nor a royal portrait in a moment...',
+  'Your likeness is being rendered with the utmost care...',
+  'A noble portrait is painted stroke by patient stroke...',
+  'Courtly splendor takes time to perfect...',
+  'The finishing touches are being applied with great care...',
+];
+
+type ProgressStage = {
+  key: 'queued' | 'processing' | 'finalizing';
+  label: string;
+  detail: string;
+  percent: number;
+};
+
+export default function GenerationProgressScreen(): React.JSX.Element {
+  const { styleId, mode, imageUri, animStyle } = useLocalSearchParams<{ styleId?: string; mode?: 'photo' | 'video'; imageUri?: string; animStyle?: string }>();
+  const style = (styleId && ROYAL_STYLE_PRESETS_BY_ID[styleId]) || Object.values(ROYAL_STYLE_PRESETS_BY_ID)[0];
+  const generationMode = mode ?? 'photo';
+
+  const { submitPhoto, cancelPhoto, isSubmitting: isPhotoSubmitting } = useGeneratePhoto();
+  const { submitVideo, cancelVideo, isSubmitting: isVideoSubmitting } = useGenerateVideo();
+  const { jobs } = useGenerationJob();
+  const { palette, brand } = useAppTheme();
+  const isDark = palette.background === '#121316';
+  const styles = React.useMemo(() => createStyles(palette, brand, isDark), [palette, brand, isDark]);
+
+  const [requestId, setRequestId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [startedAt, setStartedAt] = useState<number>(Date.now());
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [quoteIndex, setQuoteIndex] = useState(() => Math.floor(Math.random() * REGENCY_QUOTES.length));
+  const quoteOpacity = useRef(new Animated.Value(1)).current;
+  const didStartRef = useRef(false);
+
+  const activeJob = useMemo(() => {
+    if (!requestId) return undefined;
+    return jobs.find((job) => job.requestId === requestId);
+  }, [jobs, requestId]);
+
+  useEffect(() => {
+    if (didStartRef.current) return;
+    didStartRef.current = true;
+
+    const sourceImageUri = imageUri || style.exampleImageUrl;
+
+    const run = async (): Promise<void> => {
+      try {
+        setErrorMessage(null);
+
+        if (generationMode === 'video') {
+          const id = await submitVideo({ imageUri: sourceImageUri, style, animStyleId: animStyle });
+          setRequestId(id);
+          setStartedAt(Date.now());
+        } else {
+          const id = await submitPhoto({ imageUri: sourceImageUri, style });
+          setRequestId(id);
+          setStartedAt(Date.now());
+        }
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Generation failed. Please try again.');
+      }
+    };
+
+    void run();
+  }, [generationMode, imageUri, style, submitPhoto, submitVideo, retryCount]);
+
+  useEffect(() => {
+    if (!activeJob) return;
+
+    if (activeJob.status === 'completed' && activeJob.outputUrl) {
+      router.replace({
+        pathname: '/(main)/result',
+        params: { styleId: style.id, mode: generationMode, outputUrl: activeJob.outputUrl },
+      });
+      return;
+    }
+
+    if (activeJob.status === 'failed') {
+      setErrorMessage(activeJob.errorMessage ?? 'Generation failed. Please try again.');
+    }
+  }, [activeJob, generationMode, style.id]);
+
+  const busy = isPhotoSubmitting || isVideoSubmitting || (!!activeJob && (activeJob.status === 'queued' || activeJob.status === 'processing'));
+
+  useEffect(() => {
+    if (!busy) return;
+
+    const timer = setInterval(() => {
+      setElapsedSeconds(Math.max(0, Math.floor((Date.now() - startedAt) / 1000)));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [busy, startedAt]);
+
+  useEffect(() => {
+    if (!busy || !!errorMessage) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      Animated.timing(quoteOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setQuoteIndex((prev) => {
+          if (REGENCY_QUOTES.length <= 1) {
+            return prev;
+          }
+
+          const next = (prev + 1 + Math.floor(Math.random() * (REGENCY_QUOTES.length - 1))) % REGENCY_QUOTES.length;
+          return next;
+        });
+
+        Animated.timing(quoteOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [busy, errorMessage, quoteOpacity]);
+
+  const isQueued = activeJob?.status === 'queued';
+  const isProcessing = activeJob?.status === 'processing';
+  const canCancel = isQueued && requestId != null;
+  const expectedWindow = generationMode === 'video' ? { min: 40, max: 90 } : { min: 20, max: 45 };
+
+  const currentStage: ProgressStage = useMemo(() => {
+    if (errorMessage) {
+      return {
+        key: 'queued',
+        label: 'Needs your attention',
+        detail: errorMessage,
+        percent: 100,
+      };
+    }
+
+    if (isQueued) {
+      return {
+        key: 'queued',
+        label: 'Queued for processing',
+        detail: 'You are in line. We will start painting shortly.',
+        percent: 18,
+      };
+    }
+
+    if (isProcessing && elapsedSeconds >= expectedWindow.min) {
+      return {
+        key: 'finalizing',
+        label: 'Final touches',
+        detail: 'Sharpening details and preparing your final portrait.',
+        percent: 88,
+      };
+    }
+
+    if (isProcessing) {
+      return {
+        key: 'processing',
+        label: 'Painting in progress',
+        detail: 'Artists are applying your selected royal style now.',
+        percent: 62,
+      };
+    }
+
+    return {
+      key: 'queued',
+      label: 'Preparing request',
+      detail: 'Uploading your image and reserving an artist slot.',
+      percent: 10,
+    };
+  }, [elapsedSeconds, errorMessage, expectedWindow.min, isProcessing, isQueued]);
+
+  const phaseIndex = currentStage.key === 'queued' ? 0 : currentStage.key === 'processing' ? 1 : 2;
+
+  const elapsedLabel = `${Math.floor(elapsedSeconds / 60)}:${String(elapsedSeconds % 60).padStart(2, '0')}`;
+
+  const etaText = errorMessage
+    ? errorMessage
+    : `Elapsed ${elapsedLabel} · Usually ${expectedWindow.min}-${expectedWindow.max}s for ${generationMode === 'video' ? 'video' : 'photo'} generation`;
+
+  const handleCancel = () => {
+    if (requestId) {
+      if (generationMode === 'video') {
+        void cancelVideo(requestId);
+      } else {
+        void cancelPhoto(requestId);
+      }
+    }
+  };
+
+  const handleBackPress = () => {
+    router.back();
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scroll} bounces={false}>
+        <View style={styles.topBar}>
+          <Pressable onPress={handleBackPress} style={styles.iconBtn} testID="generation-back">
+            <Text style={styles.icon}>←</Text>
+          </Pressable>
+          <Text style={styles.brand}>ROYAL PORTRAIT</Text>
+          <View style={styles.iconBtn} />
+        </View>
+
+        <View style={styles.frameWrap}>
+          <View style={styles.frame}>
+            <Text style={styles.corner}>✦</Text>
+            <Text style={[styles.corner, styles.cornerRight]}>✦</Text>
+            <Text style={[styles.corner, styles.cornerBottom]}>✦</Text>
+            <Text style={[styles.corner, styles.cornerBottomRight]}>✦</Text>
+            <View style={styles.canvas}>{busy ? <ActivityIndicator size="large" color={brand.accent} /> : <Text style={styles.brush}>🖌️</Text>}</View>
+          </View>
+        </View>
+
+        <View style={styles.copyWrap}>
+          <Text style={styles.title}>Your portrait is being painted by the finest artists...</Text>
+          <Text style={styles.subTitle}>Our master painters are meticulously crafting every detail for {style.title}.</Text>
+        </View>
+
+        <View style={styles.progressWrap}>
+          <View style={styles.progressHeader}>
+            <View>
+              <Text style={styles.phaseLabel}>CURRENT PHASE</Text>
+              <Text style={styles.phaseValue}>{currentStage.label}</Text>
+            </View>
+            <Text style={styles.percent}>{errorMessage ? '—' : `${currentStage.percent}%`}</Text>
+          </View>
+
+          <View style={styles.stageRail}>
+            {['Queued', 'Painting', 'Finalizing'].map((label, index) => {
+              const reached = index <= phaseIndex;
+              const active = index === phaseIndex;
+              return (
+                <View key={label} style={styles.stageItem}>
+                  <View style={[styles.stageDot, reached ? styles.stageDotReached : null, active ? styles.stageDotActive : null]} />
+                  <Text style={[styles.stageText, reached ? styles.stageTextReached : null]}>{label}</Text>
+                </View>
+              );
+            })}
+          </View>
+
+          <View style={styles.track}>
+            <View style={[styles.fill, { width: `${currentStage.percent}%` }, errorMessage ? styles.fillError : null]} />
+          </View>
+
+          <Text style={styles.eta}>{currentStage.detail}</Text>
+          <Text style={styles.etaSecondary}>{etaText}</Text>
+
+          {!errorMessage ? (
+            <Animated.View style={[styles.quoteWrap, { opacity: quoteOpacity }]}>
+              <Text style={styles.quoteText}>{REGENCY_QUOTES[quoteIndex]}</Text>
+            </Animated.View>
+          ) : null}
+        </View>
+
+        {canCancel && !errorMessage ? (
+          <Pressable testID="cancel-generation" style={styles.cancelBtn} onPress={handleCancel}>
+            <Text style={styles.cancelBtnText}>Cancel & Refund</Text>
+          </Pressable>
+        ) : null}
+
+        {errorMessage ? (
+          <Pressable
+            testID="retry-generation"
+            style={styles.primaryBtn}
+            onPress={() => {
+              didStartRef.current = false;
+              setRequestId(null);
+              setErrorMessage(null);
+              setRetryCount((c) => c + 1);
+              setElapsedSeconds(0);
+              setStartedAt(Date.now());
+            }}
+          >
+            <Text style={styles.primaryBtnText}>Retry Generation</Text>
+          </Pressable>
+        ) : null}
+
+        <View style={styles.footerGlyph}>
+          <Text style={styles.footerGlyphText}>✦</Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand: ReturnType<typeof useAppTheme>['brand'], isDark: boolean) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: palette.background },
+    scroll: { paddingHorizontal: 18, paddingBottom: 40 },
+    topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 6, paddingBottom: 12 },
+    iconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+    icon: { fontSize: 24, color: palette.text },
+    brand: { color: palette.text, fontSize: 14, fontWeight: '700', letterSpacing: 1.2 },
+    frameWrap: { alignItems: 'center' },
+    frame: {
+      width: '100%',
+      maxWidth: 280,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: brand.accent,
+      backgroundColor: palette.cardBackground,
+      padding: 16,
+    },
+    corner: { position: 'absolute', top: 8, left: 8, color: brand.accent, fontSize: 20 },
+    cornerRight: { left: undefined, right: 8 },
+    cornerBottom: { top: undefined, bottom: 8 },
+    cornerBottomRight: { top: undefined, left: undefined, right: 8, bottom: 8 },
+    canvas: {
+      aspectRatio: 1,
+      width: '100%',
+      borderRadius: 14,
+      borderWidth: 6,
+      borderColor: brand.accent,
+      backgroundColor: palette.surfaceVariant,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    brush: { fontSize: 48, opacity: 0.6 },
+    copyWrap: { marginTop: 14, alignItems: 'center' },
+    title: { color: palette.text, fontSize: 22, textAlign: 'center', fontFamily: 'serif', fontWeight: '700' },
+    subTitle: { marginTop: 6, color: palette.textSecondary, fontSize: 14, textAlign: 'center', lineHeight: 20 },
+    progressWrap: { marginTop: 16, gap: 6 },
+    progressHeader: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
+    phaseLabel: { fontSize: 11, color: palette.textSecondary, letterSpacing: 1.1, fontWeight: '700' },
+    phaseValue: { marginTop: 3, fontSize: 18, color: palette.text, fontWeight: '600' },
+    percent: { color: brand.accent, fontSize: 30, fontFamily: 'serif', fontStyle: 'italic', fontWeight: '700' },
+    stageRail: { marginTop: 8, flexDirection: 'row', justifyContent: 'space-between' },
+    stageItem: { flex: 1, alignItems: 'center' },
+    stageDot: { width: 10, height: 10, borderRadius: 999, backgroundColor: palette.border, marginBottom: 4 },
+    stageDotReached: { backgroundColor: brand.accent },
+    stageDotActive: { transform: [{ scale: 1.2 }] },
+    stageText: { fontSize: 11, color: palette.textSecondary },
+    stageTextReached: { color: palette.text, fontWeight: '700' },
+    track: { height: 12, borderRadius: 999, borderWidth: 1, borderColor: palette.border, backgroundColor: palette.surfaceVariant, padding: 1 },
+    fill: { height: '100%', borderRadius: 999, backgroundColor: brand.accent },
+    fillError: { backgroundColor: '#EF4444' },
+    eta: { textAlign: 'center', marginTop: 4, color: palette.text, fontSize: 13, fontWeight: '600' },
+    etaSecondary: { textAlign: 'center', marginTop: 2, color: palette.textSecondary, fontSize: 12 },
+    quoteWrap: { marginTop: 10, minHeight: 46, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 6 },
+    quoteText: { color: GOLD, fontSize: 15, textAlign: 'center', fontFamily: 'serif', fontStyle: 'italic', lineHeight: 22 },
+    cancelBtn: {
+      marginTop: 16,
+      height: 48,
+      borderRadius: 13,
+      borderWidth: 1.5,
+      borderColor: palette.border,
+      backgroundColor: palette.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    cancelBtnText: { color: palette.textSecondary, fontSize: 14, fontWeight: '600' },
+    primaryBtn: {
+      marginTop: 26,
+      height: 52,
+      borderRadius: 13,
+      backgroundColor: isDark ? GOLD : NAVY,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    primaryBtnText: { color: isDark ? '#1A1A2E' : '#FFFFFF', fontSize: 15, fontWeight: '700' },
+    footerGlyph: { alignItems: 'center', marginTop: 16 },
+    footerGlyphText: { color: brand.accent, fontSize: 22 },
+  });

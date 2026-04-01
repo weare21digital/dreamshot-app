@@ -1,0 +1,102 @@
+{
+  "expo": {
+    "name": "Royal Portrait",
+    "slug": "royalportrait",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icons/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/icons/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F5F3EF"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bvg.royalportrait",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "Allow camera access so you can take a photo for AI background editing.",
+        "NSPhotoLibraryUsageDescription": "Allow access to your photos so you can choose a picture for AI background editing.",
+        "NSPhotoLibraryAddUsageDescription": "Allow access to your photo library so you can save AI-edited images."
+      }
+    },
+    "android": {
+      "permissions": [
+        "com.android.vending.BILLING"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icons/adaptive-icon.png",
+        "backgroundColor": "#F5F3EF"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.bvg.royalportrait"
+    },
+    "web": {
+      "favicon": "./assets/icons/favicon.png"
+    },
+    "scheme": "com.bvg.royalportrait",
+    "intentFilters": [
+      {
+        "action": "VIEW",
+        "data": [
+          {
+            "scheme": "com.bvg.royalportrait"
+          }
+        ],
+        "category": [
+          "BROWSABLE",
+          "DEFAULT"
+        ]
+      }
+    ],
+    "plugins": [
+      "expo-router",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "kotlinVersion": "2.0.21"
+          }
+        }
+      ],
+      "react-native-iap",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icons/icon.png",
+          "color": "#1B1F5E"
+        }
+      ],
+      "expo-apple-authentication",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow access to your photos so you can choose a picture for AI background editing.",
+          "cameraPermission": "Allow camera access so you can take a photo for AI background editing."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow access to your photo library so you can save AI-edited images."
+        }
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.493446050347-j1tijand7is2d0ihn77a3hsa6kfn3oi8"
+        }
+      ],
+      "expo-video"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "78dfec1d-b667-4098-9889-e26967227324"
+      }
+    }
+  }
+}

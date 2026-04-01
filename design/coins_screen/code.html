@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19194d",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#14141e",
+                        "accent-gold": "#c5a059",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Newsreader', serif;
+        }
+        .ornate-border {
+            position: relative;
+            border: 1px solid #c5a059;
+        }
+        .ornate-border::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            border: 1px solid #c5a059;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header Navigation -->
+<header class="flex items-center justify-between p-4 bg-background-light dark:bg-background-dark border-b border-primary/10">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-primary/5">
+<span class="material-symbols-outlined text-primary dark:text-accent-gold">arrow_back</span>
+</button>
+<h2 class="text-xl font-display font-bold text-primary dark:text-slate-100 italic">Royal Portrait</h2>
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-primary/5">
+<span class="material-symbols-outlined text-primary dark:text-accent-gold">history</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto px-6 py-8">
+<!-- Current Balance Section -->
+<section class="text-center mb-12">
+<div class="inline-flex items-center justify-center p-3 mb-4 rounded-full bg-primary/5 dark:bg-accent-gold/10">
+<span class="material-symbols-outlined text-accent-gold text-4xl" style="font-variation-settings: 'FILL' 1">database</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm uppercase tracking-widest font-medium mb-2">Current Balance</p>
+<h1 class="text-6xl font-display font-bold text-primary dark:text-slate-100 italic">120 Coins</h1>
+<div class="mt-4 flex justify-center">
+<div class="h-0.5 w-16 bg-accent-gold"></div>
+</div>
+</section>
+<!-- Purchase Packs Title -->
+<div class="mb-6">
+<h3 class="text-lg font-display font-bold text-primary dark:text-slate-200">Purchase Coin Packs</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 italic">Enhance your gallery with royal tokens</p>
+</div>
+<!-- Coin Packs List -->
+<div class="space-y-4 pb-20">
+<!-- 100 Coins Pack -->
+<div class="ornate-border bg-white dark:bg-primary/20 p-6 rounded-lg flex items-center justify-between group cursor-pointer transition-all hover:shadow-lg">
+<div class="flex items-center gap-4">
+<div class="flex items-center justify-center size-12 rounded-full bg-accent-gold/10">
+<span class="material-symbols-outlined text-accent-gold" style="font-variation-settings: 'FILL' 1">stars</span>
+</div>
+<div>
+<h4 class="text-xl font-display font-bold text-primary dark:text-slate-100">100 Coins</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400 italic">The Squire's Pouch</p>
+</div>
+</div>
+<button class="bg-primary dark:bg-accent-gold text-white dark:text-primary px-6 py-2 rounded-full font-bold text-sm">
+                    $1.99
+                </button>
+</div>
+<!-- 500 Coins Pack -->
+<div class="ornate-border bg-white dark:bg-primary/20 p-6 rounded-lg flex items-center justify-between group cursor-pointer border-2 border-accent-gold transition-all hover:shadow-xl relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-accent-gold text-primary text-[10px] font-bold px-3 py-1 uppercase tracking-tighter rounded-bl-lg">Most Popular</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center justify-center size-12 rounded-full bg-accent-gold/10">
+<span class="material-symbols-outlined text-accent-gold" style="font-variation-settings: 'FILL' 1">diamond</span>
+</div>
+<div>
+<h4 class="text-xl font-display font-bold text-primary dark:text-slate-100">500 Coins</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400 italic">The Duke's Purse</p>
+</div>
+</div>
+<button class="bg-primary dark:bg-accent-gold text-white dark:text-primary px-6 py-2 rounded-full font-bold text-sm">
+                    $7.99
+                </button>
+</div>
+<!-- 1000 Coins Pack -->
+<div class="ornate-border bg-white dark:bg-primary/20 p-6 rounded-lg flex items-center justify-between group cursor-pointer transition-all hover:shadow-lg">
+<div class="flex items-center gap-4">
+<div class="flex items-center justify-center size-12 rounded-full bg-accent-gold/10">
+<span class="material-symbols-outlined text-accent-gold" style="font-variation-settings: 'FILL' 1">workspace_premium</span>
+</div>
+<div>
+<h4 class="text-xl font-display font-bold text-primary dark:text-slate-100">1000 Coins</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400 italic">The King's Treasury</p>
+</div>
+</div>
+<button class="bg-primary dark:bg-accent-gold text-white dark:text-primary px-6 py-2 rounded-full font-bold text-sm">
+                    $12.99
+                </button>
+</div>
+<!-- Decorative Element -->
+<div class="flex justify-center py-8">
+<div class="opacity-20 flex gap-2">
+<span class="material-symbols-outlined text-accent-gold">auto_awesome</span>
+<span class="material-symbols-outlined text-accent-gold">auto_awesome</span>
+<span class="material-symbols-outlined text-accent-gold">auto_awesome</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="sticky bottom-0 border-t border-primary/10 bg-background-light dark:bg-background-dark px-4 pb-6 pt-2">
+<div class="flex justify-between items-center max-w-md mx-auto">
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-400 hover:text-primary dark:hover:text-accent-gold" href="#">
+<span class="material-symbols-outlined">home</span>
+<p class="text-[10px] font-medium uppercase tracking-wider">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-400 hover:text-primary dark:hover:text-accent-gold" href="#">
+<span class="material-symbols-outlined">photo_library</span>
+<p class="text-[10px] font-medium uppercase tracking-wider">Gallery</p>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-primary dark:text-accent-gold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">database</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Coins</p>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-400 hover:text-primary dark:hover:text-accent-gold" href="#">
+<span class="material-symbols-outlined">person</span>
+<p class="text-[10px] font-medium uppercase tracking-wider">Portraits</p>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-400 hover:text-primary dark:hover:text-accent-gold" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<p class="text-[10px] font-medium uppercase tracking-wider">Profile</p>
+</a>
+</div>
+</nav>
+</body></html>

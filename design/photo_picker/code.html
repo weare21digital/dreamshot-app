@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Upload Selfie - Royal Portrait</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19194d",
+                        "accent-gold": "#d4af37",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#14141e",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden max-w-md mx-auto shadow-2xl">
+<div class="flex items-center p-4 pb-2 justify-between">
+<div class="text-primary dark:text-slate-100 flex size-12 shrink-0 items-center justify-start cursor-pointer">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</div>
+<h2 class="text-primary dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12 uppercase tracking-widest text-sm">Royal Portrait</h2>
+</div>
+<div class="flex flex-col items-center px-6 pt-8 pb-4">
+<h3 class="text-primary dark:text-slate-100 tracking-tight text-3xl font-bold leading-tight text-center">Frame Your Face</h3>
+<div class="h-1 w-12 bg-accent-gold mt-2 rounded-full"></div>
+</div>
+<div class="flex w-full grow @container p-6">
+<div class="relative w-full aspect-square overflow-hidden rounded-xl border-4 border-accent-gold/30 bg-slate-200 dark:bg-slate-800 shadow-inner flex items-center justify-center group">
+<div class="absolute inset-0 z-10 pointer-events-none border-[40px] border-black/20"></div>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+<div class="w-64 h-80 border-2 border-dashed border-accent-gold/60 rounded-[100px] flex items-center justify-center">
+<span class="material-symbols-outlined text-accent-gold/40 text-6xl">face</span>
+</div>
+</div>
+<div class="w-full h-full bg-center bg-no-repeat bg-cover flex items-center justify-center" data-alt="A portrait placeholder for a royal selfie frame" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAsRor1QlQnVvs7jLti612wYVrn0oqP4X7N2TVvj6qSOYiY4fQy0DkT84bvkDdAvlW1BUBLoiQjYxViqwjuyEo9u7gx1jjd5U5O3Rg7KCbJytJk5kdvhwGple9gxF-7yk11QJg9zBsKzRvSuTqZewqVdKbj3F02FVJ-RXRi5OZH7uo_fyMgdoMkBaad9qwiSLK-UCQbCxpijXFQaGUhQoLozTtli5apwSytsLotVVM-KKdwXh_4HNxnKnY0bGJhfMNFvua2kTZVIww");'>
+</div>
+<div class="absolute bottom-4 right-4 bg-primary/80 backdrop-blur-sm text-accent-gold p-2 rounded-full">
+<span class="material-symbols-outlined">photo_camera_front</span>
+</div>
+</div>
+</div>
+<div class="px-8 text-center">
+<p class="text-slate-600 dark:text-slate-400 text-base font-normal leading-relaxed">
+                Position your face within the golden guide for the most authentic royal results. Natural lighting works best.
+            </p>
+</div>
+<div class="flex justify-center mt-6 mb-8">
+<div class="flex flex-1 gap-4 flex-col items-stretch px-6 py-3 w-full">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-14 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] w-full shadow-lg hover:bg-primary/90 transition-all border-b-4 border-primary/50 active:translate-y-1 active:border-b-0">
+<span class="material-symbols-outlined">photo_camera</span>
+<span class="truncate">Take Photo</span>
+</button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-14 px-5 bg-white dark:bg-slate-800 text-primary dark:text-slate-100 text-base font-bold leading-normal tracking-[0.015em] w-full border-2 border-primary/10 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+<span class="material-symbols-outlined">collections</span>
+<span class="truncate">Upload from Gallery</span>
+</button>
+</div>
+</div>
+<div class="flex items-center justify-center gap-2 py-6 px-4 text-xs font-medium text-slate-400 uppercase tracking-widest">
+<span class="material-symbols-outlined text-sm">verified_user</span>
+<span>Secure &amp; Private Processing</span>
+</div>
+<div class="h-2 bg-gradient-to-r from-transparent via-accent-gold/30 to-transparent"></div>
+</div>
+</body></html>

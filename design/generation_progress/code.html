@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19194d",
+                        "accent": "#d4af37", // Gold accent for the royal theme
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#14141e",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .gold-shimmer {
+            background: linear-gradient(90deg, #d4af37 25%, #f4e0a6 50%, #d4af37 75%);
+            background-size: 200% 100%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 transition-colors duration-300">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+<!-- Top App Bar -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between">
+<button aria-label="Go back" class="text-primary dark:text-slate-100 flex size-12 shrink-0 items-center justify-center hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined" style="font-size: 24px;">arrow_back</span>
+</button>
+<h2 class="text-primary dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12 uppercase tracking-widest">Royal Portrait</h2>
+</div>
+<!-- Main Content Container -->
+<div class="flex-1 flex flex-col items-center justify-center px-4 max-w-2xl mx-auto w-full">
+<!-- Ornate Frame Container -->
+<div class="@container w-full max-w-md">
+<div class="relative p-6 bg-gradient-to-tr from-accent/20 to-transparent rounded-xl border border-accent/30">
+<!-- Ornate Corners Decoration -->
+<div class="absolute top-2 left-2 text-accent">
+<span class="material-symbols-outlined" style="font-size: 32px;">auto_awesome</span>
+</div>
+<div class="absolute top-2 right-2 text-accent">
+<span class="material-symbols-outlined" style="font-size: 32px;">auto_awesome</span>
+</div>
+<div class="absolute bottom-2 left-2 text-accent">
+<span class="material-symbols-outlined" style="font-size: 32px;">auto_awesome</span>
+</div>
+<div class="absolute bottom-2 right-2 text-accent">
+<span class="material-symbols-outlined" style="font-size: 32px;">auto_awesome</span>
+</div>
+<!-- Canvas/Portrait Area -->
+<div class="aspect-[3/4] w-full bg-slate-200 dark:bg-slate-800 rounded-lg overflow-hidden relative shadow-2xl border-[8px] border-accent shadow-accent/10">
+<div class="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay" data-alt="Classical oil painting canvas texture with faint portrait outlines" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBnmPHAddo7oVANwTsu-6uGFsDx8N9WL1n21W3mTFW7d4PzgOiRtnzcb61XS3hY-fl8sOdMl9SYBRCrOVDVCU6f8gCMruw5ljK8gN_pd9YsJsWnt3vYsFSN3O7p6htYUIhwSEyZZtEukoNLHBsHjiJDK7tmvAIiNXb1hy2hDDu22IHr80jL5T7Ikcuj6tetxMyWI85OmL2IuJ5tMv2QbVy4pYr2x-OXalDwkSfpcujbyZviCMvl5DQvxFFC5KE3rppXu3AZnMhXDUc')">
+</div>
+<!-- Shimmering overlay effect -->
+<div class="absolute inset-0 gold-shimmer opacity-20"></div>
+<!-- Painterly Icon -->
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-accent/60 text-8xl">brush</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Text Content -->
+<div class="mt-10 text-center">
+<h1 class="text-primary dark:text-slate-100 tracking-tight text-[28px] md:text-[32px] font-bold leading-tight px-4 pb-3 italic">
+                    Your portrait is being painted by the finest artists...
+                </h1>
+<p class="text-slate-600 dark:text-slate-400 text-base md:text-lg font-normal leading-relaxed px-6">
+                    Our master painters are meticulously crafting every detail to ensure your likeness is captured with true elegance.
+                </p>
+</div>
+<!-- Progress Section -->
+<div class="w-full max-w-md mt-10 px-6 space-y-4">
+<div class="flex items-end justify-between">
+<div class="flex flex-col">
+<span class="text-primary/60 dark:text-slate-400 text-xs uppercase tracking-widest font-bold">Current Phase</span>
+<p class="text-primary dark:text-slate-100 text-lg font-medium leading-normal">Applying royal brushstrokes</p>
+</div>
+<p class="text-accent text-xl font-bold font-display italic">65%</p>
+</div>
+<!-- Progress Bar -->
+<div class="h-3 w-full rounded-full bg-primary/10 dark:bg-white/10 overflow-hidden p-0.5 border border-primary/5">
+<div class="h-full rounded-full bg-accent gold-shimmer shadow-[0_0_10px_rgba(212,175,55,0.5)]" style="width: 65%;"></div>
+</div>
+<div class="flex items-center justify-center gap-2 text-primary/60 dark:text-slate-500">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<p class="text-sm font-normal leading-normal">Estimated time: 30 seconds</p>
+</div>
+</div>
+</div>
+<!-- Decorative Footer -->
+<div class="h-20 flex items-center justify-center">
+<div class="flex gap-4">
+<div class="h-px w-12 bg-accent/30 self-center"></div>
+<span class="material-symbols-outlined text-accent/50">history_edu</span>
+<div class="h-px w-12 bg-accent/30 self-center"></div>
+</div>
+</div>
+</div>
+</body></html>

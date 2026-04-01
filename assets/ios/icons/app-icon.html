@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { margin: 0; padding: 0; }
+  body { width: 256px; height: 256px; overflow: hidden; background: transparent; }
+  .icon {
+    width: 256px;
+    height: 256px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .shape {
+    position: relative;
+    width: 256px;
+    height: 256px;
+  }
+  .cube-top {
+    position: absolute;
+    top: 8px;
+    left: 28px;
+    width: 200px;
+    height: 80px;
+    border: 4px solid rgba(255,255,255,0.85);
+    background: rgba(244, 196, 48, 0.15);
+    transform: skewX(-30deg);
+    border-radius: 3px;
+  }
+  .cube-front {
+    position: absolute;
+    top: 68px;
+    left: 16px;
+    width: 140px;
+    height: 170px;
+    border: 4px solid rgba(255,255,255,0.9);
+    background: linear-gradient(180deg, rgba(30,40,70,0.95) 0%, rgba(20,30,55,0.95) 100%);
+    border-radius: 3px;
+  }
+  .cube-right {
+    position: absolute;
+    top: 68px;
+    right: 16px;
+    width: 100px;
+    height: 170px;
+    border: 4px solid rgba(255,255,255,0.6);
+    background: rgba(20,30,55,0.85);
+    transform: skewY(-20deg);
+    transform-origin: top left;
+    border-radius: 3px;
+  }
+  .line {
+    position: absolute;
+    height: 5px;
+    border-radius: 3px;
+  }
+  .line-1 { top: 95px; left: 32px; width: 95px; background: #F4C430; opacity: 0.95; }
+  .line-2 { top: 112px; left: 32px; width: 65px; background: rgba(255,255,255,0.5); }
+  .line-3 { top: 129px; left: 32px; width: 80px; background: rgba(255,255,255,0.35); }
+  .line-4 { top: 146px; left: 32px; width: 50px; background: rgba(255,255,255,0.25); }
+  .line-5 { top: 163px; left: 32px; width: 70px; background: #F4C430; opacity: 0.5; }
+  
+  .bracket {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-color: #F4C430;
+    border-style: solid;
+    border-width: 0;
+  }
+  .bracket-tl { top: 52px; left: 4px; border-top-width: 3px; border-left-width: 3px; border-radius: 5px 0 0 0; }
+  .bracket-br { bottom: 4px; right: 4px; border-bottom-width: 3px; border-right-width: 3px; border-radius: 0 0 5px 0; }
+</style>
+</head>
+<body>
+  <div class="icon">
+    <div class="shape">
+      <div class="cube-top"></div>
+      <div class="cube-front"></div>
+      <div class="cube-right"></div>
+      <div class="line line-1"></div>
+      <div class="line line-2"></div>
+      <div class="line line-3"></div>
+      <div class="line line-4"></div>
+      <div class="line line-5"></div>
+      <div class="bracket bracket-tl"></div>
+      <div class="bracket bracket-br"></div>
+    </div>
+  </div>
+</body>
+</html>

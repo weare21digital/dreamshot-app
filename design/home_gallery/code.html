@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#19194d",
+              "accent-gold": "#b08d57",
+              "background-light": "#fdfaf6", /* Warm ivory */
+              "background-dark": "#14141e",
+            },
+            fontFamily: {
+              "display": ["Newsreader", "serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .ornate-corner {
+            position: relative;
+        }
+        .ornate-corner::before {
+            content: '✦';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            color: #b08d57;
+            font-size: 12px;
+        }
+        .ornate-corner::after {
+            content: '✦';
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            color: #b08d57;
+            font-size: 12px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col max-w-md mx-auto shadow-2xl bg-background-light dark:bg-background-dark overflow-x-hidden">
+<header class="flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-50 p-4 border-b border-accent-gold/20 justify-between">
+<div class="text-primary dark:text-accent-gold flex size-10 shrink-0 items-center justify-center" data-icon="crown">
+<span class="material-symbols-outlined text-3xl">crown</span>
+</div>
+<h1 class="text-primary dark:text-accent-gold text-xl font-bold italic leading-tight tracking-tight flex-1 px-2">Royal Portrait</h1>
+<div class="flex items-center gap-1 bg-primary/5 dark:bg-accent-gold/10 px-3 py-1 rounded-full border border-accent-gold/30">
+<span class="material-symbols-outlined text-accent-gold text-sm" data-icon="database">database</span>
+<p class="text-primary dark:text-slate-100 text-sm font-bold leading-normal tracking-tight">120</p>
+</div>
+</header>
+<main class="flex-1">
+<div class="px-4 pt-6 pb-2">
+<h2 class="text-primary dark:text-slate-100 text-3xl font-bold leading-tight tracking-tight">Style Gallery</h2>
+<p class="text-slate-600 dark:text-slate-400 text-sm italic mt-1">Transform your image into timeless majesty</p>
+</div>
+<div class="sticky top-[72px] z-40 bg-background-light dark:bg-background-dark/95">
+<div class="flex border-b border-accent-gold/20 px-4 gap-6 overflow-x-auto no-scrollbar">
+<a class="flex flex-col items-center justify-center border-b-2 border-primary dark:border-accent-gold text-primary dark:text-accent-gold pb-3 pt-4 shrink-0" href="#">
+<p class="text-sm font-bold tracking-wide">All Styles</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 pb-3 pt-4 shrink-0" href="#">
+<p class="text-sm font-medium tracking-wide">New Releases</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 pb-3 pt-4 shrink-0" href="#">
+<p class="text-sm font-medium tracking-wide">Trending</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 pb-3 pt-4 shrink-0" href="#">
+<p class="text-sm font-medium tracking-wide">Historical</p>
+</a>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 p-4 mt-2">
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden border border-accent-gold/40 ornate-corner">
+<div class="absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-110" data-alt="Elegant queen portrait with vintage oil painting texture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCExOldFHMl7Hmgb0nGciAaWMjQ2gxn1AFLovW_tiAs4gR_E_zvvl_ALpD19Y8QMgp3S7q0Lxppk9lmeDsa-4jMPdBS8QPIzYwH4MNNg8a7-fwMSUR7WEWayFZaCC5xNCh8elkGa3knYugXhHqSXGLE1EMj4RBplxe4nt-2Q-Q8jc9aiskZtdPd-g9fBJBda7u8zCzq8v3nH9d20NU_lGNbSNLP4Ok1UfF-Ovud2qaZJc8XgBo7M0AdTyq8NAgBr32dtNcnGFHTK_Q");'></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+<button class="w-full py-2 bg-accent-gold text-white text-xs font-bold rounded uppercase tracking-widest">Apply Style</button>
+</div>
+</div>
+<div>
+<p class="text-primary dark:text-slate-100 text-lg font-bold italic leading-tight">The Queen</p>
+<p class="text-slate-600 dark:text-slate-400 text-xs font-normal leading-tight mt-1">Regal elegance and timeless grace.</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden border border-accent-gold/40 ornate-corner">
+<div class="absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-110" data-alt="Noble duke portrait with dramatic lighting and velvet attire" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB0MaSY3l3SKBmC_I-jACU6mb74mKeU6v2e5-ObJuRTnSrEeyZE7ojGkqcKTbnwHm146wkN8xtkdZneWHbo9q7oYBNaPpANz7id-dFQUDZW_6Yoh4jRWRLiZ8kf2EVeJ6MYFFBJGO60XLZDlJOSvifBg8fLt3Kw4Ff6DSsIjpgXvn04weKwI9z_70Ft_ySSBt83HYRFi4hWLg61J_Q2PHxVHbfFm07NiDr4WZMpka03FRN4sOzlKb8sd9HgFakETB6nlW70XGGtbYk");'></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+<button class="w-full py-2 bg-accent-gold text-white text-xs font-bold rounded uppercase tracking-widest">Apply Style</button>
+</div>
+</div>
+<div>
+<p class="text-primary dark:text-slate-100 text-lg font-bold italic leading-tight">The Duke</p>
+<p class="text-slate-600 dark:text-slate-400 text-xs font-normal leading-tight mt-1">Noble strength and classic charm.</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden border border-accent-gold/40 ornate-corner">
+<div class="absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-110" data-alt="Luxury diamond style portrait with shimmering aesthetic" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA6J6UThIvgaK0J0fDbLI197af39Ktds9KK-SyLNG8wCCK_YFwjpJFMTyCA22-yj2apCHzGW-PlVNhm_oRScz5g4O5pGYKLRduNNkjqEBJXPFC0P8kYTdhOMWajyV1QeL3bbPj3GSC4V89W3bUo4BFJCiT5KigOCZvufN2jyEX4BUYOu64kPQFu946jgSsZRVVcMf9TE3uLe9KGTuqy7ijXn9pYc19yQoiayujNQZMSob7D_S2_0YHwkYFj6fk4r-J7ADWwlJVevlw");'></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+<button class="w-full py-2 bg-accent-gold text-white text-xs font-bold rounded uppercase tracking-widest">Apply Style</button>
+</div>
+</div>
+<div>
+<p class="text-primary dark:text-slate-100 text-lg font-bold italic leading-tight">The Diamond</p>
+<p class="text-slate-600 dark:text-slate-400 text-xs font-normal leading-tight mt-1">Sparkling brilliance in every detail.</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden border border-accent-gold/40 ornate-corner">
+<div class="absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-110" data-alt="Old master oil painting style portrait with warm tones" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAx3kkIwp4k3YL8vQwPMiI0bSVSXr1VIA1LomL4h7ElyV807p75sKNR5SPXSawKK3gOfjnGocwDyTJ2GJQwNLal6WI05N28z1EmdjN6B2WHl2of2949M3hCxs2SuhaGyCFAfJN_tebm_sPhzzLh5kJR9DqEeH401ISsPACEA3rXyPsz8JqjLsteSFZ5PBNvLTh5g31SsQ4fGyl1xbi05s-9V70uLKg2hJwHpFCNP_lh25mHSTb3XoNXzJwhlBAYLTREhY26PHh1bgo");'></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+<button class="w-full py-2 bg-accent-gold text-white text-xs font-bold rounded uppercase tracking-widest">Apply Style</button>
+</div>
+</div>
+<div>
+<p class="text-primary dark:text-slate-100 text-lg font-bold italic leading-tight">Old Master</p>
+<p class="text-slate-600 dark:text-slate-400 text-xs font-normal leading-tight mt-1">17th-century oil painting aesthetic.</p>
+</div>
+</div>
+</div>
+<div class="h-24"></div>
+</main>
+<nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex border-t border-accent-gold/20 bg-background-light dark:bg-background-dark px-4 pb-6 pt-2 z-50">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary dark:text-accent-gold" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="auto_awesome_motion">auto_awesome_motion</span>
+<p class="text-[10px] font-bold uppercase tracking-widest">Gallery</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="add_circle">add_circle</span>
+<p class="text-[10px] font-bold uppercase tracking-widest">Create</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="history_edu">history_edu</span>
+<p class="text-[10px] font-bold uppercase tracking-widest">History</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="person_play">person_play</span>
+<p class="text-[10px] font-bold uppercase tracking-widest">Profile</p>
+</a>
+</nav>
+</div>
+</body></html>
