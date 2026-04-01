@@ -18,7 +18,7 @@ import { useGenerationJob, useGeneratePhoto, useGenerateVideo } from '../../src/
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 import { useVideoThumbnail } from '../../src/hooks/useVideoThumbnail';
 import FullScreenViewer from '../../src/components/FullScreenViewer';
-import type { RoyalGenerationJob } from '../../src/features/generation/types';
+import type { DreamshotGenerationJob } from '../../src/features/generation/types';
 
 const CARD_WIDTH = (Dimensions.get('window').width - 28 - 8) / 2;
 const UNDO_TIMEOUT_MS = 5000;
@@ -39,8 +39,8 @@ function getDateGroup(isoDate: string): string {
   return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: now.getFullYear() !== d.getFullYear() ? 'numeric' : undefined });
 }
 
-function groupByDate(jobs: RoyalGenerationJob[]): Array<{ title: string; data: RoyalGenerationJob[] }> {
-  const groups: Map<string, RoyalGenerationJob[]> = new Map();
+function groupByDate(jobs: DreamshotGenerationJob[]): Array<{ title: string; data: DreamshotGenerationJob[] }> {
+  const groups: Map<string, DreamshotGenerationJob[]> = new Map();
   for (const job of jobs) {
     const key = getDateGroup(job.createdAt);
     const existing = groups.get(key) || [];
@@ -117,7 +117,7 @@ export default function MyGalleryScreen(): React.JSX.Element {
     handleSwipeDelete(jobId, style?.title || 'Portrait');
   }, [filteredJobs, handleSwipeDelete]);
 
-  const handleMakeVideo = useCallback((job: RoyalGenerationJob, animStyleId: string) => {
+  const handleMakeVideo = useCallback((job: DreamshotGenerationJob, animStyleId: string) => {
     setViewerIndex(null);
     router.push({
       pathname: '/(main)/generation-progress',
@@ -283,7 +283,7 @@ function FilterPill({
 function SwipeableGalleryCard({
   job, styles, palette, onRequestDelete, onPress,
 }: {
-  job: RoyalGenerationJob;
+  job: DreamshotGenerationJob;
   styles: ReturnType<typeof createStyles>;
   palette: ReturnType<typeof useAppTheme>['palette'];
   onRequestDelete: (jobId: string, label: string) => void;

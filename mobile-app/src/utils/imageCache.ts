@@ -1,6 +1,6 @@
 import * as FileSystem from 'expo-file-system/legacy';
 
-const CACHE_DIR = `${FileSystem.documentDirectory}royal-gallery/`;
+const CACHE_DIR = `${FileSystem.documentDirectory}dreamshot-gallery/`;
 
 /** Ensure the cache directory exists */
 async function ensureCacheDir(): Promise<void> {

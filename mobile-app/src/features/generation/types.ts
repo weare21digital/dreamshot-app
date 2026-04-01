@@ -1,4 +1,4 @@
-export type RoyalGenerationKind = 'photo' | 'video';
+export type DreamshotGenerationKind = 'photo' | 'video';
 
 export interface DreamshotStylePreset {
   id: string;
@@ -13,19 +13,19 @@ export interface DreamshotStylePreset {
   tags: string[];
 }
 
-export interface RoyalGenerationResult {
+export interface DreamshotGenerationResult {
   id: string;
-  kind: RoyalGenerationKind;
+  kind: DreamshotGenerationKind;
   styleId: string;
   mediaUrl: string;
   createdAt: string;
 }
 
-export interface RoyalGenerationJob {
+export interface DreamshotGenerationJob {
   jobId: string;
   requestId: string;
   status: 'queued' | 'processing' | 'completed' | 'failed';
-  kind: RoyalGenerationKind;
+  kind: DreamshotGenerationKind;
   styleId: string;
   styleTitle?: string;
   createdAt: string;

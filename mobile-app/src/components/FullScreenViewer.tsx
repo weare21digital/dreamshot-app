@@ -22,18 +22,18 @@ import * as Sharing from 'expo-sharing';
 import { Alert, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons as MI2 } from '@expo/vector-icons';
-import type { RoyalGenerationJob } from '../features/generation/types';
+import type { DreamshotGenerationJob } from '../features/generation/types';
 import { ANIMATION_STYLES, DREAMSHOT_STYLE_PRESETS_BY_ID } from '../config/styles';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DISMISS_THRESHOLD = 120;
 
 type Props = {
-  items: RoyalGenerationJob[];
+  items: DreamshotGenerationJob[];
   initialIndex: number;
   onDismiss: () => void;
   onDelete?: (jobId: string) => void;
-  onMakeVideo?: (job: RoyalGenerationJob, animStyleId: string) => void;
+  onMakeVideo?: (job: DreamshotGenerationJob, animStyleId: string) => void;
 };
 
 function VideoCard({ uri }: { uri: string }): React.JSX.Element {
@@ -170,7 +170,7 @@ export default function FullScreenViewer({ items, initialIndex, onDismiss, onDel
     } catch { /* silent */ }
   }, [currentItem, isVideo]);
 
-  const renderItem = useCallback(({ item }: { item: RoyalGenerationJob }) => {
+  const renderItem = useCallback(({ item }: { item: DreamshotGenerationJob }) => {
     return (
       <View style={styles.slide}>
         {item.kind === 'video' ? (

@@ -50,9 +50,9 @@ export function getIAPConfig(): IAPPlatformConfig {
 
 /** Local SKU-to-features mapping for UI display */
 export const SKU_FEATURES: Record<string, string[]> = {
-  'com.bvg.dreamshot.coins_100': ['100 royal coins'],
-  'com.bvg.dreamshot.coins_500': ['500 royal coins', 'Best value'],
-  'com.bvg.dreamshot.coins_1000': ['1000 royal coins', 'Ultimate pack'],
+  'com.bvg.dreamshot.coins_100': ['100 dreamshot coins'],
+  'com.bvg.dreamshot.coins_500': ['500 dreamshot coins', 'Best value'],
+  'com.bvg.dreamshot.coins_1000': ['1000 dreamshot coins', 'Ultimate pack'],
 };
 
 /** SKU → coin amount mapping */

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const COIN_BALANCE_KEY = '@coins/balance';
-const FIRST_LAUNCH_BONUS_FLAG_KEY = 'royal_first_launch_bonus_given';
+const FIRST_LAUNCH_BONUS_FLAG_KEY = 'dreamshot_first_launch_bonus_given';
 const FIRST_LAUNCH_BONUS_COINS = 20;
 
 async function loadBalanceFromStorage(): Promise<number> {

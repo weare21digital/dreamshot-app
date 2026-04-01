@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RoyalGenerationJob, RoyalGenerationKind } from '../types';
+import { DreamshotGenerationJob, DreamshotGenerationKind } from '../types';
 import { cacheRemoteImage } from '../../../utils/imageCache';
 
-const STORAGE_KEY = 'royal_gallery_items';
-const ARCHIVE_KEY = '@royal/generation-jobs-archive';
+const STORAGE_KEY = 'dreamshot_gallery_items';
+const ARCHIVE_KEY = '@dreamshot/generation-jobs-archive';
 const ARCHIVE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-export type GenerationJobStatus = RoyalGenerationJob['status'];
+export type GenerationJobStatus = DreamshotGenerationJob['status'];
 
 type CreateJobInput = {
   requestId: string;
-  kind: RoyalGenerationKind;
+  kind: DreamshotGenerationKind;
   styleId: string;
   styleTitle?: string;
   status?: GenerationJobStatus;
@@ -29,23 +29,23 @@ type PatchJobInput = {
 };
 
 type UseGenerationJobResult = {
-  jobs: RoyalGenerationJob[];
-  archivedJobs: RoyalGenerationJob[];
+  jobs: DreamshotGenerationJob[];
+  archivedJobs: DreamshotGenerationJob[];
   isRestoring: boolean;
-  createJob: (input: CreateJobInput) => Promise<RoyalGenerationJob>;
-  patchJob: (jobId: string, patch: PatchJobInput) => Promise<RoyalGenerationJob | undefined>;
+  createJob: (input: CreateJobInput) => Promise<DreamshotGenerationJob>;
+  patchJob: (jobId: string, patch: PatchJobInput) => Promise<DreamshotGenerationJob | undefined>;
   removeJob: (jobId: string) => Promise<void>;
   archiveJob: (jobId: string) => Promise<void>;
   restoreJob: (jobId: string) => Promise<void>;
-  pendingJobs: RoyalGenerationJob[];
-  latestJob?: RoyalGenerationJob;
+  pendingJobs: DreamshotGenerationJob[];
+  latestJob?: DreamshotGenerationJob;
 };
 
 function isValidStatus(status: unknown): status is GenerationJobStatus {
   return status === 'queued' || status === 'processing' || status === 'completed' || status === 'failed';
 }
 
-function normalizeStoredJobs(raw: string | null): RoyalGenerationJob[] {
+function normalizeStoredJobs(raw: string | null): DreamshotGenerationJob[] {
   if (!raw) return [];
 
   try {
@@ -53,9 +53,9 @@ function normalizeStoredJobs(raw: string | null): RoyalGenerationJob[] {
     if (!Array.isArray(parsed)) return [];
 
     return parsed
-      .filter((item): item is RoyalGenerationJob => {
+      .filter((item): item is DreamshotGenerationJob => {
         if (!item || typeof item !== 'object') return false;
-        const job = item as RoyalGenerationJob;
+        const job = item as DreamshotGenerationJob;
 
         return (
           typeof job.jobId === 'string' &&
@@ -73,8 +73,8 @@ function normalizeStoredJobs(raw: string | null): RoyalGenerationJob[] {
   }
 }
 
-let storeJobs: RoyalGenerationJob[] = [];
-let storeArchive: RoyalGenerationJob[] = [];
+let storeJobs: DreamshotGenerationJob[] = [];
+let storeArchive: DreamshotGenerationJob[] = [];
 let storeIsRestoring = true;
 let restorePromise: Promise<void> | null = null;
 const listeners = new Set<() => void>();
@@ -83,20 +83,20 @@ function notify(): void {
   listeners.forEach((listener) => listener());
 }
 
-async function persist(nextJobs: RoyalGenerationJob[]): Promise<void> {
+async function persist(nextJobs: DreamshotGenerationJob[]): Promise<void> {
   storeJobs = nextJobs;
   notify();
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nextJobs));
 }
 
-async function persistArchive(nextArchive: RoyalGenerationJob[]): Promise<void> {
+async function persistArchive(nextArchive: DreamshotGenerationJob[]): Promise<void> {
   storeArchive = nextArchive;
   notify();
   await AsyncStorage.setItem(ARCHIVE_KEY, JSON.stringify(nextArchive));
 }
 
 /** Purge archived items older than 7 days */
-function purgeExpiredArchive(archive: RoyalGenerationJob[]): RoyalGenerationJob[] {
+function purgeExpiredArchive(archive: DreamshotGenerationJob[]): DreamshotGenerationJob[] {
   const now = Date.now();
   return archive.filter((job) => {
     if (!job.archivedAt) return false;
@@ -162,8 +162,8 @@ async function ensureRestored(): Promise<void> {
 }
 
 export function useGenerationJob(): UseGenerationJobResult {
-  const [jobs, setJobs] = useState<RoyalGenerationJob[]>(storeJobs);
-  const [archivedJobs, setArchivedJobs] = useState<RoyalGenerationJob[]>(storeArchive);
+  const [jobs, setJobs] = useState<DreamshotGenerationJob[]>(storeJobs);
+  const [archivedJobs, setArchivedJobs] = useState<DreamshotGenerationJob[]>(storeArchive);
   const [isRestoring, setIsRestoring] = useState(storeIsRestoring);
 
   useEffect(() => {
@@ -181,11 +181,11 @@ export function useGenerationJob(): UseGenerationJobResult {
     };
   }, []);
 
-  const createJob = useCallback(async ({ requestId, kind, styleId, styleTitle, status = 'queued', coinCost, statusUrl, responseUrl }: CreateJobInput): Promise<RoyalGenerationJob> => {
+  const createJob = useCallback(async ({ requestId, kind, styleId, styleTitle, status = 'queued', coinCost, statusUrl, responseUrl }: CreateJobInput): Promise<DreamshotGenerationJob> => {
     await ensureRestored();
 
     const nowIso = new Date().toISOString();
-    const job: RoyalGenerationJob = {
+    const job: DreamshotGenerationJob = {
       jobId: `${kind}-${requestId}`,
       requestId,
       status,
@@ -203,10 +203,10 @@ export function useGenerationJob(): UseGenerationJobResult {
     return job;
   }, []);
 
-  const patchJob = useCallback(async (jobId: string, patch: PatchJobInput): Promise<RoyalGenerationJob | undefined> => {
+  const patchJob = useCallback(async (jobId: string, patch: PatchJobInput): Promise<DreamshotGenerationJob | undefined> => {
     await ensureRestored();
 
-    let updatedJob: RoyalGenerationJob | undefined;
+    let updatedJob: DreamshotGenerationJob | undefined;
 
     const nextJobs = storeJobs.map((job) => {
       if (job.jobId !== jobId) return job;
@@ -236,7 +236,7 @@ export function useGenerationJob(): UseGenerationJobResult {
     await ensureRestored();
     const job = storeJobs.find((j) => j.jobId === jobId);
     if (!job) return;
-    const archivedJob: RoyalGenerationJob = { ...job, archivedAt: new Date().toISOString() };
+    const archivedJob: DreamshotGenerationJob = { ...job, archivedAt: new Date().toISOString() };
     await persist(storeJobs.filter((j) => j.jobId !== jobId));
     await persistArchive([archivedJob, ...storeArchive]);
   }, []);
@@ -245,7 +245,7 @@ export function useGenerationJob(): UseGenerationJobResult {
     await ensureRestored();
     const job = storeArchive.find((j) => j.jobId === jobId);
     if (!job) return;
-    const restoredJob: RoyalGenerationJob = { ...job, archivedAt: undefined };
+    const restoredJob: DreamshotGenerationJob = { ...job, archivedAt: undefined };
     await persistArchive(storeArchive.filter((j) => j.jobId !== jobId));
     await persist([restoredJob, ...storeJobs]);
   }, []);
