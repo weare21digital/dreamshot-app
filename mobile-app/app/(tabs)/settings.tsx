@@ -6,9 +6,6 @@ import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
-const GOLD = '#B08D57';
-const NAVY = '#1B1F5E';
-
 export default function SettingsScreen(): React.JSX.Element {
   const { resolvedThemeMode, toggleTheme, palette, brand } = useAppTheme();
   const isDark = resolvedThemeMode === 'dark';
@@ -35,7 +32,7 @@ export default function SettingsScreen(): React.JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <MaterialIcons name="settings" size={22} color={isDark ? GOLD : NAVY} />
+        <MaterialIcons name="settings" size={22} color={brand.primary} />
         <Text style={styles.title}>Settings</Text>
         <View style={{ width: 22 }} />
       </View>
@@ -49,9 +46,9 @@ export default function SettingsScreen(): React.JSX.Element {
               testID="toggle-theme"
               value={isDark}
               onValueChange={() => void toggleTheme()}
-              trackColor={{ false: '#D0BE98', true: GOLD }}
-              thumbColor="#fff"
-              ios_backgroundColor="#D0BE98"
+              trackColor={{ false: palette.surfaceContainerHigh, true: brand.primaryDim }}
+              thumbColor={palette.onPrimary}
+              ios_backgroundColor={palette.surfaceContainerHigh}
               style={{ marginRight: -4 }}
             />
           </View>
@@ -142,7 +139,7 @@ const createStyles = (
     },
     content: { paddingHorizontal: 16, paddingBottom: 40 },
     sectionLabel: {
-      color: isDark ? GOLD : NAVY,
+      color: brand.primary,
       fontSize: 11,
       textTransform: 'uppercase',
       letterSpacing: 1.2,
@@ -171,11 +168,11 @@ const createStyles = (
       width: 34,
       height: 34,
       borderRadius: 8,
-      backgroundColor: isDark ? 'rgba(176,141,87,0.15)' : 'rgba(27,31,94,0.08)',
+      backgroundColor: isDark ? palette.secondaryContainer : palette.surfaceContainerHigh,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    iconColor: { color: isDark ? GOLD : NAVY },
+    iconColor: { color: brand.primary },
     rowLabel: { color: palette.text, fontSize: 15, fontWeight: '500' },
     menuRow: {
       height: 56,
