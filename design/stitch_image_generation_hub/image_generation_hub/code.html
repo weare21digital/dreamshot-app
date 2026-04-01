@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-background": "#dee5ff",
+            "on-primary-fixed": "#000000",
+            "primary-fixed-dim": "#b971ff",
+            "surface-variant": "#192540",
+            "on-secondary-container": "#ecfaff",
+            "secondary-dim": "#40ceed",
+            "secondary": "#53ddfc",
+            "outline": "#6d758c",
+            "on-primary": "#47007c",
+            "on-secondary-fixed": "#003a45",
+            "primary-container": "#c284ff",
+            "on-tertiary-fixed": "#360021",
+            "tertiary": "#ff86c3",
+            "surface-container-high": "#141f38",
+            "primary-dim": "#9c48ea",
+            "tertiary-fixed-dim": "#f976ba",
+            "on-surface": "#dee5ff",
+            "primary": "#cc97ff",
+            "tertiary-fixed": "#ff8bc5",
+            "secondary-container": "#00687a",
+            "error-container": "#a70138",
+            "on-error-container": "#ffb2b9",
+            "tertiary-container": "#f673b7",
+            "surface-container-low": "#091328",
+            "surface-container-highest": "#192540",
+            "on-tertiary": "#5f003e",
+            "surface-container-lowest": "#000000",
+            "secondary-fixed": "#65e1ff",
+            "on-tertiary-container": "#4a002f",
+            "surface-dim": "#060e20",
+            "surface": "#060e20",
+            "on-primary-fixed-variant": "#430076",
+            "inverse-primary": "#842cd3",
+            "on-error": "#490013",
+            "outline-variant": "#40485d",
+            "on-primary-container": "#360061",
+            "on-tertiary-fixed-variant": "#73004b",
+            "tertiary-dim": "#f271b5",
+            "surface-tint": "#cc97ff",
+            "error": "#ff6e84",
+            "on-surface-variant": "#a3aac4",
+            "error-dim": "#d73357",
+            "surface-container": "#0f1930",
+            "secondary-fixed-dim": "#48d4f3",
+            "background": "#060e20",
+            "surface-bright": "#1f2b49",
+            "on-secondary": "#004b58",
+            "inverse-on-surface": "#4d556b",
+            "primary-fixed": "#c284ff",
+            "on-secondary-fixed-variant": "#005969",
+            "inverse-surface": "#faf8ff"
+          },
+          fontFamily: {
+            "headline": ["Space Grotesk"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .glass-panel {
+      background: rgba(15, 25, 48, 0.6);
+      backdrop-filter: blur(20px);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #091328;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #40485d;
+      border-radius: 10px;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#060e20]/60 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-violet-500 scale-95 active:scale-90 transition-transform">blur_on</span>
+<h1 class="font-['Space_Grotesk'] tracking-tight font-bold text-2xl bg-gradient-to-r from-[#9c48ea] to-[#53ddfc] bg-clip-text text-transparent">DreamShot</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-slate-400 hover:opacity-80 transition-opacity p-2">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-4xl mx-auto space-y-10">
+<!-- Hero/Prompt Section -->
+<section class="relative group">
+<div class="absolute -inset-1 bg-gradient-to-r from-primary-dim to-secondary rounded-lg blur opacity-10 group-focus-within:opacity-30 transition duration-1000 group-focus-within:duration-200"></div>
+<div class="relative surface-container-lowest rounded-lg p-1">
+<textarea class="w-full bg-surface-container-lowest border-none focus:ring-0 text-xl font-body p-6 min-h-[160px] rounded-lg placeholder:text-outline/50 resize-none" placeholder="Describe what you want to see..."></textarea>
+<div class="flex justify-between items-center px-4 pb-4">
+<div class="flex gap-2">
+<button class="text-primary hover:bg-surface-container-high p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">history_edu</span>
+</button>
+<button class="text-primary hover:bg-surface-container-high p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">auto_fix_high</span>
+</button>
+</div>
+<span class="text-outline text-xs font-label uppercase tracking-widest">AI Engine v4.2</span>
+</div>
+</div>
+</section>
+<!-- Mid Section: Aspect Ratio -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline text-lg font-bold">Select Aspect Ratio</h3>
+<span class="text-secondary text-xs uppercase font-semibold tracking-tighter">Dimensions</span>
+</div>
+<div class="grid grid-cols-4 gap-3">
+<button class="flex flex-col items-center justify-center gap-3 py-6 rounded-lg bg-surface-container border border-outline-variant/15 hover:bg-surface-container-high transition-all group">
+<div class="w-8 h-8 border-2 border-on-surface-variant rounded-sm group-hover:border-secondary transition-colors"></div>
+<span class="font-label text-xs font-bold text-on-surface-variant group-hover:text-secondary">1:1</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-3 py-6 rounded-lg bg-surface-container-high ring-2 ring-secondary transition-all group">
+<div class="w-12 h-7 border-2 border-secondary rounded-sm bg-secondary/10"></div>
+<span class="font-label text-xs font-bold text-secondary">16:9</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-3 py-6 rounded-lg bg-surface-container border border-outline-variant/15 hover:bg-surface-container-high transition-all group">
+<div class="w-7 h-12 border-2 border-on-surface-variant rounded-sm group-hover:border-secondary transition-colors"></div>
+<span class="font-label text-xs font-bold text-on-surface-variant group-hover:text-secondary">9:16</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-3 py-6 rounded-lg bg-surface-container border border-outline-variant/15 hover:bg-surface-container-high transition-all group">
+<div class="w-10 h-8 border-2 border-on-surface-variant rounded-sm group-hover:border-secondary transition-colors"></div>
+<span class="font-label text-xs font-bold text-on-surface-variant group-hover:text-secondary">4:3</span>
+</button>
+</div>
+</section>
+<!-- Style Selector -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline text-lg font-bold">Style Selector</h3>
+<button class="text-tertiary text-xs font-bold hover:underline">View All Styles</button>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-6 custom-scrollbar snap-x">
+<!-- Style 1 -->
+<button class="flex-none w-40 snap-start group relative">
+<div class="aspect-[4/5] rounded-lg overflow-hidden mb-2 relative">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="abstract digital waves with neon vibrant colors, photorealistic texture and high contrast lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAX6Txf1_N1hfOkW3soyIbS2LTrVZfheFOX0AbDyuFkFr0nMHtjRFFduipl1jkZd3il6XmZ9mulCj3sEt3tGwwq_93Njcjq-WktKbB3bpt7D2ELV45Gdc-5cTZS6bfxRIITb_5eyQfDax6YQskx-oJdNXBCHWpRhyP_UjH9-cQuoqA1lKMGc-Q68mQ4UTGuM20u6-m5LetVGbc-Jp_O-Fi1gYN0FPyckhkPZFUwo3Pb0VxxpUL-YJ-FLd-CMfQSSTg7dL5JcGOL9AE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+<div class="absolute bottom-2 left-2 right-2 flex justify-between items-center">
+<span class="text-[10px] font-bold uppercase text-white bg-primary-dim px-2 py-0.5 rounded-full">New</span>
+</div>
+</div>
+<p class="font-label text-xs font-semibold text-center text-on-surface-variant group-hover:text-white transition-colors">Photorealistic</p>
+</button>
+<!-- Style 2 -->
+<button class="flex-none w-40 snap-start group relative">
+<div class="aspect-[4/5] rounded-lg overflow-hidden mb-2 relative ring-2 ring-secondary ring-offset-4 ring-offset-surface">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="cyberpunk futuristic city street at night with neon signs, wet asphalt, and cinematic atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBejxdVgiv22gTyFHDV-RafAfHvGsGBEPAdiMmej7vj5hAdSJit6Lc4rkQJaDVh1M_Xa4Vbk2-DK-lrwAcIz-PUK7oaOV0wzBErG8n2JCJDCOAtVOB-vmbreylqoj-Gzf9tFQrepy5SPhT_vKI2qsuAbN4YFN5HrjbUwUfTwtq3k7a7Xlp-ddoW_WNBeyD9bMBGejOOacyxuUhfvvOqPhcmA3XIg1yzz4lyICA0-9avomRbnDowyjVuAyYjH0Ri2D7YOMXsD42Klx4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+</div>
+<p class="font-label text-xs font-semibold text-center text-secondary">Cyberpunk</p>
+</button>
+<!-- Style 3 -->
+<button class="flex-none w-40 snap-start group">
+<div class="aspect-[4/5] rounded-lg overflow-hidden mb-2 relative">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="soft digital art illustration of a magical forest with glowing plants and dreamy atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkSaCzrLubf5pn7ef49QG_692uirdJ8YgqURDFKr5Sjg0quQktp9BlcsUH1eYEYBC9bPI8I0Hw6ALalzjMSWnb-RVkh1Y67vc1WoR0bp7phbaPaWnZmtlZtzPkTb5sv0O_InS429jJaeguiS3eLv34jrodM1FuYUMn0vpW5RiagcO1w5kpEkD7AltIhjHNOoSL6uP0VMbvervQhy1zjFuw4QNvzzc-qlAHxGHIoQHvRbNfyJ_zt-SjJNxUxqgIgOyHoj-KXE-3C2k"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+</div>
+<p class="font-label text-xs font-semibold text-center text-on-surface-variant group-hover:text-white transition-colors">Digital Art</p>
+</button>
+<!-- Style 4 -->
+<button class="flex-none w-40 snap-start group">
+<div class="aspect-[4/5] rounded-lg overflow-hidden mb-2 relative">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="delicate watercolor painting of mountain scenery with soft washes of color and artistic textures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBetoDP81ce0SwUIn0flXUKwOQDCuGhlQEHxXkoBnMNPvu8zX8R7zWgNquU_mu6JIvW76a6ymzdjoWpRP4Z48F9ha5q9d0BmXpvmIJSexZDWH1TdCy3ECpj5cMXmzt25kNY_50V0ab5vbNKU2_MyDdnLg8TvoFk3xMfmp0qhlxQCJwWfNLf7jSY8zLXtFdPWpx_9Kx78451bCusK364pRjmglil0OvnipnwO_uBRrl8raCWSMvPWdTohfHm3TxfgL-JLjw7H3EWSRY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+</div>
+<p class="font-label text-xs font-semibold text-center text-on-surface-variant group-hover:text-white transition-colors">Watercolor</p>
+</button>
+</div>
+</section>
+<!-- Advanced Settings -->
+<section class="surface-container rounded-lg p-6 space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="font-headline text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-outline">settings_suggest</span>
+          Advanced Settings
+        </h3>
+<span class="material-symbols-outlined text-outline">keyboard_arrow_down</span>
+</div>
+<div class="space-y-4">
+<!-- Negative Prompt Toggle -->
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-sm">Negative Prompt</p>
+<p class="text-on-surface-variant text-xs">Things to exclude from generation</p>
+</div>
+<div class="w-12 h-6 bg-surface-container-high rounded-full relative p-1 cursor-pointer">
+<div class="w-4 h-4 bg-outline rounded-full"></div>
+</div>
+</div>
+<!-- Sampling Steps -->
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<p class="font-bold text-sm">Sampling Steps</p>
+<span class="text-secondary font-bold text-sm">30</span>
+</div>
+<input class="w-full h-1.5 bg-surface-container-lowest rounded-lg appearance-none cursor-pointer accent-secondary" type="range"/>
+<div class="flex justify-between text-[10px] text-outline font-bold uppercase">
+<span>Fast</span>
+<span>Balanced</span>
+<span>Quality</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Large Bottom CTA -->
+<div class="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-4xl px-6 pointer-events-none">
+<button class="pointer-events-auto w-full py-5 rounded-full bg-gradient-to-r from-[#9c48ea] to-[#53ddfc] text-black font-headline text-lg font-bold shadow-[0_10px_40px_rgba(156,72,234,0.3)] hover:shadow-[0_10px_50px_rgba(156,72,234,0.5)] transition-all active:scale-95 flex items-center justify-center gap-3">
+<span class="material-symbols-outlined font-bold">magic_button</span>
+        Generate (1 Credit)
+      </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 rounded-t-[2rem] bg-[#091328]/60 backdrop-blur-2xl shadow-[0_-10px_40px_rgba(156,72,234,0.1)] flex justify-around items-center px-4 pb-6 pt-3">
+<button class="flex flex-col items-center justify-center text-slate-500 hover:text-violet-400 transition-colors scale-110 active:scale-95 duration-300">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#53ddfc] bg-[#141f38] rounded-full px-4 py-1 scale-110 active:scale-95 duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">magic_button</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider">Create</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-500 hover:text-violet-400 transition-colors scale-110 active:scale-95 duration-300">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider">Styles</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-500 hover:text-violet-400 transition-colors scale-110 active:scale-95 duration-300">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider">Profile</span>
+</button>
+</nav>
+</body></html>
