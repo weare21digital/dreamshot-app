@@ -14,11 +14,11 @@ import { useRouter } from 'expo-router';
 import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ROYAL_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
-import { useGenerationJob, useGeneratePhoto, useGenerateVideo } from '../../src/features/royal';
+import { useGenerationJob, useGeneratePhoto, useGenerateVideo } from '../../src/features/generation';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 import { useVideoThumbnail } from '../../src/hooks/useVideoThumbnail';
 import FullScreenViewer from '../../src/components/FullScreenViewer';
-import type { RoyalGenerationJob } from '../../src/features/royal/types';
+import type { RoyalGenerationJob } from '../../src/features/generation/types';
 
 const CARD_WIDTH = (Dimensions.get('window').width - 28 - 8) / 2;
 const UNDO_TIMEOUT_MS = 5000;

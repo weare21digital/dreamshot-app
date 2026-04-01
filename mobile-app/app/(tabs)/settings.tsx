@@ -66,7 +66,7 @@ export default function SettingsScreen(): React.JSX.Element {
           <MenuItem icon="privacy-tip" label="Privacy Policy" onPress={() => Linking.openURL('https://example.com/privacy')} styles={styles} />
         </View>
 
-        <Text style={styles.version}>Royal Portrait v1.0.0</Text>
+        <Text style={styles.version}>DreamShot v1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );

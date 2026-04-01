@@ -11,17 +11,17 @@ export const IAP_CONFIG = {
   ios: {
     subscriptions: [] as string[],
     oneTime: [
-      'com.bvg.royalportrait.coins_100',
-      'com.bvg.royalportrait.coins_500',
-      'com.bvg.royalportrait.coins_1000',
+      'com.bvg.dreamshot.coins_100',
+      'com.bvg.dreamshot.coins_500',
+      'com.bvg.dreamshot.coins_1000',
     ],
   },
   android: {
     subscriptions: [] as string[],
     oneTime: [
-      'com.bvg.royalportrait.coins_100',
-      'com.bvg.royalportrait.coins_500',
-      'com.bvg.royalportrait.coins_1000',
+      'com.bvg.dreamshot.coins_100',
+      'com.bvg.dreamshot.coins_500',
+      'com.bvg.dreamshot.coins_1000',
     ],
   },
 } as const;
@@ -50,16 +50,16 @@ export function getIAPConfig(): IAPPlatformConfig {
 
 /** Local SKU-to-features mapping for UI display */
 export const SKU_FEATURES: Record<string, string[]> = {
-  'com.bvg.royalportrait.coins_100': ['100 royal coins'],
-  'com.bvg.royalportrait.coins_500': ['500 royal coins', 'Best value'],
-  'com.bvg.royalportrait.coins_1000': ['1000 royal coins', 'Ultimate pack'],
+  'com.bvg.dreamshot.coins_100': ['100 royal coins'],
+  'com.bvg.dreamshot.coins_500': ['500 royal coins', 'Best value'],
+  'com.bvg.dreamshot.coins_1000': ['1000 royal coins', 'Ultimate pack'],
 };
 
 /** SKU → coin amount mapping */
 export const SKU_COINS: Record<string, number> = {
-  'com.bvg.royalportrait.coins_100': 100,
-  'com.bvg.royalportrait.coins_500': 500,
-  'com.bvg.royalportrait.coins_1000': 1000,
+  'com.bvg.dreamshot.coins_100': 100,
+  'com.bvg.dreamshot.coins_500': 500,
+  'com.bvg.dreamshot.coins_1000': 1000,
 };
 
 /** Coin pack definitions — single source of truth for coins screen */
@@ -73,7 +73,7 @@ export type CoinPack = {
 };
 
 export const COIN_PACKS: CoinPack[] = [
-  { sku: 'com.bvg.royalportrait.coins_100', coins: 100, label: "The Squire's Pouch", fallbackPrice: '$1.99', icon: 'stars' },
-  { sku: 'com.bvg.royalportrait.coins_500', coins: 500, label: "The Duke's Purse", fallbackPrice: '$7.99', icon: 'diamond', popular: true },
-  { sku: 'com.bvg.royalportrait.coins_1000', coins: 1000, label: "The King's Treasury", fallbackPrice: '$12.99', icon: 'workspace-premium' },
+  { sku: 'com.bvg.dreamshot.coins_100', coins: 100, label: "The Squire's Pouch", fallbackPrice: '$1.99', icon: 'stars' },
+  { sku: 'com.bvg.dreamshot.coins_500', coins: 500, label: "The Duke's Purse", fallbackPrice: '$7.99', icon: 'diamond', popular: true },
+  { sku: 'com.bvg.dreamshot.coins_1000', coins: 1000, label: "The King's Treasury", fallbackPrice: '$12.99', icon: 'workspace-premium' },
 ];

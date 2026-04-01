@@ -7,7 +7,7 @@ import midnightCourtPreview from '../../assets/styles/midnight-court.jpg';
 import heiressPreview from '../../assets/styles/the-heiress.jpg';
 import regencyMasqueradePreview from '../../assets/styles/regency-masquerade.jpg';
 import coronationPreview from '../../assets/styles/the-coronation.jpg';
-import type { RoyalStylePreset } from '../features/royal/types';
+import type { RoyalStylePreset } from '../features/generation/types';
 
 export const ROYAL_PHOTO_COST = 20;
 export const ROYAL_VIDEO_COST = 50;

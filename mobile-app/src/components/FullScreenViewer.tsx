@@ -22,7 +22,7 @@ import * as Sharing from 'expo-sharing';
 import { Alert, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons as MI2 } from '@expo/vector-icons';
-import type { RoyalGenerationJob } from '../features/royal/types';
+import type { RoyalGenerationJob } from '../features/generation/types';
 import { ANIMATION_STYLES, ROYAL_STYLE_PRESETS_BY_ID } from '../config/styles';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');

@@ -124,14 +124,14 @@ describe('PremiumScreen', () => {
     mockUsePayments.mockReturnValue({
       products: [
         {
-          id: 'com.bvg.royalportrait.lifetime',
+          id: 'com.bvg.dreamshot.lifetime',
           title: 'Lifetime Premium',
           displayPrice: '$49.99',
         },
       ],
       subscriptions: [
         {
-          id: 'com.bvg.royalportrait.monthly',
+          id: 'com.bvg.dreamshot.monthly',
           title: 'Monthly Premium',
           displayPrice: '$9.99',
         },

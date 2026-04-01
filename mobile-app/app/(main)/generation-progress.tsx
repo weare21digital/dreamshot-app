@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ROYAL_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
-import { useGenerationJob, useGeneratePhoto, useGenerateVideo } from '../../src/features/royal';
+import { useGenerationJob, useGeneratePhoto, useGenerateVideo } from '../../src/features/generation';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
 const GOLD = '#C9A84C';

@@ -53,7 +53,7 @@ export default function HomeScreen(): React.JSX.Element {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <MaterialIcons name="emoji-events" size={28} color={palette.text} />
-        <Text style={styles.brandTitle}>Royal Portrait</Text>
+        <Text style={styles.brandTitle}>DreamShot</Text>
         <Pressable
           testID="global-header-coin-balance"
           onPress={() => router.push('/(tabs)/coins')}

@@ -178,7 +178,7 @@ export default function ResultScreen(): React.JSX.Element {
       }
 
       await Share.share({
-        message: `My Royal Portrait (${style.title})`,
+        message: `My DreamShot (${style.title})`,
         url: shareUri,
       });
     } catch {
@@ -371,7 +371,7 @@ export default function ResultScreen(): React.JSX.Element {
           >
             <ImageBackground source={{ uri: mediaUri }} resizeMode="cover" style={styles.hiddenCaptureImage}>
               <View style={styles.hiddenCaptureWatermark}>
-                <Text style={styles.hiddenCaptureWatermarkText}>Made with Royal Portrait</Text>
+                <Text style={styles.hiddenCaptureWatermarkText}>Made with DreamShot</Text>
               </View>
             </ImageBackground>
           </ViewShot>

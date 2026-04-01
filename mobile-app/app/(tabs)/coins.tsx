@@ -76,7 +76,7 @@ export default function CoinsScreen(): React.JSX.Element {
         <View style={styles.headerIcon}>
           <MaterialIcons name="monetization-on" size={24} color={palette.text} />
         </View>
-        <Text style={styles.headerTitle}>Royal Portrait</Text>
+        <Text style={styles.headerTitle}>DreamShot</Text>
         <View style={styles.headerIcon}>
           <MaterialIcons name="history" size={24} color={palette.text} />
         </View>

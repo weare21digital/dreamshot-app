@@ -193,7 +193,7 @@ For simulator runtime checks of the Coins purchase screen:
 python3 scripts/appium/coins_purchase_smoke.py
 ```
 
-For deterministic Royal Portrait generation → result action checks:
+For deterministic DreamShot generation → result action checks:
 
 ```bash
 python3 scripts/appium/royal_result_actions_smoke.py

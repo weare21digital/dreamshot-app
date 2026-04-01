@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Royal Portrait",
-    "slug": "royalportrait",
+    "name": "DreamShot",
+    "slug": "dreamshot",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icons/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bvg.royalportrait",
+      "bundleIdentifier": "com.bvg.dreamshot",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Allow camera access so you can take a photo for AI background editing.",
@@ -31,18 +31,18 @@
         "backgroundColor": "#F5F3EF"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.bvg.royalportrait"
+      "package": "com.bvg.dreamshot"
     },
     "web": {
       "favicon": "./assets/icons/favicon.png"
     },
-    "scheme": "com.bvg.royalportrait",
+    "scheme": "com.bvg.dreamshot",
     "intentFilters": [
       {
         "action": "VIEW",
         "data": [
           {
-            "scheme": "com.bvg.royalportrait"
+            "scheme": "com.bvg.dreamshot"
           }
         ],
         "category": [
