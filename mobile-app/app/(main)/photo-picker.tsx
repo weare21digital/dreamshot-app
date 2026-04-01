@@ -12,8 +12,7 @@ export default function PhotoPickerScreen(): React.JSX.Element {
   const { styleId, mode, animStyle } = useLocalSearchParams<{ styleId?: string; mode?: 'photo' | 'video'; animStyle?: string }>();
   const style = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || Object.values(DREAMSHOT_STYLE_PRESETS_BY_ID)[0];
   const { palette, brand } = useAppTheme();
-  const isDark = true;
-  const styles = React.useMemo(() => createStyles(palette, brand, isDark), [palette, brand, isDark]);
+  const styles = React.useMemo(() => createStyles(palette, brand), [palette, brand]);
 
   const navigateToGeneration = useCallback((imageUri: string) => {
     router.push({
@@ -115,7 +114,7 @@ export default function PhotoPickerScreen(): React.JSX.Element {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand: ReturnType<typeof useAppTheme>['brand'], isDark: boolean) =>
+const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand: ReturnType<typeof useAppTheme>['brand']) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: palette.background },
     content: { paddingBottom: 24 },
@@ -186,11 +185,11 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
     primaryBtn: {
       height: 56,
       borderRadius: 14,
-      backgroundColor: isDark ? '#C9A84C' : '#1A1A4E',
+      backgroundColor: brand.primary,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    primaryBtnText: { color: isDark ? '#1A1A2E' : '#FFFFFF', fontSize: 16, fontWeight: '700' },
+    primaryBtnText: { color: palette.onPrimary, fontSize: 16, fontWeight: '700' },
     secondaryBtn: {
       height: 56,
       borderRadius: 14,

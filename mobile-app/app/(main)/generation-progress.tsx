@@ -45,8 +45,7 @@ export default function GenerationProgressScreen(): React.JSX.Element {
   const { submitVideo, cancelVideo, isSubmitting: isVideoSubmitting } = useGenerateVideo();
   const { jobs } = useGenerationJob();
   const { palette, brand } = useAppTheme();
-  const isDark = true;
-  const styles = React.useMemo(() => createStyles(palette, brand, isDark), [palette, brand, isDark]);
+  const styles = React.useMemo(() => createStyles(palette, brand), [palette, brand]);
 
   const [requestId, setRequestId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -313,7 +312,7 @@ export default function GenerationProgressScreen(): React.JSX.Element {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand: ReturnType<typeof useAppTheme>['brand'], isDark: boolean) =>
+const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand: ReturnType<typeof useAppTheme>['brand']) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: palette.background },
     scroll: { paddingHorizontal: 18, paddingBottom: 40 },
@@ -387,7 +386,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       alignItems: 'center',
       justifyContent: 'center',
     },
-    primaryBtnText: { color: isDark ? '#1A1A2E' : '#FFFFFF', fontSize: 15, fontWeight: '700' },
+    primaryBtnText: { color: palette.onPrimary, fontSize: 15, fontWeight: '700' },
     footerGlyph: { alignItems: 'center', marginTop: 16 },
     footerGlyphText: { color: brand.accent, fontSize: 22 },
   });

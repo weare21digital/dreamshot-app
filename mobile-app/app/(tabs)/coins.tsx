@@ -14,8 +14,7 @@ export default function CoinsScreen(): React.JSX.Element {
   const router = useRouter();
   const { balance, addCoins, reload } = useCoins();
   const { palette, brand } = useAppTheme();
-  const isDark = true;
-  const styles = React.useMemo(() => createStyles(palette, brand, isDark), [palette, brand, isDark]);
+  const styles = React.useMemo(() => createStyles(palette, brand), [palette, brand]);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const listenerRef = useRef<(() => void) | null>(null);
 
@@ -120,7 +119,7 @@ export default function CoinsScreen(): React.JSX.Element {
 
               <View style={styles.priceButton}>
                 {purchasing === pack.sku ? (
-                  <ActivityIndicator size="small" color={isDark ? '#1A1A2E' : '#FFFFFF'} />
+                  <ActivityIndicator size="small" color={palette.onPrimary} />
                 ) : (
                   <Text style={styles.priceText}>{pack.fallbackPrice}</Text>
                 )}
@@ -140,7 +139,7 @@ export default function CoinsScreen(): React.JSX.Element {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand: ReturnType<typeof useAppTheme>['brand'], isDark: boolean) =>
+const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand: ReturnType<typeof useAppTheme>['brand']) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: palette.background },
     header: {
@@ -244,7 +243,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       borderRadius: 999,
       paddingHorizontal: 16,
       paddingVertical: 8,
-      backgroundColor: isDark ? '#C9A84C' : '#1A1A4E',
+      backgroundColor: brand.primary,
     },
-    priceText: { color: isDark ? '#1A1A2E' : '#FFFFFF', fontSize: 14, fontWeight: '700' },
+    priceText: { color: palette.onPrimary, fontSize: 14, fontWeight: '700' },
   });

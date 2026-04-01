@@ -31,14 +31,13 @@ export default function ResultScreen(): React.JSX.Element {
     player.loop = true;
     player.play();
   });
-  const isDark = true;
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showAnimPicker, setShowAnimPicker] = useState(false);
   const [captureSize, setCaptureSize] = useState(WATERMARK_FALLBACK_SIZE);
   const { balance } = useCoins();
-  const styles = React.useMemo(() => createStyles(palette, brand, isDark, captureSize), [palette, brand, isDark, captureSize]);
+  const styles = React.useMemo(() => createStyles(palette, brand, captureSize), [palette, brand, captureSize]);
 
   const imageOpacity = useRef(new Animated.Value(0)).current;
   const imageScale = useRef(new Animated.Value(0.95)).current;
@@ -299,7 +298,7 @@ export default function ResultScreen(): React.JSX.Element {
               style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
               onPress={handleGenerateVideoPro}
             >
-              <MaterialIcons name="auto-awesome" size={20} color={isDark ? '#1A1A2E' : '#FFFFFF'} style={{ marginRight: 8 }} />
+              <MaterialIcons name="auto-awesome" size={20} color={palette.onPrimary} style={{ marginRight: 8 }} />
               <Text style={styles.primaryBtnText}>Generate Video</Text>
             </Pressable>
           ) : null}
@@ -347,7 +346,7 @@ export default function ResultScreen(): React.JSX.Element {
             style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
             onPress={() => router.replace('/(tabs)')}
           >
-            <MaterialIcons name="home" size={20} color={isDark ? '#1A1A2E' : '#FFFFFF'} style={{ marginRight: 8 }} />
+            <MaterialIcons name="home" size={20} color={palette.onPrimary} style={{ marginRight: 8 }} />
             <Text style={styles.primaryBtnText}>Back to Styles</Text>
           </Pressable>
 
@@ -407,7 +406,6 @@ export default function ResultScreen(): React.JSX.Element {
 const createStyles = (
   palette: ReturnType<typeof useAppTheme>['palette'],
   brand: ReturnType<typeof useAppTheme>['brand'],
-  isDark: boolean,
   captureSize: { width: number; height: number },
 ) =>
   StyleSheet.create({
@@ -452,8 +450,8 @@ const createStyles = (
       alignItems: 'center',
       justifyContent: 'center',
     },
-    savedBtn: { backgroundColor: isDark ? '#4CAF50' : '#2E7D32' },
-    primaryBtnText: { color: isDark ? '#1A1A2E' : '#FFFFFF', fontSize: 16, fontWeight: '700' },
+    savedBtn: { backgroundColor: '#2E7D32' },
+    primaryBtnText: { color: palette.onPrimary, fontSize: 16, fontWeight: '700' },
     secondaryBtn: {
       height: 54,
       borderRadius: 13,

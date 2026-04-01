@@ -17,8 +17,12 @@
 const brand = {
   /** Main brand color (buttons, headers, active states) */
   primary: '#CC97FF',
+  /** Dim primary accent for gradients and surfaces */
+  primaryDim: '#9C48EA',
   /** Secondary brand color */
   secondary: '#53DDFC',
+  /** Dim secondary accent for chips and supporting actions */
+  secondaryDim: '#40CEED',
   /** Accent color for highlights and CTAs */
   accent: '#FF86C3',
 } as const;
