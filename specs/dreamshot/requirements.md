@@ -1,7 +1,7 @@
 # Requirements Document — DreamShot
 
 ## Introduction
-DreamShot is an AI photo/video transformation app that turns user selfies into aristocratic portraits and short cinematic clips.
+DreamShot is an AI photo/video transformation app that turns user selfies into stylized portraits and short cinematic clips.
 The app is built from mobile-skeleton-app in `backend:freemium` mode:
 - backend is used only as a secure proxy for AI generation (no exposed provider keys)
 - monetization uses local coin balance + IAP packs
@@ -11,11 +11,11 @@ The app is built from mobile-skeleton-app in `backend:freemium` mode:
 - `authMode: backend`
 - `paymentMode: backend`
 - `accessMode: freemium`
-- No login/signup flow in the Royal user journey
+- No login/signup flow in the DreamShot user journey
 - Backend endpoints must accept app-level requests without end-user auth session coupling
 
 ## Glossary
-- **Style Preset**: Curated royal theme containing title, prompt, preview image, and coin costs.
+- **Style Preset**: Curated DreamShot style theme containing title, prompt, preview image, and coin costs.
 - **Generation Job**: Backend-managed async task for creating photo/video output.
 - **Pending Job Recovery**: On-launch restore of unfinished generation jobs from AsyncStorage.
 - **Coin Wallet**: Device-visible balance used to pay for generations.
@@ -23,10 +23,10 @@ The app is built from mobile-skeleton-app in `backend:freemium` mode:
 ## Requirements
 
 ### Requirement 1: Style Gallery Home
-**User Story:** As a user, I want a gallery of royal styles so I can quickly choose a look.
+**User Story:** As a user, I want a gallery of DreamShot styles so I can quickly choose a look.
 
 #### Acceptance Criteria
-1. WHEN the app opens, THE System SHALL show a light-theme Royal gallery matching design/home_gallery (2-column card grid, crown branding, filter tabs, and bottom nav).
+1. WHEN the app opens, THE System SHALL show a light-theme DreamShot gallery matching design/home_gallery (2-column card grid, DreamShot branding, filter tabs, and bottom nav).
 2. WHEN style presets are loaded, THE System SHALL render title + subtitle + preview image per preset.
 3. WHEN no presets are available, THE System SHALL show a branded empty state with retry action.
 4. WHEN dark mode is enabled from Settings, THE System SHALL preserve readable contrast and card separation.
@@ -63,7 +63,7 @@ The app is built from mobile-skeleton-app in `backend:freemium` mode:
 #### Acceptance Criteria
 1. WHEN generation succeeds, THE System SHALL persist result entries locally with type badges (photo/video).
 2. WHEN My Gallery opens, THE System SHALL show reverse-chronological items with thumbnails and tap-to-view behavior.
-3. WHEN history is empty, THE System SHALL show an intentional empty state with CTA to create first portrait.
+3. WHEN history is empty, THE System SHALL show an intentional empty state with CTA to create first image.
 
 ### Requirement 6: Coins & Monetization
 **User Story:** As a user, I want transparent coin balance and purchase options.
@@ -79,6 +79,6 @@ The app is built from mobile-skeleton-app in `backend:freemium` mode:
 
 #### Acceptance Criteria
 1. WHEN opening Settings, THE System SHALL provide theme toggle, restore purchases, rate app, privacy policy, and terms.
-2. WHEN theme changes, THE System SHALL update all Royal screens immediately without contrast regressions.
-3. WHEN navigating Royal app routes, THE System SHALL avoid legacy skeleton auth/paywall onboarding entrypoints.
-4. WHEN app launches, THE System SHALL land in Royal flow (`/(main)/home`) rather than welcome/auth funnels.
+2. WHEN theme changes, THE System SHALL update all DreamShot screens immediately without contrast regressions.
+3. WHEN navigating DreamShot app routes, THE System SHALL avoid legacy skeleton auth/paywall onboarding entrypoints.
+4. WHEN app launches, THE System SHALL land in DreamShot flow (`/(main)/home`) rather than welcome/auth funnels.

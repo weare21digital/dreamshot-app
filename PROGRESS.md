@@ -19,7 +19,7 @@
 - [x] Modes configured (`backend` + `freemium`)
 - [x] Theme palette replaced with DreamShot colors
 - [x] Icons replaced
-- [x] Unused skeleton surfaces cleaned for Stage A launch path (Royal home route reachable in simulator)
+- [x] Unused skeleton surfaces cleaned for Stage A launch path (DreamShot home route reachable in simulator)
 
 ## Stage A verification (latest run)
 - [x] `npm run type-check`

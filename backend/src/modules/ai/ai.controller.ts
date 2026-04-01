@@ -35,12 +35,6 @@ export class AiController {
     return this.aiService.submitImagePipelineVideo(dto);
   }
 
-  // Backward-compatible route kept for older clients.
-  @Post('video/portrait-pipeline')
-  async submitPortraitVideo(@Body() dto: VideoImagePipelineDto) {
-    return this.aiService.submitImagePipelineVideo(dto);
-  }
-
   @Post('video/submit')
   async submitVideo(@Body() dto: VideoSubmitDto) {
     return this.aiService.submitVideoGeneration(dto);

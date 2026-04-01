@@ -26,14 +26,14 @@ Phase-ordered plan for DreamShot delivery with explicit sequencing, verification
 
 - [x] 3. Remove legacy auth/paywall entrypoint routing
   - Force launch/default path to `/(main)/home`
-  - Redirect `/auth` and `/auth/welcome` into Royal flow
+  - Redirect `/auth` and `/auth/welcome` into DreamShot flow
   - Verify no blocking onboarding surfaces remain in Stage A path
   - _Requirements: 7.3, 7.4_
 
 ### Phase 2: Domain Layer & Async Generation
 - [x] 4. Add style presets config and generation/gallery types
   - Create `mobile-app/src/config/styles.ts`
-  - Create `mobile-app/src/features/royal/types.ts`
+  - Create `mobile-app/src/features/generation/types.ts`
   - Seed 8+ initial style presets matching design naming
   - _Requirements: 1.2, 2.1, 5.1_
 

@@ -5,7 +5,7 @@ DreamShot extends mobile-skeleton-app with a style-first generation journey:
 style discovery → source image selection → async generation progress → result actions → persisted gallery history.
 
 Architecture intent:
-- No-auth user flow (user lands directly in Royal UI)
+- No-auth user flow (user lands directly in DreamShot UI)
 - Backend used as secure AI proxy only
 - Coin economy is device-local with IAP-backed top-ups
 
@@ -26,7 +26,7 @@ app/
 
 Launch behavior:
 - Default route must resolve to `/(main)/home`
-- Any legacy auth entry route (`/auth`, `/auth/welcome`) must redirect into Royal main flow
+- Any legacy auth entry route (`/auth`, `/auth/welcome`) must redirect into DreamShot main flow
 
 ## UX Contract (from design HTMLs)
 
@@ -35,10 +35,10 @@ Launch behavior:
 - Primary navy: `#1B1F5E`
 - Accent gold: `#C9A84C`
 - Serif-forward heading typography (Playfair-style treatment)
-- Soft framed cards and rounded portrait imagery
+- Soft framed cards and rounded image-first visuals
 
 ### Shared structural motifs
-- Royal top header with crown branding
+- DreamShot top header with DreamShot branding
 - Coin balance pill in header affordance row
 - Bottom navigation style mirrored across core screens
 - Intentional spacing and gold divider accents
@@ -92,7 +92,7 @@ export interface GalleryItem {
 | POST | `/ai/video/generate` | Create video generation job from image/style | Not required for app flow |
 | GET | `/ai/jobs/:id` | Poll generation job status | Not required for app flow |
 
-Note: transport-level app security (API key / app secret / origin restrictions) may still apply at backend boundary, but no user login dependency is allowed in Royal UX.
+Note: transport-level app security (API key / app secret / origin restrictions) may still apply at backend boundary, but no user login dependency is allowed in DreamShot UX.
 
 ## Patterns Applied
 - `docs/07-reference/ux-patterns.md`
