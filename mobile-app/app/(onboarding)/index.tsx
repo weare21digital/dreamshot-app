@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, ListRenderItemInfo, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
+import { APP_THEME } from '../../src/config/theme';
 
 const ONBOARDING_FLAG_KEY = 'dreamshot_onboarding_complete';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -139,7 +140,7 @@ export default function OnboardingScreen(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1B1F5E',
+    backgroundColor: APP_THEME.dark.background,
   },
   slide: {
     width: SCREEN_WIDTH,
@@ -157,12 +158,12 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   skipText: {
-    color: '#F8EFD6',
+    color: APP_THEME.dark.text,
     fontSize: 14,
     fontWeight: '600',
   },
   brand: {
-    color: '#C9A84C',
+    color: APP_THEME.brand.primary,
     letterSpacing: 1.2,
     fontSize: 12,
     fontWeight: '700',
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
     height: 320,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: '#C9A84C',
+    borderColor: APP_THEME.brand.primary,
   },
   heroImageSmall: {
     width: '100%',
@@ -183,11 +184,11 @@ const styles = StyleSheet.create({
     height: 240,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: '#C9A84C',
+    borderColor: APP_THEME.brand.primary,
   },
   title: {
     marginTop: 20,
-    color: '#F8EFD6',
+    color: APP_THEME.dark.text,
     fontSize: 31,
     lineHeight: 37,
     fontFamily: 'serif',
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginTop: 10,
-    color: '#E9DFC1',
+    color: APP_THEME.dark.textSecondary,
     textAlign: 'center',
     fontSize: 15,
     lineHeight: 22,
@@ -203,7 +204,7 @@ const styles = StyleSheet.create({
   },
   flowText: {
     marginTop: 12,
-    color: '#C9A84C',
+    color: APP_THEME.brand.primary,
     fontSize: 14,
     fontWeight: '700',
     textAlign: 'center',
@@ -221,14 +222,14 @@ const styles = StyleSheet.create({
     height: 138,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#C9A84C',
+    borderColor: APP_THEME.brand.primary,
   },
   galleryImageSmall: {
     width: 110,
     height: 110,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#C9A84C',
+    borderColor: APP_THEME.brand.primary,
   },
   nextButton: {
     marginTop: 'auto',
@@ -237,13 +238,13 @@ const styles = StyleSheet.create({
     height: 54,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#C9A84C',
+    borderColor: APP_THEME.brand.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(12,16,54,0.5)',
+    backgroundColor: APP_THEME.dark.surfaceVariant,
   },
   nextText: {
-    color: '#F8EFD6',
+    color: APP_THEME.dark.text,
     fontSize: 16,
     fontWeight: '700',
   },
@@ -255,10 +256,10 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#C9A84C',
+    backgroundColor: APP_THEME.brand.primary,
   },
   getStartedText: {
-    color: '#1B1F5E',
+    color: APP_THEME.dark.onPrimary,
     fontSize: 16,
     fontWeight: '800',
   },
@@ -276,11 +277,11 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(248,239,214,0.45)',
+    backgroundColor: 'rgba(163,170,196,0.45)',
   },
   dotActive: {
     width: 22,
     borderRadius: 999,
-    backgroundColor: '#C9A84C',
+    backgroundColor: APP_THEME.brand.primary,
   },
 });

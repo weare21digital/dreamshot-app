@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { Redirect } from 'expo-router';
+import { APP_THEME } from '../src/config/theme';
 
 const ONBOARDING_FLAG_KEY = 'dreamshot_onboarding_complete';
 
@@ -36,7 +37,7 @@ export default function Index(): React.JSX.Element {
   if (!target) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#C9A84C" />
+        <ActivityIndicator size="large" color={APP_THEME.brand.primary} />
       </View>
     );
   }
@@ -47,7 +48,7 @@ export default function Index(): React.JSX.Element {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#1B1F5E',
+    backgroundColor: APP_THEME.dark.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
