@@ -11,6 +11,8 @@ import type { DreamshotStylePreset } from '../features/generation/types';
 
 export const DREAMSHOT_PHOTO_COST = 20;
 export const DREAMSHOT_VIDEO_COST = 50;
+export const DREAMSHOT_BRAND_COLOR = '#CC97FF';
+export const DREAMSHOT_SIGNATURE_GRADIENT = ['#9C48EA', '#53DDFC'] as const;
 
 export type AnimationStyle = {
   id: string;
@@ -59,7 +61,7 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
     subtitle: 'Imperial authority',
     description: 'Regal throne image with crown, velvet gown, and gilded hall lighting.',
     prompt:
-      'A majestic cinematic queen in an ornate throne room, rich velvet gown, diamond crown, baroque details, dramatic soft golden lighting, ultra-detailed image',
+      'A majestic cinematic queen in an ornate throne room, rich velvet gown, diamond crown, baroque details, dramatic neon violet and cyan lighting, ultra-detailed image',
     animationPrompt:
       'The queen slowly turns toward camera, candlelight flickers, subtle fabric movement, cinematic cinematic atmosphere',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/7a/Elizabeth_I_%28Armada_Portrait%29.jpg',
@@ -87,7 +89,7 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
     subtitle: 'Noble command',
     description: 'Refined noble image in tailored tailcoat against a stately manor backdrop.',
     prompt:
-      'A distinguished duke image in regency-era manor interior, tailored navy tailcoat, subtle gold embroidery, aristocratic posture, realistic cinematic image',
+      'A distinguished duke image in regency-era manor interior, tailored navy tailcoat, subtle violet embroidery, aristocratic posture, realistic cinematic image',
     animationPrompt:
       'Gentle head turn and coat movement near a manor window with warm sunlight',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/b3/Thomas_Lawrence_-_Arthur_Wellesley%2C_1st_Duke_of_Wellington_-_Google_Art_Project.jpg',
@@ -137,15 +139,15 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
   {
     id: 'regency-masquerade',
     title: 'Regency Masquerade',
-    subtitle: 'Mystique in gold',
+    subtitle: 'Mystique in neon',
     description: 'Masked evening look with ornate decor and festive aristocratic drama.',
     prompt:
-      'Cinematic masquerade image, ornate gold mask, luxurious regency ballroom, dramatic lighting, cinematic elegance, rich costume detail',
+      'Cinematic masquerade image, ornate iridescent mask, luxurious regency ballroom, dramatic lighting, cinematic elegance, rich costume detail',
     animationPrompt: 'Masked gaze shifts, silk mask ribbon moves, glittering ballroom ambience',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Franz_Xaver_Winterhalter_-_Empress_Elisabeth_of_Austria_in_Court_Gala_Dress_with_Diamond_Stars.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
     videoCost: DREAMSHOT_VIDEO_COST,
-    tags: ['masquerade', 'gold', 'dramatic'],
+    tags: ['masquerade', 'neon', 'dramatic'],
   },
   {
     id: 'the-coronation',
@@ -153,7 +155,7 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
     subtitle: 'Grand ceremony',
     description: 'Ceremonial image in cathedral-like setting with cinematic insignia.',
     prompt:
-      'Cinematic coronation image, ceremonial robes, ornate cathedral interior, golden emblems, epic yet refined composition, photorealistic detail',
+      'Cinematic coronation image, ceremonial robes, ornate cathedral interior, violet and cyan emblems, epic yet refined composition, photorealistic detail',
     animationPrompt: 'Slow majestic camera push with glowing stained-glass light and subtle robe motion',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/5f/Jacques-Louis_David%2C_The_Coronation_of_Napoleon_edit.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,

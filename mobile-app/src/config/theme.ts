@@ -16,11 +16,11 @@
  */
 const brand = {
   /** Main brand color (buttons, headers, active states) */
-  primary: '#1A1A4E',
+  primary: '#CC97FF',
   /** Secondary brand color */
-  secondary: '#2A2A63',
+  secondary: '#53DDFC',
   /** Accent color for highlights and CTAs */
-  accent: '#C9A84C',
+  accent: '#FF86C3',
 } as const;
 
 /**
@@ -36,68 +36,70 @@ const status = {
 } as const;
 
 /**
- * Light mode palette.
+ * Lumina Synth palette.
  */
 const light = {
-  background: '#F6F0E5',
-  surface: '#FFF9EF',
-  surfaceVariant: '#F1E6D3',
-  text: '#1A1A4E',
-  textSecondary: '#55557A',
-  onPrimary: '#FDF8EE',
-  onSecondary: '#FFFFFF',
-  onSurfaceVariant: '#403E5A',
-  primaryContainer: '#D9D7FF',
-  onPrimaryContainer: '#12123A',
-  secondaryContainer: '#EFE6D1',
-  border: '#D9CCB5',
-  borderVariant: '#E4D8C4',
-  inputBackground: '#FBF4E8',
-  cardBackground: '#FFFDF8',
-  gradient: ['#F6F0E5', '#EEE2CC'] as [string, string],
+  background: '#060E20',
+  surface: '#091328',
+  surfaceVariant: '#0F1930',
+  surfaceContainerHigh: '#141F38',
+  text: '#DEE5FF',
+  textSecondary: '#A3AAC4',
+  onPrimary: '#060E20',
+  onSecondary: '#060E20',
+  onSurfaceVariant: '#A3AAC4',
+  primaryContainer: '#9C48EA',
+  onPrimaryContainer: '#DEE5FF',
+  secondaryContainer: '#0C2842',
+  border: '#0F1930',
+  borderVariant: '#141F38',
+  inputBackground: '#0F1930',
+  cardBackground: '#091328',
+  gradient: ['#9C48EA', '#53DDFC'] as [string, string],
   /** Container colors for status feedback */
-  errorContainer: '#FEE2E2',
-  successContainer: '#DCFCE7',
-  infoContainer: '#DBEAFE',
-  warningContainer: '#FEF3C7',
+  errorContainer: '#3D1F2A',
+  successContainer: '#163331',
+  infoContainer: '#102A3A',
+  warningContainer: '#33290F',
   /** Text colors for use on container backgrounds */
-  onErrorContainer: '#991B1B',
-  onSuccessContainer: '#166534',
-  onSuccessContainerAlt: '#15803D',
-  onInfoContainer: '#1E40AF',
-  onWarningContainer: '#92400E',
+  onErrorContainer: '#FFC9DD',
+  onSuccessContainer: '#A2F4E9',
+  onSuccessContainerAlt: '#7AF1E0',
+  onInfoContainer: '#9CEBFF',
+  onWarningContainer: '#FFE29A',
 } as const;
 
 /**
  * Dark mode palette.
  */
 const dark = {
-  background: '#121316',
-  surface: '#1A1C20',
-  surfaceVariant: '#242832',
-  text: '#F9F2E8',
-  textSecondary: 'rgba(249, 242, 232, 0.72)',
-  onPrimary: '#F7F0E6',
-  onSecondary: '#F7F0E6',
-  onSurfaceVariant: '#DCCDB8',
-  primaryContainer: '#232355',
-  onPrimaryContainer: '#D7D1FF',
-  secondaryContainer: '#474139',
-  border: '#5C5345',
-  borderVariant: '#4D463B',
-  inputBackground: 'rgba(201, 168, 76, 0.10)',
-  cardBackground: 'rgba(201, 168, 76, 0.08)',
-  gradient: ['#1D1D1F', '#171718'] as [string, string],
-  errorContainer: '#7F1D1D',
-  successContainer: '#14532D',
-  infoContainer: '#1E3A5F',
-  warningContainer: '#78350F',
+  background: '#060E20',
+  surface: '#091328',
+  surfaceVariant: '#0F1930',
+  surfaceContainerHigh: '#141F38',
+  text: '#DEE5FF',
+  textSecondary: '#A3AAC4',
+  onPrimary: '#060E20',
+  onSecondary: '#060E20',
+  onSurfaceVariant: '#A3AAC4',
+  primaryContainer: '#9C48EA',
+  onPrimaryContainer: '#DEE5FF',
+  secondaryContainer: '#0C2842',
+  border: '#0F1930',
+  borderVariant: '#141F38',
+  inputBackground: 'rgba(83, 221, 252, 0.08)',
+  cardBackground: 'rgba(156, 72, 234, 0.12)',
+  gradient: ['#9C48EA', '#53DDFC'] as [string, string],
+  errorContainer: '#3D1F2A',
+  successContainer: '#163331',
+  infoContainer: '#102A3A',
+  warningContainer: '#33290F',
   /** Text colors for use on container backgrounds (dark mode) */
-  onErrorContainer: '#FECACA',
-  onSuccessContainer: '#BBF7D0',
-  onSuccessContainerAlt: '#86EFAC',
-  onInfoContainer: '#93C5FD',
-  onWarningContainer: '#FDE68A',
+  onErrorContainer: '#FFC9DD',
+  onSuccessContainer: '#A2F4E9',
+  onSuccessContainerAlt: '#7AF1E0',
+  onInfoContainer: '#9CEBFF',
+  onWarningContainer: '#FFE29A',
 } as const;
 
 /**

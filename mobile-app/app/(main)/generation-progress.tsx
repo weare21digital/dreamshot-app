@@ -7,8 +7,6 @@ import { DREAMSHOT_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
 import { useGenerationJob, useGeneratePhoto, useGenerateVideo } from '../../src/features/generation';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
-const GOLD = '#C9A84C';
-const NAVY = '#1A1A4E';
 
 const REGENCY_QUOTES = [
   'Every diamond must endure pressure before it shines...',
@@ -47,7 +45,7 @@ export default function GenerationProgressScreen(): React.JSX.Element {
   const { submitVideo, cancelVideo, isSubmitting: isVideoSubmitting } = useGenerateVideo();
   const { jobs } = useGenerationJob();
   const { palette, brand } = useAppTheme();
-  const isDark = palette.background === '#121316';
+  const isDark = true;
   const styles = React.useMemo(() => createStyles(palette, brand, isDark), [palette, brand, isDark]);
 
   const [requestId, setRequestId] = useState<string | null>(null);
@@ -369,7 +367,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
     eta: { textAlign: 'center', marginTop: 4, color: palette.text, fontSize: 13, fontWeight: '600' },
     etaSecondary: { textAlign: 'center', marginTop: 2, color: palette.textSecondary, fontSize: 12 },
     quoteWrap: { marginTop: 10, minHeight: 46, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 6 },
-    quoteText: { color: GOLD, fontSize: 15, textAlign: 'center', fontFamily: 'serif', fontStyle: 'italic', lineHeight: 22 },
+    quoteText: { color: brand.accent, fontSize: 15, textAlign: 'center', fontFamily: 'serif', fontStyle: 'italic', lineHeight: 22 },
     cancelBtn: {
       marginTop: 16,
       height: 48,
@@ -385,7 +383,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       marginTop: 26,
       height: 52,
       borderRadius: 13,
-      backgroundColor: isDark ? GOLD : NAVY,
+      backgroundColor: brand.primary,
       alignItems: 'center',
       justifyContent: 'center',
     },

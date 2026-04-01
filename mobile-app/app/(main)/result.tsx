@@ -14,7 +14,6 @@ import { ANIMATION_STYLES, DREAMSHOT_STYLE_PRESETS_BY_ID } from '../../src/confi
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 import { useCoins } from '../../src/features/coins/hooks/useCoins';
 
-const GOLD = '#C9A84C';
 const GENERATION_COUNT_KEY = 'dreamshot_generation_count';
 const RATING_PROMPTED_KEY = 'dreamshot_rating_prompted';
 const RATING_PROMPT_THRESHOLD = 3;
@@ -32,7 +31,7 @@ export default function ResultScreen(): React.JSX.Element {
     player.loop = true;
     player.play();
   });
-  const isDark = palette.background === '#121316';
+  const isDark = true;
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -429,7 +428,7 @@ const createStyles = (
       borderRadius: 16,
       overflow: 'hidden',
       borderWidth: 3,
-      borderColor: isDark ? GOLD : palette.border,
+      borderColor: brand.accent,
     },
     image: { flex: 1, justifyContent: 'flex-end' },
     imageRadius: { borderRadius: 13 },
@@ -448,7 +447,7 @@ const createStyles = (
     primaryBtn: {
       height: 54,
       borderRadius: 13,
-      backgroundColor: isDark ? GOLD : '#1A1A4E',
+      backgroundColor: brand.primary,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',

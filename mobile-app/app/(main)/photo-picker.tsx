@@ -12,7 +12,7 @@ export default function PhotoPickerScreen(): React.JSX.Element {
   const { styleId, mode, animStyle } = useLocalSearchParams<{ styleId?: string; mode?: 'photo' | 'video'; animStyle?: string }>();
   const style = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || Object.values(DREAMSHOT_STYLE_PRESETS_BY_ID)[0];
   const { palette, brand } = useAppTheme();
-  const isDark = palette.background === '#121316';
+  const isDark = true;
   const styles = React.useMemo(() => createStyles(palette, brand, isDark), [palette, brand, isDark]);
 
   const navigateToGeneration = useCallback((imageUri: string) => {

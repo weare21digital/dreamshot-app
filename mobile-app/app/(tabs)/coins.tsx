@@ -14,7 +14,7 @@ export default function CoinsScreen(): React.JSX.Element {
   const router = useRouter();
   const { balance, addCoins, reload } = useCoins();
   const { palette, brand } = useAppTheme();
-  const isDark = palette.background === '#121316';
+  const isDark = true;
   const styles = React.useMemo(() => createStyles(palette, brand, isDark), [palette, brand, isDark]);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const listenerRef = useRef<(() => void) | null>(null);
