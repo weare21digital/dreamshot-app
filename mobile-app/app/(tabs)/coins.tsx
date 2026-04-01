@@ -94,7 +94,7 @@ export default function CoinsScreen(): React.JSX.Element {
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Purchase Coin Packs</Text>
-          <Text style={styles.sectionSub}>Enhance your gallery with royal tokens</Text>
+          <Text style={styles.sectionSub}>Enhance your gallery with DreamShot tokens</Text>
         </View>
 
         <View style={styles.packList}>

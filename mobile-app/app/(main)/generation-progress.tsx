@@ -13,7 +13,7 @@ const NAVY = '#1A1A4E';
 const REGENCY_QUOTES = [
   'Every diamond must endure pressure before it shines...',
   'The Queen demands perfection. Please wait...',
-  'A true portrait captures not just the face, but the soul...',
+  'A great image captures not just the face, but the story...',
   'Patience is the companion of wisdom...',
   'Great beauty requires great patience...',
   'The artist is at work on your likeness...',
@@ -26,7 +26,7 @@ const REGENCY_QUOTES = [
   'Even the crown jewels took time to polish...',
   'Rome was not built in a day, nor a dreamshot image in a moment...',
   'Your likeness is being rendered with the utmost care...',
-  'A noble portrait is painted stroke by patient stroke...',
+  'A refined image is crafted detail by detail...',
   'Courtly splendor takes time to perfect...',
   'The finishing touches are being applied with great care...',
 ];
@@ -178,7 +178,7 @@ export default function GenerationProgressScreen(): React.JSX.Element {
       return {
         key: 'finalizing',
         label: 'Final touches',
-        detail: 'Sharpening details and preparing your final portrait.',
+        detail: 'Sharpening details and preparing your final image.',
         percent: 88,
       };
     }
@@ -244,7 +244,7 @@ export default function GenerationProgressScreen(): React.JSX.Element {
         </View>
 
         <View style={styles.copyWrap}>
-          <Text style={styles.title}>Your portrait is being painted by the finest artists...</Text>
+          <Text style={styles.title}>Your DreamShot image is being crafted...</Text>
           <Text style={styles.subTitle}>Our master painters are meticulously crafting every detail for {style.title}.</Text>
         </View>
 

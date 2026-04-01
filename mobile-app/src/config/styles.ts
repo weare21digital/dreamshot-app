@@ -46,7 +46,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
   },
   {
     id: 'celebration',
-    label: 'Royal Celebration',
+    label: 'Cinematic Celebration',
     emoji: '🥂',
     promptSuffix: 'Joyful celebratory movement, raising a glass, warm smile, festive atmosphere, sparkling lights',
   },
@@ -57,11 +57,11 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
     id: 'the-queen',
     title: 'The Queen',
     subtitle: 'Imperial authority',
-    description: 'Regal throne portrait with crown, velvet gown, and gilded hall lighting.',
+    description: 'Regal throne image with crown, velvet gown, and gilded hall lighting.',
     prompt:
-      'A majestic royal queen in an ornate throne room, rich velvet gown, diamond crown, baroque details, dramatic soft golden lighting, ultra-detailed portrait',
+      'A majestic cinematic queen in an ornate throne room, rich velvet gown, diamond crown, baroque details, dramatic soft golden lighting, ultra-detailed image',
     animationPrompt:
-      'The queen slowly turns toward camera, candlelight flickers, subtle fabric movement, cinematic royal atmosphere',
+      'The queen slowly turns toward camera, candlelight flickers, subtle fabric movement, cinematic cinematic atmosphere',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/7a/Elizabeth_I_%28Armada_Portrait%29.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
     videoCost: DREAMSHOT_VIDEO_COST,
@@ -71,9 +71,9 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
     id: 'the-diamond',
     title: 'The Diamond',
     subtitle: 'Ballroom brilliance',
-    description: 'High-society ballroom portrait with crystal chandelier and jeweled styling.',
+    description: 'High-society ballroom image with crystal chandelier and jeweled styling.',
     prompt:
-      'Elegant aristocratic portrait in a grand ballroom, crystal chandeliers, sparkling jewels, satin dress, refined expression, warm cinematic tones',
+      'Elegant aristocratic image in a grand ballroom, crystal chandeliers, sparkling jewels, satin dress, refined expression, warm cinematic tones',
     animationPrompt:
       'Slow camera drift in a candlelit ballroom, chandelier shimmer and subtle smile movement',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/59/Thomas_Lawrence_-_Lady_Maria_Conyngham.jpg',
@@ -85,9 +85,9 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
     id: 'the-duke',
     title: 'The Duke',
     subtitle: 'Noble command',
-    description: 'Refined noble portrait in tailored tailcoat against a stately manor backdrop.',
+    description: 'Refined noble image in tailored tailcoat against a stately manor backdrop.',
     prompt:
-      'A distinguished duke portrait in regency-era manor interior, tailored navy tailcoat, subtle gold embroidery, aristocratic posture, realistic cinematic portrait',
+      'A distinguished duke image in regency-era manor interior, tailored navy tailcoat, subtle gold embroidery, aristocratic posture, realistic cinematic image',
     animationPrompt:
       'Gentle head turn and coat movement near a manor window with warm sunlight',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/b3/Thomas_Lawrence_-_Arthur_Wellesley%2C_1st_Duke_of_Wellington_-_Google_Art_Project.jpg',
@@ -99,9 +99,9 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
     id: 'garden-soiree',
     title: 'Garden Soirée',
     subtitle: 'Aristocratic romance',
-    description: 'Soft natural-light portrait in a royal garden with ornate floral framing.',
+    description: 'Soft natural-light image in a cinematic garden with ornate floral framing.',
     prompt:
-      'Royal aristocrat portrait in an elegant estate garden, blooming flowers, ornate arches, soft natural light, pastel details, period fashion',
+      'Cinematic aristocrat image in an elegant estate garden, blooming flowers, ornate arches, soft natural light, pastel details, period fashion',
     animationPrompt: 'Light breeze through hair and garments, petals drifting in the air, serene garden ambiance',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Thomas_Gainsborough_-_Portrait_of_Mrs._Richard_Brinsley_Sheridan.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
@@ -112,10 +112,10 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
     id: 'midnight-court',
     title: 'Midnight Court',
     subtitle: 'Candlelit intrigue',
-    description: 'Dark, moody royal scene lit by candelabras and moonlight through drapes.',
+    description: 'Dark, moody cinematic scene lit by candelabras and moonlight through drapes.',
     prompt:
-      'Aristocratic portrait in a dim royal court, candlelit ambiance, moonlight through velvet drapes, intricate costume details, cinematic chiaroscuro',
-    animationPrompt: 'Candle flames flicker while subject maintains poised royal gaze in moonlit chamber',
+      'Aristocratic image in a dim cinematic court, candlelit ambiance, moonlight through velvet drapes, intricate costume details, cinematic chiaroscuro',
+    animationPrompt: 'Candle flames flicker while subject maintains poised cinematic gaze in moonlit chamber',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/4b/George_Romney_-_Lady_Hamilton_as_Circe.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
     videoCost: DREAMSHOT_VIDEO_COST,
@@ -125,9 +125,9 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
     id: 'the-heiress',
     title: 'The Heiress',
     subtitle: 'Velvet elegance',
-    description: 'Polished portrait with rich textures, pearls, and subtle vintage glamour.',
+    description: 'Polished image with rich textures, pearls, and subtle vintage glamour.',
     prompt:
-      'Regency-era heiress portrait, velvet gown, pearl jewelry, aristocratic styling, soft-focus background, highly detailed skin and fabric texture',
+      'Regency-era heiress image, velvet gown, pearl jewelry, aristocratic styling, soft-focus background, highly detailed skin and fabric texture',
     animationPrompt: 'Subtle turn with elegant hand motion, pearls catching warm rim light',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/89/Francois_Gerard_-_Josephine_empereur.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
@@ -140,7 +140,7 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
     subtitle: 'Mystique in gold',
     description: 'Masked evening look with ornate decor and festive aristocratic drama.',
     prompt:
-      'Royal masquerade portrait, ornate gold mask, luxurious regency ballroom, dramatic lighting, cinematic elegance, rich costume detail',
+      'Cinematic masquerade image, ornate gold mask, luxurious regency ballroom, dramatic lighting, cinematic elegance, rich costume detail',
     animationPrompt: 'Masked gaze shifts, silk mask ribbon moves, glittering ballroom ambience',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Franz_Xaver_Winterhalter_-_Empress_Elisabeth_of_Austria_in_Court_Gala_Dress_with_Diamond_Stars.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
@@ -151,9 +151,9 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
     id: 'the-coronation',
     title: 'The Coronation',
     subtitle: 'Grand ceremony',
-    description: 'Ceremonial portrait in cathedral-like setting with royal insignia.',
+    description: 'Ceremonial image in cathedral-like setting with cinematic insignia.',
     prompt:
-      'Royal coronation portrait, ceremonial robes, ornate cathedral interior, golden emblems, epic yet refined composition, photorealistic detail',
+      'Cinematic coronation image, ceremonial robes, ornate cathedral interior, golden emblems, epic yet refined composition, photorealistic detail',
     animationPrompt: 'Slow majestic camera push with glowing stained-glass light and subtle robe motion',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/5f/Jacques-Louis_David%2C_The_Coronation_of_Napoleon_edit.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,

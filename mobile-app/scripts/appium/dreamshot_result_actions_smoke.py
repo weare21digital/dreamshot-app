@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Stage A smoke for DreamShot primary flow.
+"""Deterministic Appium smoke for DreamShot generation/result actions.
 
-- Handles Expo dev-client server picker by tapping localhost/127.0.0.1 entries
-- Verifies Royal home style card is visible
-- Navigates to style detail -> photo picker -> generation progress -> result
-- Captures screenshots for each step
+Validates:
+- generation-progress back button is present (`generation-back`)
+- result actions are present (`save-result`, `share-result`, `try-another-style`)
+- photo flow upsell CTA is present (`generate-video-pro`)
+
+Artifacts are written to /tmp/dreamshot-result-smoke by default.
 """
 
 from __future__ import annotations
@@ -20,8 +22,8 @@ from selenium.common.exceptions import NoSuchElementException, WebDriverExceptio
 APPIUM_URL = os.getenv("APPIUM_URL", "http://127.0.0.1:4723")
 IOS_UDID = os.getenv("IOS_UDID", "2C77A126-5AFA-42DE-9153-4D19ED8689F2")
 IOS_DEVICE_NAME = os.getenv("IOS_DEVICE_NAME", "iPhone 16 Pro")
-IOS_BUNDLE_ID = os.getenv("IOS_BUNDLE_ID", "com.bvg.royalportrait")
-ARTIFACT_DIR = Path(os.getenv("ROYAL_STAGE_A_ARTIFACT_DIR", "../local-operations"))
+IOS_BUNDLE_ID = os.getenv("IOS_BUNDLE_ID", "com.bvg.dreamshot")
+ART = Path(os.getenv("DREAMSHOT_RESULT_SMOKE_ARTIFACT_DIR", "/tmp/dreamshot-result-smoke"))
 
 
 def tap_if_present(driver: webdriver.Remote, accessibility_id: str) -> bool:
@@ -32,25 +34,17 @@ def tap_if_present(driver: webdriver.Remote, accessibility_id: str) -> bool:
         return False
 
 
-def tap_by_label_if_present(driver: webdriver.Remote, label: str) -> bool:
-    xpath = f"//XCUIElementTypeButton[@label='{label}' or @name='{label}']"
-    try:
-        driver.find_element("xpath", xpath).click()
-        return True
-    except NoSuchElementException:
-        return False
-
-
 def clear_dev_overlays(driver: webdriver.Remote) -> None:
-    # Expo dev tools can block interactions; dismiss them aggressively.
     for _ in range(3):
         tapped = False
-        tapped = tap_if_present(driver, "Continue") or tapped
-        tapped = tap_if_present(driver, "Go home") or tapped
-        tapped = tap_if_present(driver, "Reload") or tapped
-        tapped = tap_if_present(driver, "Connected to:, http://localhost:8081") or tapped
-        tapped = tap_by_label_if_present(driver, "Continue") or tapped
-        tapped = tap_by_label_if_present(driver, "Go home") or tapped
+        for aid in (
+            "Continue",
+            "Go home",
+            "Reload",
+            "Connected to:, http://localhost:8081",
+            "Connected to:, http://localhost:8084",
+        ):
+            tapped = tap_if_present(driver, aid) or tapped
         if not tapped:
             return
         time.sleep(0.8)
@@ -58,36 +52,31 @@ def clear_dev_overlays(driver: webdriver.Remote) -> None:
 
 def connect_dev_server_if_needed(driver: webdriver.Remote) -> None:
     clear_dev_overlays(driver)
-
-    # Expo dev-client picker often shows localhost choices as static text rows.
-    for candidate in [
+    for candidate in (
         "Connected to:, http://localhost:8084",
         "Connected to:, http://localhost:8081",
         "localhost:8084",
         "127.0.0.1:8084",
-        "localhost:8083",
-        "127.0.0.1:8083",
         "localhost:8081",
         "127.0.0.1:8081",
         "http://localhost:8084",
         "http://localhost:8081",
-    ]:
+    ):
         if tap_if_present(driver, candidate):
             time.sleep(1.2)
             clear_dev_overlays(driver)
             return
 
 
-def wait_for(driver: webdriver.Remote, accessibility_id: str, timeout: float = 35.0) -> None:
+def wait_for(driver: webdriver.Remote, aid: str, timeout: float = 35.0):
     end = time.time() + timeout
     while time.time() < end:
         try:
-            driver.find_element("accessibility id", accessibility_id)
-            return
+            return driver.find_element("accessibility id", aid)
         except (NoSuchElementException, WebDriverException):
             connect_dev_server_if_needed(driver)
-            time.sleep(0.8)
-    raise TimeoutError(f"Timed out waiting for {accessibility_id}")
+            time.sleep(0.7)
+    raise TimeoutError(f"Timed out waiting for {aid}")
 
 
 def find_any_style_card(driver: webdriver.Remote):
@@ -106,43 +95,33 @@ def find_any_style_card(driver: webdriver.Remote):
 
 
 def ensure_home(driver: webdriver.Remote) -> None:
-    # Smoke runs can start from non-home routes after previous scripts.
     for _ in range(6):
         if find_any_style_card(driver) is not None:
             return
-
         if tap_if_present(driver, "try-another-style"):
             time.sleep(1.0)
             continue
-
         if tap_if_present(driver, "style-detail-back"):
             time.sleep(1.0)
             continue
-
         if tap_if_present(driver, "generation-back"):
             time.sleep(1.0)
             continue
-
         if tap_if_present(driver, "BackButton"):
             time.sleep(1.0)
             continue
-
         if tap_if_present(driver, "Styles, tab, 1 of 4"):
             time.sleep(1.0)
             continue
-
         if tap_if_present(driver, "settings-tab-home"):
             time.sleep(1.0)
             continue
-
         if tap_if_present(driver, "gallery-tab-home"):
             time.sleep(1.0)
             continue
-
         if tap_if_present(driver, "home-tab-gallery"):
             time.sleep(1.0)
             continue
-
         connect_dev_server_if_needed(driver)
         time.sleep(0.8)
 
@@ -152,81 +131,83 @@ def ensure_home(driver: webdriver.Remote) -> None:
             return
         connect_dev_server_if_needed(driver)
         time.sleep(0.8)
-    raise TimeoutError("Timed out waiting for any style-card-* element")
+
+    raise TimeoutError("Timed out waiting for home style cards")
 
 
 def save(driver: webdriver.Remote, name: str) -> None:
-    ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
-    driver.save_screenshot(str(ARTIFACT_DIR / name))
-
-
-def swipe_up(driver: webdriver.Remote) -> None:
-    try:
-        driver.execute_script("mobile: swipe", {"direction": "up"})
-    except Exception:
-        return
+    ART.mkdir(parents=True, exist_ok=True)
+    driver.save_screenshot(str(ART / name))
 
 
 def open_result_preview(driver: webdriver.Remote) -> None:
-    # iOS can ignore the first tap while transitions settle and CTA may be below viewport.
     end = time.time() + 24.0
     while time.time() < end:
-        if tap_if_present(driver, "view-result"):
-            time.sleep(0.8)
-
+        tap_if_present(driver, "view-result")
+        time.sleep(0.7)
         try:
             driver.find_element("accessibility id", "result-screen")
             return
         except NoSuchElementException:
-            swipe_up(driver)
-            time.sleep(0.6)
-
+            continue
     raise TimeoutError("Timed out opening result-screen from view-result")
 
 
+def assert_present(driver: webdriver.Remote, aid: str) -> None:
+    driver.find_element("accessibility id", aid)
+
+
 def main() -> int:
-    options = XCUITestOptions()
-    options.platform_name = "iOS"
-    options.device_name = IOS_DEVICE_NAME
-    options.udid = IOS_UDID
-    options.bundle_id = IOS_BUNDLE_ID
-    options.no_reset = True
-    options.auto_accept_alerts = True
+    opts = XCUITestOptions()
+    opts.platform_name = "iOS"
+    opts.device_name = IOS_DEVICE_NAME
+    opts.udid = IOS_UDID
+    opts.bundle_id = IOS_BUNDLE_ID
+    opts.no_reset = True
+    opts.auto_accept_alerts = True
 
-    driver = webdriver.Remote(APPIUM_URL, options=options)
-
+    driver = webdriver.Remote(APPIUM_URL, options=opts)
     try:
         ensure_home(driver)
-        save(driver, "royal-stageA-home.png")
+        save(driver, "01-home.png")
 
         style_card = find_any_style_card(driver)
         if style_card is None:
-            raise TimeoutError("No style-card-* found on home")
+            raise TimeoutError("No style-card-* element found on home")
         style_card.click()
-        wait_for(driver, "create-photo-button")
-        save(driver, "royal-stageA-style-detail.png")
 
+        wait_for(driver, "create-photo-button")
         if tap_if_present(driver, "qa-open-photo-picker"):
             pass
         else:
             driver.find_element("accessibility id", "create-photo-button").click()
-        wait_for(driver, "continue-generation")
-        save(driver, "royal-stageA-photo-picker.png")
 
+        wait_for(driver, "continue-generation")
         if tap_if_present(driver, "continue-generation-dev"):
             pass
         else:
             driver.find_element("accessibility id", "continue-generation").click()
-        wait_for(driver, "view-result", timeout=12.0)
-        save(driver, "royal-stageA-generation.png")
 
+        wait_for(driver, "generation-back")
+        assert_present(driver, "generation-back")
+        save(driver, "02-generation-progress.png")
+
+        wait_for(driver, "view-result", timeout=14.0)
         open_result_preview(driver)
-        save(driver, "royal-stageA-result.png")
+
+        for aid in (
+            "generate-video-pro",
+            "save-result",
+            "share-result",
+            "try-another-style",
+        ):
+            assert_present(driver, aid)
+
+        save(driver, "03-result-actions.png")
         return 0
     except Exception:
-        save(driver, "royal-stageA-failure.png")
-        source = driver.page_source
-        (ARTIFACT_DIR / "royal-stageA-failure.xml").write_text(source)
+        save(driver, "99-failure.png")
+        (ART / "99-failure.xml").write_text(driver.page_source)
         raise
     finally:
         driver.quit()

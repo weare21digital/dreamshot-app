@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Capture DreamShot extra Stage A screens (gallery/settings/coins).
 
-Uses the same Expo dev-client resilience as royal_stage_a_smoke.py so runs are
+Uses the same Expo dev-client resilience as dreamshot_stage_a_smoke.py so runs are
 stable even when the simulator opens on a stale server picker/overlay.
 """
 
@@ -18,7 +18,7 @@ from selenium.common.exceptions import NoSuchElementException, WebDriverExceptio
 APPIUM_URL = os.getenv("APPIUM_URL", "http://127.0.0.1:4723")
 IOS_UDID = os.getenv("IOS_UDID", "2C77A126-5AFA-42DE-9153-4D19ED8689F2")
 IOS_DEVICE_NAME = os.getenv("IOS_DEVICE_NAME", "iPhone 16 Pro")
-IOS_BUNDLE_ID = os.getenv("IOS_BUNDLE_ID", "com.bvg.royalportrait")
+IOS_BUNDLE_ID = os.getenv("IOS_BUNDLE_ID", "com.bvg.dreamshot")
 ART = Path(os.getenv("ROYAL_STAGE_A_ARTIFACT_DIR", "../local-operations"))
 
 
@@ -138,27 +138,27 @@ def main() -> int:
     driver = webdriver.Remote(APPIUM_URL, options=opts)
     try:
         ensure_home(driver)
-        save(driver, "royal-stageA-home.png")
+        save(driver, "dreamshot-stageA-home.png")
 
         driver.find_element("accessibility id", "home-tab-history").click()
         wait_for(driver, "gallery-tab-profile")
         time.sleep(0.8)
-        save(driver, "royal-stageA-my-gallery.png")
+        save(driver, "dreamshot-stageA-my-gallery.png")
 
         driver.find_element("accessibility id", "gallery-tab-profile").click()
         wait_for(driver, "settings-tab-home")
         time.sleep(0.8)
-        save(driver, "royal-stageA-settings.png")
+        save(driver, "dreamshot-stageA-settings.png")
 
         driver.find_element("accessibility id", "settings-tab-home").click()
         wait_for(driver, "global-header-coin-balance")
         driver.find_element("accessibility id", "global-header-coin-balance").click()
         time.sleep(0.8)
-        save(driver, "royal-stageA-coins.png")
+        save(driver, "dreamshot-stageA-coins.png")
         return 0
     except Exception:
-        save(driver, "royal-stageA-extra-failure.png")
-        (ART / "royal-stageA-extra-failure.xml").write_text(driver.page_source)
+        save(driver, "dreamshot-stageA-extra-failure.png")
+        (ART / "dreamshot-stageA-extra-failure.xml").write_text(driver.page_source)
         raise
     finally:
         driver.quit()

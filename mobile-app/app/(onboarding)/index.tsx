@@ -33,7 +33,7 @@ const ONBOARDING_CARDS: OnboardingCard[] = [
   {
     id: 'gallery',
     title: 'Your DreamShot gallery starts now',
-    subtitle: 'Explore a selection of best-in-class portraits and create your own.',
+    subtitle: 'Explore a selection of best-in-class styles and create your own.',
     image: require('../../assets/styles/the-coronation.jpg'),
   },
 ];

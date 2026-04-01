@@ -140,11 +140,11 @@ export function useGenerateVideo(): UseGenerateVideoResult {
       coinsSpent = true;
 
       const animStyle = animStyleId ? ANIMATION_STYLES.find((a) => a.id === animStyleId) : undefined;
-      const themePrefix = `DreamShot portrait painting come to life, cinematic atmosphere.`;
+      const themePrefix = `DreamShot image animation comes to life, cinematic atmosphere.`;
       const basePrompt = animStyle
         ? `${style.animationPrompt}. ${animStyle.promptSuffix}`
         : style.animationPrompt;
-      const videoPrompt = `${themePrefix} ${basePrompt}. Maintain the painted portrait aesthetic, rich colors, period costume details throughout the motion.`;
+      const videoPrompt = `${themePrefix} ${basePrompt}. Maintain the painted image aesthetic and rich colors throughout the motion.`;
 
       const submitted = await submitVideoGeneration({ imageUri, prompt: videoPrompt });
 

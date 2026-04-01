@@ -90,7 +90,7 @@ export default function MyGalleryScreen(): React.JSX.Element {
 
   const handleRequestDelete = useCallback((jobId: string, label: string) => {
     Alert.alert(
-      'Delete this portrait?',
+      'Delete this image?',
       'This item will move to Archive and can be restored for 7 days.',
       [
         { text: 'Cancel', style: 'cancel' },
@@ -146,7 +146,7 @@ export default function MyGalleryScreen(): React.JSX.Element {
       {isRestoring ? (
         <View style={styles.centerState}>
           <ActivityIndicator color={palette.text} />
-          <Text style={styles.helperText}>Loading your portraits...</Text>
+          <Text style={styles.helperText}>Loading your images...</Text>
         </View>
       ) : null}
 

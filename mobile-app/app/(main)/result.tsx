@@ -41,8 +41,8 @@ export default function ResultScreen(): React.JSX.Element {
   const { balance } = useCoins();
   const styles = React.useMemo(() => createStyles(palette, brand, isDark, captureSize), [palette, brand, isDark, captureSize]);
 
-  const portraitOpacity = useRef(new Animated.Value(0)).current;
-  const portraitScale = useRef(new Animated.Value(0.95)).current;
+  const imageOpacity = useRef(new Animated.Value(0)).current;
+  const imageScale = useRef(new Animated.Value(0.95)).current;
   const actionsOpacity = useRef(new Animated.Value(0)).current;
   const actionsTranslateY = useRef(new Animated.Value(12)).current;
   const revealPlayedRef = useRef(false);
@@ -55,13 +55,13 @@ export default function ResultScreen(): React.JSX.Element {
     revealPlayedRef.current = true;
 
     Animated.parallel([
-      Animated.timing(portraitOpacity, {
+      Animated.timing(imageOpacity, {
         toValue: 1,
         duration: 800,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
-      Animated.timing(portraitScale, {
+      Animated.timing(imageScale, {
         toValue: 1,
         duration: 800,
         easing: Easing.out(Easing.cubic),
@@ -86,7 +86,7 @@ export default function ResultScreen(): React.JSX.Element {
         }),
       ]),
     ]).start();
-  }, [actionsOpacity, actionsTranslateY, portraitOpacity, portraitScale]);
+  }, [actionsOpacity, actionsTranslateY, imageOpacity, imageScale]);
 
   useEffect(() => {
     if (!outputUrl || isVideo) {
@@ -223,7 +223,7 @@ export default function ResultScreen(): React.JSX.Element {
     try {
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission Required', 'Please allow photo library access to save your portrait.');
+        Alert.alert('Permission Required', 'Please allow photo library access to save your image.');
         return;
       }
 
@@ -262,8 +262,8 @@ export default function ResultScreen(): React.JSX.Element {
           style={[
             styles.imageWrap,
             {
-              opacity: portraitOpacity,
-              transform: [{ scale: portraitScale }],
+              opacity: imageOpacity,
+              transform: [{ scale: imageScale }],
             },
           ]}
         >
