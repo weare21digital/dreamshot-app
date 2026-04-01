@@ -140,7 +140,7 @@ export function useGenerateVideo(): UseGenerateVideoResult {
       coinsSpent = true;
 
       const animStyle = animStyleId ? ANIMATION_STYLES.find((a) => a.id === animStyleId) : undefined;
-      const themePrefix = `Royal portrait painting come to life, regency era, elegant aristocratic atmosphere.`;
+      const themePrefix = `DreamShot portrait painting come to life, cinematic atmosphere.`;
       const basePrompt = animStyle
         ? `${style.animationPrompt}. ${animStyle.promptSuffix}`
         : style.animationPrompt;

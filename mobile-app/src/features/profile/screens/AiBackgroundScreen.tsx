@@ -12,7 +12,7 @@ import { APP_THEME } from '../../../config/theme';
 import { useCoins } from '../../coins/hooks/useCoins';
 import { submitImageGeneration } from '../services/aiImageProviders';
 
-// Legacy compat wrapper — this screen is from the skeleton and not used in RoyalPortrait
+// Legacy compat wrapper — this screen is from the skeleton and not used in DreamShot
 const generateAiBackgroundImage = async (request: { imageUri: string; prompt: string; stylePreset: string; backgroundImageUrl?: string }): Promise<string> => {
   const result = await submitImageGeneration(request);
   // This is a stub — the skeleton's background screen would need queue-based polling to work properly

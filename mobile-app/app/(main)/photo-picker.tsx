@@ -63,7 +63,7 @@ export default function PhotoPickerScreen(): React.JSX.Element {
           <Pressable onPress={() => router.back()} style={styles.iconBtn}>
             <Text style={styles.iconText}>←</Text>
           </Pressable>
-          <Text style={styles.brand}>ROYAL PORTRAIT</Text>
+          <Text style={styles.brand}>DREAMSHOT</Text>
           <View style={styles.iconBtn} />
         </View>
 
@@ -86,7 +86,7 @@ export default function PhotoPickerScreen(): React.JSX.Element {
         </View>
 
         <Text style={styles.hintText}>
-          Position your face within the golden guide for the most authentic royal results. Natural lighting works best.
+          Position your face within the golden guide for the best DreamShot results. Natural lighting works best.
         </Text>
 
         <View style={styles.actions}>

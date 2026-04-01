@@ -15,8 +15,8 @@ import { useAppTheme } from '../../src/contexts/ThemeContext';
 import { useCoins } from '../../src/features/coins/hooks/useCoins';
 
 const GOLD = '#C9A84C';
-const GENERATION_COUNT_KEY = 'royal_generation_count';
-const RATING_PROMPTED_KEY = 'royal_rating_prompted';
+const GENERATION_COUNT_KEY = 'dreamshot_generation_count';
+const RATING_PROMPTED_KEY = 'dreamshot_rating_prompted';
 const RATING_PROMPT_THRESHOLD = 3;
 const WATERMARK_MAX_DIMENSION = 1920;
 const WATERMARK_FALLBACK_SIZE = { width: 1080, height: 1543 };
@@ -232,7 +232,7 @@ export default function ResultScreen(): React.JSX.Element {
       // If it's a remote URL, download first
       if (mediaUri.startsWith('http')) {
         const ext = isVideo ? 'mp4' : 'png';
-        const localPath = `${FileSystem.cacheDirectory}royal-portrait-${Date.now()}.${ext}`;
+        const localPath = `${FileSystem.cacheDirectory}dreamshot-image-${Date.now()}.${ext}`;
         const download = await FileSystem.downloadAsync(mediaUri, localPath);
         fileUri = download.uri;
       }
@@ -253,7 +253,7 @@ export default function ResultScreen(): React.JSX.Element {
         <Pressable onPress={() => router.dismissAll()} style={styles.headerBtn}>
           <MaterialIcons name="close" size={22} color={palette.text} />
         </Pressable>
-        <Text style={styles.brand}>ROYAL PORTRAIT</Text>
+        <Text style={styles.brand}>DREAMSHOT</Text>
         <View style={{ width: 38 }} />
       </View>
 

@@ -5,7 +5,7 @@ import { Dimensions, FlatList, Image, ListRenderItemInfo, Pressable, StyleSheet,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 
-const ONBOARDING_FLAG_KEY = 'royal_onboarding_complete';
+const ONBOARDING_FLAG_KEY = 'dreamshot_onboarding_complete';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 type OnboardingCard = {
@@ -19,20 +19,20 @@ type OnboardingCard = {
 const ONBOARDING_CARDS: OnboardingCard[] = [
   {
     id: 'hero',
-    title: 'Transform yourself into royalty',
-    subtitle: 'Bring your photo into a timeless world of crowns, courts, and grand portraits.',
+    title: 'Transform your photos into DreamShot art',
+    subtitle: 'Turn any selfie into a cinematic AI style in seconds.',
     image: require('../../assets/styles/the-queen.jpg'),
   },
   {
     id: 'flow',
-    title: 'Take a selfie → Pick a style → Get your portrait',
-    subtitle: 'Three simple steps from camera to regal masterpiece in seconds.',
+    title: 'Take a selfie → Pick a style → Generate your image',
+    subtitle: 'Three simple steps from camera to stylized image in seconds.',
     image: require('../../assets/styles/the-duke.jpg'),
-    flowText: 'Take a selfie  →  Pick a style  →  Get your portrait',
+    flowText: 'Take a selfie  →  Pick a style  →  Generate your image',
   },
   {
     id: 'gallery',
-    title: 'Your royal gallery starts now',
+    title: 'Your DreamShot gallery starts now',
     subtitle: 'Explore a selection of best-in-class portraits and create your own.',
     image: require('../../assets/styles/the-coronation.jpg'),
   },
@@ -84,7 +84,7 @@ export default function OnboardingScreen(): React.JSX.Element {
           <View style={styles.skipSpacer} />
         )}
 
-        <Text style={styles.brand}>ROYAL PORTRAIT</Text>
+        <Text style={styles.brand}>DREAMSHOT</Text>
 
         <View style={[isLast ? styles.heroImageSmall : styles.heroImage, { overflow: 'hidden' }]}>
           <Image source={item.image} style={{ width: '100%', height: '130%', top: 0 }} resizeMode="cover" />

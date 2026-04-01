@@ -21,8 +21,8 @@ const REGENCY_QUOTES = [
   'Your Majesty, the court painter requests a moment more...',
   'A masterpiece cannot be rushed...',
   'The finest things in life are worth the wait...',
-  'Poise, grace, and patience — the marks of true royalty...',
-  'The royal atelier is preparing your portrait...',
+  'Poise and patience — your DreamShot is almost ready...',
+  'The DreamShot studio is preparing your image...',
   'Even the crown jewels took time to polish...',
   'Rome was not built in a day, nor a dreamshot image in a moment...',
   'Your likeness is being rendered with the utmost care...',
@@ -187,7 +187,7 @@ export default function GenerationProgressScreen(): React.JSX.Element {
       return {
         key: 'processing',
         label: 'Painting in progress',
-        detail: 'Artists are applying your selected royal style now.',
+        detail: 'Artists are applying your selected DreamShot style now.',
         percent: 62,
       };
     }
@@ -229,7 +229,7 @@ export default function GenerationProgressScreen(): React.JSX.Element {
           <Pressable onPress={handleBackPress} style={styles.iconBtn} testID="generation-back">
             <Text style={styles.icon}>←</Text>
           </Pressable>
-          <Text style={styles.brand}>ROYAL PORTRAIT</Text>
+          <Text style={styles.brand}>DREAMSHOT</Text>
           <View style={styles.iconBtn} />
         </View>
 

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { Redirect } from 'expo-router';
 
-const ONBOARDING_FLAG_KEY = 'royal_onboarding_complete';
+const ONBOARDING_FLAG_KEY = 'dreamshot_onboarding_complete';
 
 export default function Index(): React.JSX.Element {
   const [target, setTarget] = useState<'/(onboarding)' | '/(main)/style-detail' | null>(null);

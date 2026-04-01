@@ -204,4 +204,4 @@ Notes:
 - Script attempts route deep links (`mobile-app:///(main)/coins-purchase`, fallback variants) if not already on the screen.
 - If the app is stuck in a blank native shell, it also tries Expo dev URLs (`exp://127.0.0.1:8081` + `:8083`) before retrying deep links.
 - `royal_result_actions_smoke.py` drives deterministic in-app navigation (home → style detail → photo picker → generation progress → result) and asserts `generation-back`, `generate-video-pro`, `save-result`, `share-result`, `try-another-style`.
-- Artifacts are saved to `/tmp/coins-smoke` (coins) and `/tmp/royal-result-smoke` (royal) by default.
+- Artifacts are saved to `/tmp/coins-smoke` (coins) and `/tmp/dreamshot-result-smoke` (dreamshot) by default.
