@@ -39,6 +39,18 @@
 - Avoid legacy warm/gold royal accents in new UI.
 - Keep semantic class/element naming clear when adding new reusable components.
 
+## Home/Gallery Patterns
+
+- Home header uses a compact brand lockup (`blur-on` icon + Space Grotesk title) with a circular glass notification action.
+- Hero blocks use large rounded cards (24 radius), deep overlay (`rgba(6,14,32,0.5)`), and dual CTA actions:
+  - Primary CTA: filled purple (`#9C48EA`) pill.
+  - Secondary CTA: glass pill with cyan-tinted border.
+- Popular creations should use a bento composition with one featured large tile and supporting smaller tiles.
+- Image card overlays are bottom-anchored, semi-transparent black (`rgba(0,0,0,0.5)`) with title + author metadata.
+- Bottom tab bar style for DreamShot main tabs is glassmorphic:
+  - `rgba(15, 25, 48, 0.78)` background
+  - rounded container (24 radius)
+  - cyan-tinted top border (`rgba(83, 221, 252, 0.2)`)
 
 ## Typography System
 

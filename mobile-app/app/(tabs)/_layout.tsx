@@ -13,9 +13,16 @@ export default function TabsLayout(): React.JSX.Element {
         tabBarActiveTintColor: palette.text,
         tabBarInactiveTintColor: palette.textSecondary,
         tabBarStyle: {
-          backgroundColor: palette.background,
-          borderTopColor: palette.borderVariant,
+          position: 'absolute',
+          backgroundColor: 'rgba(15, 25, 48, 0.78)',
+          borderTopColor: 'rgba(83, 221, 252, 0.2)',
           borderTopWidth: 1,
+          marginHorizontal: 12,
+          marginBottom: 12,
+          borderRadius: 24,
+          height: 68,
+          paddingBottom: 8,
+          paddingTop: 8,
         },
         tabBarLabelStyle: {
           fontSize: 10,
