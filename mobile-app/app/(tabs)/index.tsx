@@ -1,31 +1,42 @@
-import React, { useMemo } from 'react';
-import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Text } from 'react-native-paper';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Text as SvgText } from 'react-native-svg';
+import { LinearGradient } from 'expo-linear-gradient';
 import { getStylePreviewSource, DREAMSHOT_STYLE_PRESETS } from '../../src/config/styles';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
-type CreationCard = {
-  id: string;
-  title: string;
-  author: string;
-  large?: boolean;
-};
+type StyleCategory = 'All' | 'Portraits' | 'Landscapes' | 'Abstract' | 'Fantasy';
 
-const POPULAR_CREATIONS: CreationCard[] = [
-  { id: 'the-queen', title: 'Cyber Ethereal', author: '@lucid_dreamer', large: true },
-  { id: 'the-diamond', title: 'Liquid Gold Dragon', author: '@goldenvoid' },
-  { id: 'midnight-court', title: 'Vaporwave Dawn', author: '@neonatlas' },
-  { id: 'the-coronation', title: 'Crystal Library', author: '@phasecraft' },
-];
+const STYLE_CATEGORIES: StyleCategory[] = ['All', 'Portraits', 'Landscapes', 'Abstract', 'Fantasy'];
+
+const STYLE_CATEGORY_MAP: Record<string, Exclude<StyleCategory, 'All'>> = {
+  'the-queen': 'Portraits',
+  'the-diamond': 'Abstract',
+  'the-duke': 'Portraits',
+  'garden-soiree': 'Landscapes',
+  'midnight-court': 'Fantasy',
+  'the-heiress': 'Portraits',
+  'regency-masquerade': 'Fantasy',
+  'the-coronation': 'Abstract',
+};
 
 export default function HomeScreen(): React.JSX.Element {
   const { palette } = useAppTheme();
   const styles = useMemo(() => createStyles(palette), [palette]);
+  const [selectedCategory, setSelectedCategory] = useState<StyleCategory>('All');
+  const [selectedStyleId, setSelectedStyleId] = useState<string>(DREAMSHOT_STYLE_PRESETS[0]?.id ?? '');
+
+  const filteredStyles = useMemo(() => {
+    if (selectedCategory === 'All') {
+      return DREAMSHOT_STYLE_PRESETS;
+    }
+
+    return DREAMSHOT_STYLE_PRESETS.filter((style) => STYLE_CATEGORY_MAP[style.id] === selectedCategory);
+  }, [selectedCategory]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -40,13 +51,7 @@ export default function HomeScreen(): React.JSX.Element {
                   <Stop offset="1" stopColor="#53DDFC" />
                 </SvgLinearGradient>
               </Defs>
-              <SvgText
-                x="0"
-                y="27"
-                fill="url(#dreamshotWordmark)"
-                fontSize="27"
-                fontFamily="SpaceGrotesk_700Bold"
-              >
+              <SvgText x="0" y="27" fill="url(#dreamshotWordmark)" fontSize="27" fontFamily="SpaceGrotesk_700Bold">
                 DreamShot
               </SvgText>
             </Svg>
@@ -56,62 +61,62 @@ export default function HomeScreen(): React.JSX.Element {
           </Pressable>
         </View>
 
-        <ImageBackground
-          source={getStylePreviewSource(DREAMSHOT_STYLE_PRESETS[0])}
-          imageStyle={styles.heroImage}
-          style={styles.heroSection}
-        >
-          <View style={styles.heroOverlay} />
-          <View style={styles.heroContent}>
-            <Text style={styles.heroEyebrow}>JOIN 1M+ CREATORS</Text>
-            <Text style={styles.heroTitle}>Imagine it.{"\n"}<Text style={styles.heroTitleAccent}>Create it.</Text></Text>
-            <View style={styles.heroActions}>
-              <Pressable
-                style={({ pressed }) => [styles.ctaButtonWrap, pressed && styles.pressed]}
-                onPress={() => router.push('/(main)/photo-picker')}
-              >
-                <LinearGradient
-                  colors={['#9C48EA', '#53DDFC']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.ctaPrimaryGradient}
-                >
-                  <Text style={styles.ctaPrimaryText}>Start Creating</Text>
-                </LinearGradient>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [styles.ctaGhost, pressed && styles.pressed]}
-                onPress={() => router.push('/(tabs)/my-gallery')}
-              >
-                <Text style={styles.ctaGhostText}>View Gallery</Text>
-              </Pressable>
-            </View>
-          </View>
-        </ImageBackground>
-
-        <View style={styles.sectionHead}>
-          <View>
-            <Text style={styles.sectionTitle}>Popular Creations</Text>
-            <Text style={styles.sectionSub}>Trending artworks from the community</Text>
-          </View>
-          <Pressable style={({ pressed }) => [styles.viewAllBtn, pressed && styles.pressed]}>
-            <Text style={styles.viewAllText}>View All</Text>
-          </Pressable>
+        <View style={styles.heroWrap}>
+          <Text style={styles.heroTitle}>
+            Style <Text style={styles.heroTitleAccent}>Gallery</Text>
+          </Text>
+          <Text style={styles.heroSubtitle}>
+            Choose the visual language for your next generation.
+          </Text>
         </View>
 
-        <View style={styles.bentoGrid}>
-          {POPULAR_CREATIONS.map((creation, index) => {
-            const stylePreset = DREAMSHOT_STYLE_PRESETS.find((preset) => preset.id === creation.id) ?? DREAMSHOT_STYLE_PRESETS[index];
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.categoriesScroll}
+          contentContainerStyle={styles.categoriesContent}
+        >
+          {STYLE_CATEGORIES.map((category) => {
+            const active = category === selectedCategory;
             return (
               <Pressable
-                key={creation.title}
-                style={({ pressed }) => [styles.card, creation.large ? styles.cardLarge : styles.cardSmall, pressed && styles.pressed]}
-                onPress={() => router.push({ pathname: '/(main)/style-detail', params: { styleId: stylePreset.id } })}
+                key={category}
+                style={({ pressed }) => [styles.categoryChip, active && styles.categoryChipActive, pressed && styles.pressed]}
+                onPress={() => setSelectedCategory(category)}
               >
-                <Image source={getStylePreviewSource(stylePreset)} style={styles.cardImage} resizeMode="cover" />
-                <View style={styles.cardOverlay}>
-                  <Text style={styles.cardTitle}>{creation.title}</Text>
-                  <Text style={styles.cardAuthor}>{creation.author}</Text>
+                <Text style={[styles.categoryChipText, active && styles.categoryChipTextActive]}>{category}</Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+
+        <View style={styles.grid}>
+          {filteredStyles.map((stylePreset) => {
+            const selected = selectedStyleId === stylePreset.id;
+
+            return (
+              <Pressable
+                key={stylePreset.id}
+                style={({ pressed }) => [styles.styleCard, pressed && styles.pressed]}
+                onPress={() => {
+                  setSelectedStyleId(stylePreset.id);
+                  router.push({ pathname: '/(main)/style-detail', params: { styleId: stylePreset.id } });
+                }}
+              >
+                <Image source={getStylePreviewSource(stylePreset)} style={styles.styleImage} resizeMode="cover" />
+                <LinearGradient
+                  colors={['transparent', 'rgba(6, 14, 32, 0.94)']}
+                  start={{ x: 0.5, y: 0.25 }}
+                  end={{ x: 0.5, y: 1 }}
+                  style={styles.styleGradientOverlay}
+                />
+                <View style={styles.styleFooter}>
+                  <Text style={styles.styleName}>{stylePreset.title}</Text>
+                  <View style={[styles.selectPill, selected && styles.selectPillActive]}>
+                    <Text style={[styles.selectPillText, selected && styles.selectPillTextActive]}>
+                      {selected ? 'Selected' : 'Select'}
+                    </Text>
+                  </View>
                 </View>
               </Pressable>
             );
@@ -129,7 +134,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
     header: {
       paddingHorizontal: 20,
       paddingTop: 8,
-      paddingBottom: 10,
+      paddingBottom: 14,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -141,99 +146,105 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
       borderRadius: 18,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(20, 31, 56, 0.6)',
+      backgroundColor: 'rgba(20, 31, 56, 0.45)',
     },
-    heroSection: {
-      marginHorizontal: 16,
-      borderRadius: 24,
-      overflow: 'hidden',
-      minHeight: 332,
-      justifyContent: 'flex-end',
-      marginBottom: 24,
-      backgroundColor: palette.surfaceVariant,
-    },
-    heroImage: { opacity: 0.56 },
-    heroOverlay: {
-      ...StyleSheet.absoluteFillObject,
-      backgroundColor: 'rgba(6, 14, 32, 0.5)',
-    },
-    heroContent: {
+    heroWrap: {
       paddingHorizontal: 20,
-      paddingVertical: 24,
-      gap: 12,
-    },
-    heroEyebrow: {
-      alignSelf: 'flex-start',
-      paddingHorizontal: 10,
-      paddingVertical: 6,
-      borderRadius: 999,
-      backgroundColor: 'rgba(15, 25, 48, 0.7)',
-      color: '#53DDFC',
-      fontFamily: 'Inter_700Bold',
-      fontSize: 11,
-      letterSpacing: 1,
+      marginBottom: 16,
     },
     heroTitle: {
-      color: '#DEE5FF',
+      color: palette.text,
       fontFamily: 'SpaceGrotesk_700Bold',
       fontSize: 42,
       lineHeight: 46,
+      letterSpacing: -0.5,
     },
     heroTitleAccent: { color: '#53DDFC' },
-    heroActions: { flexDirection: 'row', gap: 10, marginTop: 4 },
-    ctaButtonWrap: { flex: 1, borderRadius: 999, overflow: 'hidden' },
-    ctaPrimaryGradient: {
-      borderRadius: 999,
-      paddingVertical: 13,
-      alignItems: 'center',
+    heroSubtitle: {
+      marginTop: 10,
+      color: palette.textSecondary,
+      fontSize: 15,
+      lineHeight: 22,
+      maxWidth: 300,
     },
-    ctaPrimaryText: { color: '#fff', fontFamily: 'Inter_700Bold', fontSize: 15 },
-    ctaGhost: {
-      flex: 1,
-      borderRadius: 999,
-      paddingVertical: 13,
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: 'rgba(83, 221, 252, 0.35)',
-      backgroundColor: 'rgba(20, 31, 56, 0.45)',
+    categoriesScroll: {
+      marginBottom: 16,
     },
-    ctaGhostText: { color: '#DEE5FF', fontFamily: 'Inter_700Bold', fontSize: 15 },
-    sectionHead: {
+    categoriesContent: {
       paddingHorizontal: 16,
-      marginBottom: 12,
-      flexDirection: 'row',
-      alignItems: 'flex-end',
-      justifyContent: 'space-between',
+      gap: 10,
     },
-    sectionTitle: { color: palette.text, fontFamily: 'SpaceGrotesk_700Bold', fontSize: 28 },
-    sectionSub: { color: palette.textSecondary, fontSize: 13, marginTop: 2 },
-    viewAllBtn: { paddingVertical: 6, paddingHorizontal: 8 },
-    viewAllText: { color: '#53DDFC', fontFamily: 'Inter_700Bold', fontSize: 13 },
-    bentoGrid: {
-      paddingHorizontal: 16,
+    categoryChip: {
+      paddingHorizontal: 18,
+      paddingVertical: 9,
+      borderRadius: 999,
+      backgroundColor: 'rgba(20, 31, 56, 0.58)',
+    },
+    categoryChipActive: {
+      backgroundColor: '#CC97FF',
+    },
+    categoryChipText: {
+      color: palette.textSecondary,
+      fontFamily: 'Inter_700Bold',
+      fontSize: 13,
+    },
+    categoryChipTextActive: {
+      color: '#000000',
+    },
+    grid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 10,
-      marginBottom: 20,
+      gap: 12,
+      paddingHorizontal: 16,
+      paddingBottom: 20,
     },
-    card: {
-      borderRadius: 14,
+    styleCard: {
+      width: '47%',
+      borderRadius: 32,
       overflow: 'hidden',
-      backgroundColor: palette.surfaceContainerHigh,
-      position: 'relative',
+      minHeight: 214,
+      backgroundColor: 'rgba(15, 25, 48, 0.45)',
     },
-    cardLarge: { width: '64%', minHeight: 250 },
-    cardSmall: { width: '33%', minHeight: 120 },
-    cardImage: { width: '100%', height: '100%' },
-    cardOverlay: {
+    styleImage: {
+      width: '100%',
+      height: 214,
+    },
+    styleGradientOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(6, 14, 32, 0.18)',
+    },
+    styleFooter: {
       position: 'absolute',
       left: 0,
       right: 0,
       bottom: 0,
-      padding: 10,
-      backgroundColor: 'rgba(0,0,0,0.5)',
+      paddingHorizontal: 12,
+      paddingVertical: 11,
+      backgroundColor: 'rgba(6, 14, 32, 0.25)',
     },
-    cardTitle: { color: '#fff', fontFamily: 'Inter_700Bold', fontSize: 12 },
-    cardAuthor: { color: '#C7D2FF', fontSize: 10, marginTop: 2 },
-    pressed: { opacity: 0.85 },
+    styleName: {
+      color: '#FFFFFF',
+      fontFamily: 'SpaceGrotesk_700Bold',
+      fontSize: 17,
+      marginBottom: 8,
+    },
+    selectPill: {
+      alignSelf: 'flex-start',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 999,
+      backgroundColor: 'rgba(20, 31, 56, 0.7)',
+    },
+    selectPillActive: {
+      backgroundColor: '#CC97FF',
+    },
+    selectPillText: {
+      color: '#DEE5FF',
+      fontFamily: 'Inter_700Bold',
+      fontSize: 12,
+    },
+    selectPillTextActive: {
+      color: '#000000',
+    },
+    pressed: { opacity: 0.86 },
   });

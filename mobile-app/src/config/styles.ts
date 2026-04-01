@@ -57,8 +57,8 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
 export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
   {
     id: 'the-queen',
-    title: 'The Queen',
-    subtitle: 'Imperial authority',
+    title: 'Cinematic',
+    subtitle: 'Movie-grade lighting',
     description: 'Regal throne image with crown, velvet gown, and gilded hall lighting.',
     prompt:
       'A majestic cinematic queen in an ornate throne room, rich velvet gown, diamond crown, baroque details, dramatic neon violet and cyan lighting, ultra-detailed image',
@@ -71,8 +71,8 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
   },
   {
     id: 'the-diamond',
-    title: 'The Diamond',
-    subtitle: 'Ballroom brilliance',
+    title: '3D Render',
+    subtitle: 'Stylized CGI depth',
     description: 'High-society ballroom image with crystal chandelier and jeweled styling.',
     prompt:
       'Elegant aristocratic image in a grand ballroom, crystal chandeliers, sparkling jewels, satin dress, refined expression, warm cinematic tones',
@@ -85,8 +85,8 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
   },
   {
     id: 'the-duke',
-    title: 'The Duke',
-    subtitle: 'Noble command',
+    title: 'Oil Painting',
+    subtitle: 'Classic brushwork',
     description: 'Refined noble image in tailored tailcoat against a stately manor backdrop.',
     prompt:
       'A distinguished duke image in regency-era manor interior, tailored navy tailcoat, subtle violet embroidery, aristocratic posture, realistic cinematic image',
@@ -99,8 +99,8 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
   },
   {
     id: 'garden-soiree',
-    title: 'Garden Soirée',
-    subtitle: 'Aristocratic romance',
+    title: 'Watercolor',
+    subtitle: 'Soft pigment wash',
     description: 'Soft natural-light image in a cinematic garden with ornate floral framing.',
     prompt:
       'Cinematic aristocrat image in an elegant estate garden, blooming flowers, ornate arches, soft natural light, pastel details, period fashion',
@@ -112,8 +112,8 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
   },
   {
     id: 'midnight-court',
-    title: 'Midnight Court',
-    subtitle: 'Candlelit intrigue',
+    title: 'Anime',
+    subtitle: 'Bold cel-shaded look',
     description: 'Dark, moody cinematic scene lit by candelabras and moonlight through drapes.',
     prompt:
       'Aristocratic image in a dim cinematic court, candlelit ambiance, moonlight through velvet drapes, intricate costume details, cinematic chiaroscuro',
@@ -125,8 +125,8 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
   },
   {
     id: 'the-heiress',
-    title: 'The Heiress',
-    subtitle: 'Velvet elegance',
+    title: 'Photorealistic',
+    subtitle: 'Natural DSLR realism',
     description: 'Polished image with rich textures, pearls, and subtle vintage glamour.',
     prompt:
       'Regency-era heiress image, velvet gown, pearl jewelry, aristocratic styling, soft-focus background, highly detailed skin and fabric texture',
@@ -138,8 +138,8 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
   },
   {
     id: 'regency-masquerade',
-    title: 'Regency Masquerade',
-    subtitle: 'Mystique in neon',
+    title: 'Pixel Art',
+    subtitle: 'Retro game aesthetic',
     description: 'Masked evening look with ornate decor and festive aristocratic drama.',
     prompt:
       'Cinematic masquerade image, ornate iridescent mask, luxurious regency ballroom, dramatic lighting, cinematic elegance, rich costume detail',
@@ -151,8 +151,8 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
   },
   {
     id: 'the-coronation',
-    title: 'The Coronation',
-    subtitle: 'Grand ceremony',
+    title: 'Fantasy Matte',
+    subtitle: 'Epic concept art',
     description: 'Ceremonial image in cathedral-like setting with cinematic insignia.',
     prompt:
       'Cinematic coronation image, ceremonial robes, ornate cathedral interior, violet and cyan emblems, epic yet refined composition, photorealistic detail',
