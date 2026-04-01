@@ -4,6 +4,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Text } from 'react-native-paper';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Text as SvgText } from 'react-native-svg';
 import { getStylePreviewSource, DREAMSHOT_STYLE_PRESETS } from '../../src/config/styles';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
@@ -31,7 +33,23 @@ export default function HomeScreen(): React.JSX.Element {
         <View style={styles.header}>
           <View style={styles.logoWrap}>
             <MaterialIcons name="blur-on" size={21} color="#9C48EA" />
-            <Text style={styles.logoText}>DreamShot</Text>
+            <Svg width={184} height={34} viewBox="0 0 184 34" accessible={false}>
+              <Defs>
+                <SvgLinearGradient id="dreamshotWordmark" x1="0" y1="0" x2="184" y2="0">
+                  <Stop offset="0" stopColor="#9C48EA" />
+                  <Stop offset="1" stopColor="#53DDFC" />
+                </SvgLinearGradient>
+              </Defs>
+              <SvgText
+                x="0"
+                y="27"
+                fill="url(#dreamshotWordmark)"
+                fontSize="27"
+                fontFamily="SpaceGrotesk_700Bold"
+              >
+                DreamShot
+              </SvgText>
+            </Svg>
           </View>
           <Pressable style={({ pressed }) => [styles.notifyButton, pressed && styles.pressed]}>
             <MaterialIcons name="notifications-none" size={22} color={palette.textSecondary} />
@@ -49,10 +67,17 @@ export default function HomeScreen(): React.JSX.Element {
             <Text style={styles.heroTitle}>Imagine it.{"\n"}<Text style={styles.heroTitleAccent}>Create it.</Text></Text>
             <View style={styles.heroActions}>
               <Pressable
-                style={({ pressed }) => [styles.ctaPrimary, pressed && styles.pressed]}
+                style={({ pressed }) => [styles.ctaButtonWrap, pressed && styles.pressed]}
                 onPress={() => router.push('/(main)/photo-picker')}
               >
-                <Text style={styles.ctaPrimaryText}>Start Creating</Text>
+                <LinearGradient
+                  colors={['#9C48EA', '#53DDFC']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.ctaPrimaryGradient}
+                >
+                  <Text style={styles.ctaPrimaryText}>Start Creating</Text>
+                </LinearGradient>
               </Pressable>
               <Pressable
                 style={({ pressed }) => [styles.ctaGhost, pressed && styles.pressed]}
@@ -110,12 +135,6 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
       justifyContent: 'space-between',
     },
     logoWrap: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    logoText: {
-      fontSize: 27,
-      fontFamily: 'SpaceGrotesk_700Bold',
-      color: '#CC97FF',
-      includeFontPadding: false,
-    },
     notifyButton: {
       width: 36,
       height: 36,
@@ -162,12 +181,11 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
     },
     heroTitleAccent: { color: '#53DDFC' },
     heroActions: { flexDirection: 'row', gap: 10, marginTop: 4 },
-    ctaPrimary: {
-      flex: 1,
+    ctaButtonWrap: { flex: 1, borderRadius: 999, overflow: 'hidden' },
+    ctaPrimaryGradient: {
       borderRadius: 999,
       paddingVertical: 13,
       alignItems: 'center',
-      backgroundColor: '#9C48EA',
     },
     ctaPrimaryText: { color: '#fff', fontFamily: 'Inter_700Bold', fontSize: 15 },
     ctaGhost: {

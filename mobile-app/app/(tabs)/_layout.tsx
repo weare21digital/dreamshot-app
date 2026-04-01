@@ -1,6 +1,8 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
 export default function TabsLayout(): React.JSX.Element {
@@ -12,17 +14,20 @@ export default function TabsLayout(): React.JSX.Element {
         headerShown: false,
         tabBarActiveTintColor: palette.text,
         tabBarInactiveTintColor: palette.textSecondary,
+        tabBarBackground: () => <BlurView intensity={48} tint="dark" style={StyleSheet.absoluteFill} />,
         tabBarStyle: {
           position: 'absolute',
-          backgroundColor: 'rgba(15, 25, 48, 0.78)',
-          borderTopColor: 'rgba(83, 221, 252, 0.2)',
-          borderTopWidth: 1,
+          backgroundColor: 'rgba(15, 25, 48, 0.55)',
+          borderTopColor: 'transparent',
+          borderTopWidth: 0,
+          elevation: 0,
           marginHorizontal: 12,
           marginBottom: 12,
           borderRadius: 24,
           height: 68,
           paddingBottom: 8,
           paddingTop: 8,
+          overflow: 'hidden',
         },
         tabBarLabelStyle: {
           fontSize: 10,
