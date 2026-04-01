@@ -363,7 +363,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       paddingVertical: 10,
     },
     iconBox: { width: 42, alignItems: 'center' },
-    title: { color: palette.text, fontSize: 29, fontWeight: '700', fontFamily: 'serif' },
+    title: { color: palette.text, fontSize: 29, fontWeight: '700', fontFamily: 'SpaceGrotesk_700Bold' },
 
     // Filter tabs
     filterRow: { flexDirection: 'row', paddingHorizontal: 14, paddingBottom: 8, gap: 8 },

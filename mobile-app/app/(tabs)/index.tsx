@@ -132,7 +132,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       paddingHorizontal: 16,
       paddingVertical: 10,
     },
-    brandTitle: { flex: 1, marginLeft: 8, fontSize: 24, color: palette.text, fontWeight: '700', fontFamily: 'serif' },
+    brandTitle: { flex: 1, marginLeft: 8, fontSize: 24, color: palette.text, fontWeight: '700', fontFamily: 'SpaceGrotesk_700Bold' },
     coinBadge: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -146,7 +146,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
     },
     coinText: { color: palette.text, fontWeight: '700', fontSize: 13 },
     content: { paddingHorizontal: 16, paddingBottom: 20 },
-    screenTitle: { marginTop: 14, fontSize: 33, color: palette.text, fontWeight: '700', fontFamily: 'serif' },
+    screenTitle: { marginTop: 14, fontSize: 33, color: palette.text, fontWeight: '700', fontFamily: 'SpaceGrotesk_700Bold' },
     subtitle: { fontSize: 14, color: palette.textSecondary, marginTop: 2 },
     filtersStrip: { marginTop: 10, marginHorizontal: -16, borderBottomWidth: 1, borderBottomColor: palette.borderVariant },
     filtersWrap: { paddingHorizontal: 16, gap: 18 },
@@ -167,7 +167,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       backgroundColor: palette.surfaceVariant,
     },
     image: { width: '100%', height: '100%' },
-    cardTitle: { marginTop: 6, fontSize: 20, lineHeight: 22, color: palette.text, fontWeight: '700', fontFamily: 'serif' },
+    cardTitle: { marginTop: 6, fontSize: 20, lineHeight: 22, color: palette.text, fontWeight: '700', fontFamily: 'SpaceGrotesk_700Bold' },
     cardSubtitle: { marginTop: 1, fontSize: 12, lineHeight: 15, color: palette.textSecondary },
     pressed: { opacity: 0.8 },
   });

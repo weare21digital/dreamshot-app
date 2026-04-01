@@ -120,7 +120,13 @@ const shape = {
  * Set fontFamily to a custom font name, or leave undefined for system default.
  */
 const typography = {
-  fontFamily: undefined as string | undefined,
+  fontFamily: 'Inter_400Regular',
+  bodyRegular: 'Inter_400Regular',
+  bodyMedium: 'Inter_500Medium',
+  bodySemiBold: 'Inter_600SemiBold',
+  bodyBold: 'Inter_700Bold',
+  headingMedium: 'SpaceGrotesk_500Medium',
+  headingBold: 'SpaceGrotesk_700Bold',
 } as const;
 
 /**

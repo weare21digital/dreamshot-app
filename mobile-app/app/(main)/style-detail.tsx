@@ -130,7 +130,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       borderBottomWidth: 1,
       borderBottomColor: palette.borderVariant,
     },
-    headerTitle: { fontSize: 22, color: palette.text, fontWeight: '700', fontFamily: 'serif' },
+    headerTitle: { fontSize: 22, color: palette.text, fontWeight: '700', fontFamily: 'SpaceGrotesk_700Bold' },
     iconButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
     content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 },
     hero: { width: '100%', aspectRatio: 4 / 5, justifyContent: 'flex-end', marginBottom: 20 },
@@ -149,7 +149,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       zIndex: 1,
     },
     titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-    title: { fontSize: 40, color: palette.text, fontWeight: '700', fontFamily: 'serif', flex: 1, flexShrink: 1 },
+    title: { fontSize: 40, color: palette.text, fontWeight: '700', fontFamily: 'SpaceGrotesk_700Bold', flex: 1, flexShrink: 1 },
     premiumBadge: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -230,7 +230,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       paddingTop: 24,
       paddingBottom: 40,
     },
-    modalTitle: { color: palette.text, fontSize: 20, fontWeight: '800', fontFamily: 'serif' },
+    modalTitle: { color: palette.text, fontSize: 20, fontWeight: '800', fontFamily: 'SpaceGrotesk_700Bold' },
     modalSubtitle: { color: palette.textSecondary, fontSize: 13, marginTop: 4, marginBottom: 16 },
     animOption: {
       flexDirection: 'row',

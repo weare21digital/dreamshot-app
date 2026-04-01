@@ -10,7 +10,7 @@ export default function MainLayout(): React.JSX.Element {
       screenOptions={{
         headerStyle: { backgroundColor: palette.background },
         headerTintColor: palette.text,
-        headerTitleStyle: { color: palette.text, fontFamily: 'serif', fontWeight: '700' },
+        headerTitleStyle: { color: palette.text, fontFamily: 'SpaceGrotesk_700Bold', fontWeight: '700' },
         contentStyle: { backgroundColor: palette.background },
       }}
     >

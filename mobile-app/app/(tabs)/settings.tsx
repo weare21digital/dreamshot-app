@@ -134,7 +134,7 @@ const createStyles = (
     title: {
       color: palette.text,
       fontSize: 20,
-      fontFamily: 'serif',
+      fontFamily: 'SpaceGrotesk_700Bold',
       fontWeight: '700',
     },
     content: { paddingHorizontal: 16, paddingBottom: 40 },

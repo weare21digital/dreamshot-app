@@ -135,7 +135,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       fontSize: 12,
     },
     titleWrap: { alignItems: 'center', paddingTop: 8, paddingBottom: 16 },
-    title: { color: palette.text, fontSize: 34, fontWeight: '700', fontFamily: 'serif' },
+    title: { color: palette.text, fontSize: 34, fontWeight: '700', fontFamily: 'SpaceGrotesk_700Bold' },
     goldRule: { marginTop: 8, width: 52, height: 4, borderRadius: 999, backgroundColor: brand.accent },
     previewWrap: { paddingHorizontal: 18 },
     preview: {

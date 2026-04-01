@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     color: APP_THEME.dark.text,
     fontSize: 31,
     lineHeight: 37,
-    fontFamily: 'serif',
+    fontFamily: 'SpaceGrotesk_700Bold',
     textAlign: 'center',
   },
   subtitle: {

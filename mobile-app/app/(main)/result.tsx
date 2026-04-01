@@ -516,7 +516,7 @@ const createStyles = (
       paddingTop: 24,
       paddingBottom: 40,
     },
-    modalTitle: { color: palette.text, fontSize: 20, fontWeight: '800', fontFamily: 'serif' },
+    modalTitle: { color: palette.text, fontSize: 20, fontWeight: '800', fontFamily: 'SpaceGrotesk_700Bold' },
     modalSubtitle: { color: palette.textSecondary, fontSize: 13, marginTop: 4, marginBottom: 16 },
     animOption: {
       flexDirection: 'row',

@@ -38,3 +38,12 @@
 - New gradients should use DreamShot signature purple→cyan direction.
 - Avoid legacy warm/gold royal accents in new UI.
 - Keep semantic class/element naming clear when adding new reusable components.
+
+
+## Typography System
+
+- **Headlines:** `SpaceGrotesk_700Bold` (or `SpaceGrotesk_500Medium` for secondary headings)
+- **Body/labels:** Inter family (`Inter_400Regular`, `Inter_500Medium`, `Inter_600SemiBold`, `Inter_700Bold`)
+- Fonts are loaded in `mobile-app/app/_layout.tsx` via `expo-font` + `@expo-google-fonts/*` packages.
+- `APP_THEME.typography` in `mobile-app/src/config/theme.ts` is the canonical token map for font families.
+- Legacy `serif` heading usage has been replaced with Space Grotesk heading tokens.
