@@ -1,6 +1,6 @@
 export type RoyalGenerationKind = 'photo' | 'video';
 
-export interface RoyalStylePreset {
+export interface DreamshotStylePreset {
   id: string;
   title: string;
   subtitle: string;

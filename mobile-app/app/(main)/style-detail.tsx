@@ -4,13 +4,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Text } from 'react-native-paper';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getStylePreviewSource, ROYAL_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
+import { getStylePreviewSource, DREAMSHOT_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
 import { useCoins } from '../../src/features/coins/hooks/useCoins';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
 export default function StyleDetailScreen(): React.JSX.Element {
   const { styleId } = useLocalSearchParams<{ styleId?: string }>();
-  const style = (styleId && ROYAL_STYLE_PRESETS_BY_ID[styleId]) || Object.values(ROYAL_STYLE_PRESETS_BY_ID)[0];
+  const style = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || Object.values(DREAMSHOT_STYLE_PRESETS_BY_ID)[0];
   const { balance, reload } = useCoins();
   const { palette, brand } = useAppTheme();
   const styles = React.useMemo(() => createStyles(palette, brand), [palette, brand]);

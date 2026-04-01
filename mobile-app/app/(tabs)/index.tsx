@@ -5,7 +5,7 @@ import { Text } from 'react-native-paper';
 import { router, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCoins } from '../../src/features/coins/hooks/useCoins';
-import { getStylePreviewSource, ROYAL_STYLE_PRESETS } from '../../src/config/styles';
+import { getStylePreviewSource, DREAMSHOT_STYLE_PRESETS } from '../../src/config/styles';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
 const FILTERS = [
@@ -45,7 +45,7 @@ export default function HomeScreen(): React.JSX.Element {
   const { palette, brand } = useAppTheme();
   const styles = useMemo(() => createStyles(palette, brand), [palette, brand]);
   const filteredStyles = useMemo(
-    () => ROYAL_STYLE_PRESETS.filter((style) => matchesFilter(style.id, selectedFilter)),
+    () => DREAMSHOT_STYLE_PRESETS.filter((style) => matchesFilter(style.id, selectedFilter)),
     [selectedFilter],
   );
 

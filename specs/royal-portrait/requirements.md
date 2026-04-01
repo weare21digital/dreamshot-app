@@ -1,7 +1,7 @@
-# Requirements Document — Royal Portrait
+# Requirements Document — DreamShot
 
 ## Introduction
-Royal Portrait is an AI photo/video transformation app that turns user selfies into aristocratic portraits and short cinematic clips.
+DreamShot is an AI photo/video transformation app that turns user selfies into aristocratic portraits and short cinematic clips.
 The app is built from mobile-skeleton-app in `backend:freemium` mode:
 - backend is used only as a secure proxy for AI generation (no exposed provider keys)
 - monetization uses local coin balance + IAP packs

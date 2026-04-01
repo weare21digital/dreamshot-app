@@ -1,4 +1,4 @@
-# Royal Portrait Progress
+# DreamShot Progress
 
 ## Phase 1: Design
 - [x] Screen mockups present in `design/` (8 screens)
@@ -17,7 +17,7 @@
 - [x] `setup.sh --non-interactive` run
 - [x] App identity updated (`com.bvg.royalportrait`)
 - [x] Modes configured (`backend` + `freemium`)
-- [x] Theme palette replaced with Royal Portrait colors
+- [x] Theme palette replaced with DreamShot colors
 - [x] Icons replaced
 - [x] Unused skeleton surfaces cleaned for Stage A launch path (Royal home route reachable in simulator)
 

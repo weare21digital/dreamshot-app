@@ -79,7 +79,7 @@ export class AiService {
     const stylePreset = dto.stylePreset || 'realistic';
     const styleSuffix = this.styleSuffixMap[stylePreset] || this.styleSuffixMap.realistic;
 
-    const prompt = `${dto.prompt}. ${styleSuffix}. High quality royal portrait painting, single person, anatomically correct, two arms only.`;
+    const prompt = `${dto.prompt}. ${styleSuffix}. High quality dreamshot image painting, single person, anatomically correct, two arms only.`;
 
     const response = await fetch(`https://queue.fal.run/${this.imageModel}`, {
       method: 'POST',
@@ -342,7 +342,7 @@ export class AiService {
     const styleSuffix = this.styleSuffixMap[stylePreset] || this.styleSuffixMap.realistic;
 
     // Step 1: Generate portrait with PuLID (synchronous call)
-    const portraitPrompt = `${dto.prompt}. ${styleSuffix}. High quality royal portrait painting, single person, anatomically correct, two arms only.`;
+    const portraitPrompt = `${dto.prompt}. ${styleSuffix}. High quality dreamshot image painting, single person, anatomically correct, two arms only.`;
 
     const portraitResponse = await fetch(`https://fal.run/${this.imageModel}`, {
       method: 'POST',

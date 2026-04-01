@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic Appium smoke for Royal Portrait generation/result actions.
+"""Deterministic Appium smoke for DreamShot generation/result actions.
 
 Validates:
 - generation-progress back button is present (`generation-back`)

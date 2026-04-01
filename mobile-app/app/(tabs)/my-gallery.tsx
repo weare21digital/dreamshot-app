@@ -13,7 +13,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ROYAL_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
+import { DREAMSHOT_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
 import { useGenerationJob, useGeneratePhoto, useGenerateVideo } from '../../src/features/generation';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 import { useVideoThumbnail } from '../../src/hooks/useVideoThumbnail';
@@ -113,7 +113,7 @@ export default function MyGalleryScreen(): React.JSX.Element {
 
   const handleViewerDelete = useCallback((jobId: string) => {
     setViewerIndex(null);
-    const style = ROYAL_STYLE_PRESETS_BY_ID[filteredJobs.find((j) => j.jobId === jobId)?.styleId || ''];
+    const style = DREAMSHOT_STYLE_PRESETS_BY_ID[filteredJobs.find((j) => j.jobId === jobId)?.styleId || ''];
     handleSwipeDelete(jobId, style?.title || 'Portrait');
   }, [filteredJobs, handleSwipeDelete]);
 
@@ -209,7 +209,7 @@ export default function MyGalleryScreen(): React.JSX.Element {
               {showArchive ? (
                 <View style={styles.archiveGrid}>
                   {archivedJobs.map((job) => {
-                    const s = ROYAL_STYLE_PRESETS_BY_ID[job.styleId];
+                    const s = DREAMSHOT_STYLE_PRESETS_BY_ID[job.styleId];
                     const daysLeft = job.archivedAt
                       ? Math.max(0, Math.ceil(7 - (Date.now() - new Date(job.archivedAt).getTime()) / 86400000))
                       : 0;
@@ -295,7 +295,7 @@ function SwipeableGalleryCard({
   const imageSource = hasOutput
     ? (isVideo ? (thumbnail ? { uri: thumbnail } : undefined) : { uri: job.outputUrl })
     : undefined;
-  const stylePreset = ROYAL_STYLE_PRESETS_BY_ID[job.styleId];
+  const stylePreset = DREAMSHOT_STYLE_PRESETS_BY_ID[job.styleId];
   const label = job.styleTitle || stylePreset?.title || 'Unknown style';
   const isPending = job.status === 'queued' || job.status === 'processing';
   const longPressTriggeredRef = useRef(false);

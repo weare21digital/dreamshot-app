@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture Royal Portrait extra Stage A screens (gallery/settings/coins).
+"""Capture DreamShot extra Stage A screens (gallery/settings/coins).
 
 Uses the same Expo dev-client resilience as royal_stage_a_smoke.py so runs are
 stable even when the simulator opens on a stale server picker/overlay.

@@ -10,7 +10,7 @@ import * as StoreReview from 'expo-store-review';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import ViewShot from 'react-native-view-shot';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ANIMATION_STYLES, ROYAL_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
+import { ANIMATION_STYLES, DREAMSHOT_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 import { useCoins } from '../../src/features/coins/hooks/useCoins';
 
@@ -23,7 +23,7 @@ const WATERMARK_FALLBACK_SIZE = { width: 1080, height: 1543 };
 
 export default function ResultScreen(): React.JSX.Element {
   const { styleId, mode, outputUrl } = useLocalSearchParams<{ styleId?: string; mode?: 'photo' | 'video'; outputUrl?: string }>();
-  const style = (styleId && ROYAL_STYLE_PRESETS_BY_ID[styleId]) || Object.values(ROYAL_STYLE_PRESETS_BY_ID)[0];
+  const style = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || Object.values(DREAMSHOT_STYLE_PRESETS_BY_ID)[0];
   const mediaUri = outputUrl || style.exampleImageUrl;
   const isVideo = mode === 'video';
   const { palette, brand } = useAppTheme();
@@ -239,7 +239,7 @@ export default function ResultScreen(): React.JSX.Element {
 
       await MediaLibrary.saveToLibraryAsync(fileUri);
       setSaved(true);
-      Alert.alert('Saved!', 'Your royal portrait has been saved to your photo library.');
+      Alert.alert('Saved!', 'Your dreamshot image has been saved to your photo library.');
     } catch (error) {
       Alert.alert('Save Failed', error instanceof Error ? error.message : 'Could not save the image.');
     } finally {

@@ -7,7 +7,7 @@ import {
   submitImageGeneration,
 } from '../../profile/services/aiImageProviders';
 import { cacheRemoteImage } from '../../../utils/imageCache';
-import { RoyalStylePreset } from '../types';
+import { DreamshotStylePreset } from '../types';
 import { useGenerationJob } from './useGenerationJob';
 
 const POLL_INTERVAL_MS = 5000;
@@ -23,7 +23,7 @@ const mapProviderStatus = (status: string): 'queued' | 'processing' | 'completed
 
 type SubmitPhotoInput = {
   imageUri: string;
-  style: RoyalStylePreset;
+  style: DreamshotStylePreset;
 };
 
 type UseGeneratePhotoResult = {

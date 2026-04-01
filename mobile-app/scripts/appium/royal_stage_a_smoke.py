@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage A smoke for Royal Portrait primary flow.
+"""Stage A smoke for DreamShot primary flow.
 
 - Handles Expo dev-client server picker by tapping localhost/127.0.0.1 entries
 - Verifies Royal home style card is visible

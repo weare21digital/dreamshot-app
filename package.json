@@ -1,7 +1,7 @@
 {
   "name": "dreamshot",
   "version": "1.0.0",
-  "description": "A complete cross-platform mobile app skeleton with React Native and Node.js backend",
+  "description": "DreamShot mobile app with AI-powered image generation workflows",
   "private": true,
   "scripts": {
     "postinstall": "concurrently \"cd backend && npm install\" \"cd mobile-app && npm install\"",

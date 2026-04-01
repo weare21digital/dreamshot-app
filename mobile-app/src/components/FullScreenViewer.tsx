@@ -23,7 +23,7 @@ import { Alert, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons as MI2 } from '@expo/vector-icons';
 import type { RoyalGenerationJob } from '../features/generation/types';
-import { ANIMATION_STYLES, ROYAL_STYLE_PRESETS_BY_ID } from '../config/styles';
+import { ANIMATION_STYLES, DREAMSHOT_STYLE_PRESETS_BY_ID } from '../config/styles';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DISMISS_THRESHOLD = 120;
@@ -58,7 +58,7 @@ export default function FullScreenViewer({ items, initialIndex, onDismiss, onDel
   onDismissRef.current = onDismiss;
 
   const currentItem = items[currentIndex];
-  const style = currentItem ? ROYAL_STYLE_PRESETS_BY_ID[currentItem.styleId] : undefined;
+  const style = currentItem ? DREAMSHOT_STYLE_PRESETS_BY_ID[currentItem.styleId] : undefined;
   const isVideo = currentItem?.kind === 'video';
 
   const translateX = useRef(new Animated.Value(0)).current;

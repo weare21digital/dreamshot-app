@@ -1,7 +1,7 @@
-# Design Document — Royal Portrait
+# Design Document — DreamShot
 
 ## Overview
-Royal Portrait extends mobile-skeleton-app with a style-first generation journey:
+DreamShot extends mobile-skeleton-app with a style-first generation journey:
 style discovery → source image selection → async generation progress → result actions → persisted gallery history.
 
 Architecture intent:

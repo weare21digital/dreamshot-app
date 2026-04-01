@@ -5,12 +5,12 @@ import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { APP_THEME } from '../../src/config/theme';
-import { getStylePreviewSource, ROYAL_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
+import { getStylePreviewSource, DREAMSHOT_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
 export default function PhotoPickerScreen(): React.JSX.Element {
   const { styleId, mode, animStyle } = useLocalSearchParams<{ styleId?: string; mode?: 'photo' | 'video'; animStyle?: string }>();
-  const style = (styleId && ROYAL_STYLE_PRESETS_BY_ID[styleId]) || Object.values(ROYAL_STYLE_PRESETS_BY_ID)[0];
+  const style = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || Object.values(DREAMSHOT_STYLE_PRESETS_BY_ID)[0];
   const { palette, brand } = useAppTheme();
   const isDark = palette.background === '#121316';
   const styles = React.useMemo(() => createStyles(palette, brand, isDark), [palette, brand, isDark]);

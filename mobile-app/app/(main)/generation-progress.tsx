@@ -3,7 +3,7 @@ import { ActivityIndicator, Animated, Pressable, ScrollView, StyleSheet, View } 
 import { router, useLocalSearchParams } from 'expo-router';
 import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ROYAL_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
+import { DREAMSHOT_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
 import { useGenerationJob, useGeneratePhoto, useGenerateVideo } from '../../src/features/generation';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
@@ -24,7 +24,7 @@ const REGENCY_QUOTES = [
   'Poise, grace, and patience — the marks of true royalty...',
   'The royal atelier is preparing your portrait...',
   'Even the crown jewels took time to polish...',
-  'Rome was not built in a day, nor a royal portrait in a moment...',
+  'Rome was not built in a day, nor a dreamshot image in a moment...',
   'Your likeness is being rendered with the utmost care...',
   'A noble portrait is painted stroke by patient stroke...',
   'Courtly splendor takes time to perfect...',
@@ -40,7 +40,7 @@ type ProgressStage = {
 
 export default function GenerationProgressScreen(): React.JSX.Element {
   const { styleId, mode, imageUri, animStyle } = useLocalSearchParams<{ styleId?: string; mode?: 'photo' | 'video'; imageUri?: string; animStyle?: string }>();
-  const style = (styleId && ROYAL_STYLE_PRESETS_BY_ID[styleId]) || Object.values(ROYAL_STYLE_PRESETS_BY_ID)[0];
+  const style = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || Object.values(DREAMSHOT_STYLE_PRESETS_BY_ID)[0];
   const generationMode = mode ?? 'photo';
 
   const { submitPhoto, cancelPhoto, isSubmitting: isPhotoSubmitting } = useGeneratePhoto();

@@ -1,7 +1,7 @@
-# Implementation Plan — Royal Portrait
+# Implementation Plan — DreamShot
 
 ## Overview
-Phase-ordered plan for Royal Portrait delivery with explicit sequencing, verification gates, and no-auth cleanup constraints.
+Phase-ordered plan for DreamShot delivery with explicit sequencing, verification gates, and no-auth cleanup constraints.
 
 ## Sequencing Rules
 1. Complete identity/config + route cleanup first.
@@ -19,7 +19,7 @@ Phase-ordered plan for Royal Portrait delivery with explicit sequencing, verific
   - Replace remaining skeleton naming defaults
   - _Requirements: 7.1, 7.3_
 
-- [x] 2. Apply complete Royal Portrait light/dark palettes
+- [x] 2. Apply complete DreamShot light/dark palettes
   - Update `mobile-app/src/config/theme.ts` across `brand`, `light`, and `dark`
   - Validate readable text and borders in both themes
   - _Requirements: 1.4, 7.2_
