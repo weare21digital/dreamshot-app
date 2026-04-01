@@ -31,19 +31,21 @@ const getMimeType = (imageUri: string): string => {
   return 'image/jpeg';
 };
 
-export type PortraitVideoRequest = {
+export type ImagePipelineVideoRequest = {
   imageUri: string;
   prompt: string;
   videoPrompt: string;
   stylePreset?: string;
 };
 
-export type PortraitVideoSubmitResult = VideoGenerationSubmitResult & {
-  portraitUrl?: string;
+export type ImagePipelineVideoSubmitResult = VideoGenerationSubmitResult & {
+  imageUrl?: string;
 };
 
-/** Pipeline: PuLID portrait → Wan video (backend handles both steps) */
-export const submitPortraitVideoGeneration = async (request: PortraitVideoRequest): Promise<PortraitVideoSubmitResult> => {
+/** Pipeline: PuLID image generation → Wan video (backend handles both steps) */
+export const submitImagePipelineVideoGeneration = async (
+  request: ImagePipelineVideoRequest,
+): Promise<ImagePipelineVideoSubmitResult> => {
   let localUri = request.imageUri;
 
   if (localUri.startsWith('http://') || localUri.startsWith('https://')) {
@@ -58,7 +60,7 @@ export const submitPortraitVideoGeneration = async (request: PortraitVideoReques
     encoding: FileSystem.EncodingType.Base64,
   });
 
-  const response = await apiClient.post('/ai/video/portrait-pipeline', {
+  const response = await apiClient.post('/ai/video/image-pipeline', {
     imageBase64,
     prompt: request.prompt,
     videoPrompt: request.videoPrompt,
@@ -66,14 +68,28 @@ export const submitPortraitVideoGeneration = async (request: PortraitVideoReques
     stylePreset: request.stylePreset,
   });
 
-  const data = response as unknown as PortraitVideoSubmitResult;
+  const data = response as unknown as ImagePipelineVideoSubmitResult;
 
   return {
     requestId: data.requestId,
     status: data.status || 'IN_QUEUE',
     statusUrl: data.statusUrl,
     responseUrl: data.responseUrl,
-    portraitUrl: data.portraitUrl,
+    imageUrl: data.imageUrl,
+  };
+};
+
+// Backward-compatible aliases for in-flight callers during the rebrand transition.
+export type PortraitVideoRequest = ImagePipelineVideoRequest;
+export type PortraitVideoSubmitResult = VideoGenerationSubmitResult & {
+  portraitUrl?: string;
+};
+
+export const submitPortraitVideoGeneration = async (request: PortraitVideoRequest): Promise<PortraitVideoSubmitResult> => {
+  const data = await submitImagePipelineVideoGeneration(request);
+  return {
+    ...data,
+    portraitUrl: data.imageUrl,
   };
 };
 

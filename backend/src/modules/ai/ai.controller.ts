@@ -4,7 +4,7 @@ import { ReplaceBackgroundDto } from './dto/replace-background.dto';
 import { VideoSubmitDto } from './dto/video-generation.dto';
 import { VideoPortraitDto } from './dto/video-portrait.dto';
 
-// Auth guard removed — RoyalPortrait is a no-login freemium app
+// Auth guard removed — DreamShot is a no-login freemium app
 // TODO: Add API key or rate-limiting guard before production
 @Controller('ai')
 export class AiController {
@@ -30,6 +30,12 @@ export class AiController {
     return this.aiService.cancelImageGeneration(requestId);
   }
 
+  @Post('video/image-pipeline')
+  async submitImagePipelineVideo(@Body() dto: VideoPortraitDto) {
+    return this.aiService.submitPortraitVideo(dto);
+  }
+
+  // Backward-compatible route kept for older clients.
   @Post('video/portrait-pipeline')
   async submitPortraitVideo(@Body() dto: VideoPortraitDto) {
     return this.aiService.submitPortraitVideo(dto);

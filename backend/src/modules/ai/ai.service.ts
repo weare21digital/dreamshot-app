@@ -320,7 +320,7 @@ export class AiService {
     return { cancelled: response.ok };
   }
 
-  // ---------- Portrait-to-Video Pipeline (PuLID → Wan) ----------
+  // ---------- Image-to-Video Pipeline (PuLID → Wan) ----------
 
   async submitPortraitVideo(dto: VideoPortraitDto): Promise<{
     requestId: string;
@@ -328,6 +328,7 @@ export class AiService {
     statusUrl?: string;
     responseUrl?: string;
     portraitUrl?: string;
+    imageUrl?: string;
   }> {
     const imageBase64 = dto.imageBase64?.trim();
     if (!imageBase64) {
@@ -412,6 +413,7 @@ export class AiService {
       statusUrl: videoData.status_url,
       responseUrl: videoData.response_url,
       portraitUrl,
+      imageUrl: portraitUrl,
     };
   }
 }
