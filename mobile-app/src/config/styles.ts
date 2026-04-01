@@ -162,7 +162,7 @@ export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
   },
 ];
 
-const ROYAL_STYLE_PREVIEW_IMAGES: Record<string, ImageSourcePropType> = {
+const DREAMSHOT_STYLE_PREVIEW_IMAGES: Record<string, ImageSourcePropType> = {
   'the-queen': queenPreview,
   'the-diamond': diamondPreview,
   'the-duke': dukePreview,
@@ -174,7 +174,7 @@ const ROYAL_STYLE_PREVIEW_IMAGES: Record<string, ImageSourcePropType> = {
 };
 
 export const getStylePreviewSource = (style: DreamshotStylePreset): ImageSourcePropType =>
-  ROYAL_STYLE_PREVIEW_IMAGES[style.id] ?? { uri: style.exampleImageUrl };
+  DREAMSHOT_STYLE_PREVIEW_IMAGES[style.id] ?? { uri: style.exampleImageUrl };
 
 export const DREAMSHOT_STYLE_PRESETS_BY_ID = Object.fromEntries(
   DREAMSHOT_STYLE_PRESETS.map((style) => [style.id, style]),

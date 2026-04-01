@@ -80,16 +80,16 @@ export const submitImagePipelineVideoGeneration = async (
 };
 
 // Backward-compatible aliases for in-flight callers during the rebrand transition.
-export type PortraitVideoRequest = ImagePipelineVideoRequest;
-export type PortraitVideoSubmitResult = VideoGenerationSubmitResult & {
-  portraitUrl?: string;
+export type DreamshotImagePipelineRequest = ImagePipelineVideoRequest;
+export type DreamshotImagePipelineSubmitResult = VideoGenerationSubmitResult & {
+  imageUrl?: string;
 };
 
-export const submitPortraitVideoGeneration = async (request: PortraitVideoRequest): Promise<PortraitVideoSubmitResult> => {
+export const submitDreamshotImagePipeline = async (request: DreamshotImagePipelineRequest): Promise<DreamshotImagePipelineSubmitResult> => {
   const data = await submitImagePipelineVideoGeneration(request);
   return {
     ...data,
-    portraitUrl: data.imageUrl,
+    imageUrl: data.imageUrl,
   };
 };
 

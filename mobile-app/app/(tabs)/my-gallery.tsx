@@ -114,7 +114,7 @@ export default function MyGalleryScreen(): React.JSX.Element {
   const handleViewerDelete = useCallback((jobId: string) => {
     setViewerIndex(null);
     const style = DREAMSHOT_STYLE_PRESETS_BY_ID[filteredJobs.find((j) => j.jobId === jobId)?.styleId || ''];
-    handleSwipeDelete(jobId, style?.title || 'Portrait');
+    handleSwipeDelete(jobId, style?.title || 'Image');
   }, [filteredJobs, handleSwipeDelete]);
 
   const handleMakeVideo = useCallback((job: DreamshotGenerationJob, animStyleId: string) => {
@@ -154,13 +154,13 @@ export default function MyGalleryScreen(): React.JSX.Element {
         <View style={styles.centerState}>
           <MaterialIcons name="auto-awesome" size={48} color={brand.accent} />
           <Text style={styles.emptyTitle}>Your gallery awaits</Text>
-          <Text style={styles.helperText}>Portraits you create will appear here.</Text>
+          <Text style={styles.helperText}>Images you create will appear here.</Text>
           <Pressable
             onPress={() => router.push('/(tabs)')}
             style={({ pressed }) => [styles.emptyCtaButton, pressed && { opacity: 0.85 }]}
           >
             <MaterialIcons name="brush" size={18} color="#1A1A2E" />
-            <Text style={styles.emptyCtaText}>Create First Portrait</Text>
+            <Text style={styles.emptyCtaText}>Create First Image</Text>
           </Pressable>
         </View>
       ) : null}

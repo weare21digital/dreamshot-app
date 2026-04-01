@@ -19,7 +19,7 @@ APPIUM_URL = os.getenv("APPIUM_URL", "http://127.0.0.1:4723")
 IOS_UDID = os.getenv("IOS_UDID", "2C77A126-5AFA-42DE-9153-4D19ED8689F2")
 IOS_DEVICE_NAME = os.getenv("IOS_DEVICE_NAME", "iPhone 16 Pro")
 IOS_BUNDLE_ID = os.getenv("IOS_BUNDLE_ID", "com.bvg.dreamshot")
-ART = Path(os.getenv("ROYAL_STAGE_A_ARTIFACT_DIR", "../local-operations"))
+ART = Path(os.getenv("DREAMSHOT_STAGE_A_ARTIFACT_DIR", "../local-operations"))
 
 
 def tap_if_present(driver: webdriver.Remote, accessibility_id: str) -> bool:

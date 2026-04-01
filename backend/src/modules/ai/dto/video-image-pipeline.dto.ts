@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
-export class VideoPortraitDto {
+export class VideoImagePipelineDto {
   @IsString()
   @IsNotEmpty()
   imageBase64!: string;

@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ReplaceBackgroundDto } from './dto/replace-background.dto';
 import { VideoSubmitDto } from './dto/video-generation.dto';
-import { VideoPortraitDto } from './dto/video-portrait.dto';
+import { VideoImagePipelineDto } from './dto/video-image-pipeline.dto';
 
 @Injectable()
 export class AiService {
@@ -322,12 +322,11 @@ export class AiService {
 
   // ---------- Image-to-Video Pipeline (PuLID → Wan) ----------
 
-  async submitPortraitVideo(dto: VideoPortraitDto): Promise<{
+  async submitImagePipelineVideo(dto: VideoImagePipelineDto): Promise<{
     requestId: string;
     status: string;
     statusUrl?: string;
     responseUrl?: string;
-    portraitUrl?: string;
     imageUrl?: string;
   }> {
     const imageBase64 = dto.imageBase64?.trim();
@@ -342,10 +341,10 @@ export class AiService {
     const stylePreset = dto.stylePreset || 'realistic';
     const styleSuffix = this.styleSuffixMap[stylePreset] || this.styleSuffixMap.realistic;
 
-    // Step 1: Generate portrait with PuLID (synchronous call)
-    const portraitPrompt = `${dto.prompt}. ${styleSuffix}. High quality dreamshot image painting, single person, anatomically correct, two arms only.`;
+    // Step 1: Generate image with PuLID (synchronous call)
+    const imagePrompt = `${dto.prompt}. ${styleSuffix}. High quality dreamshot image painting, single person, anatomically correct, two arms only.`;
 
-    const portraitResponse = await fetch(`https://fal.run/${this.imageModel}`, {
+    const imageResponse = await fetch(`https://fal.run/${this.imageModel}`, {
       method: 'POST',
       headers: {
         Authorization: `Key ${apiKey}`,
@@ -353,7 +352,7 @@ export class AiService {
       },
       body: JSON.stringify({
         reference_images: [{ image_url: imageUrl }],
-        prompt: portraitPrompt,
+        prompt: imagePrompt,
         negative_prompt: 'extra arms, extra hands, extra fingers, extra limbs, multiple arms, four arms, 3 arms, duplicate limbs, fused limbs, malformed hands, bad anatomy, flaws in the eyes, flaws in the face, lowres, low quality, worst quality, artifacts, noise, text, watermark, glitch, deformed, mutated, ugly, disfigured, blurry, modern clothing, t-shirt, casual wear',
         num_images: 1,
         guidance_scale: 1.2,
@@ -364,24 +363,24 @@ export class AiService {
       }),
     });
 
-    const portraitText = await portraitResponse.text();
-    let portraitData: { images?: Array<{ url?: string }>; detail?: string };
+    const imageText = await imageResponse.text();
+    let imageData: { images?: Array<{ url?: string }>; detail?: string };
     try {
-      portraitData = JSON.parse(portraitText);
+      imageData = JSON.parse(imageText);
     } catch {
-      throw new InternalServerErrorException(`Unexpected fal.ai portrait response: ${portraitText.slice(0, 200)}`);
+      throw new InternalServerErrorException(`Unexpected fal.ai image response: ${imageText.slice(0, 200)}`);
     }
 
-    if (!portraitResponse.ok) {
-      throw new InternalServerErrorException(portraitData?.detail || `Portrait generation failed (${portraitResponse.status})`);
+    if (!imageResponse.ok) {
+      throw new InternalServerErrorException(imageData?.detail || `Image generation failed (${imageResponse.status})`);
     }
 
-    const portraitUrl = portraitData?.images?.[0]?.url;
-    if (!portraitUrl) {
-      throw new InternalServerErrorException('Portrait generation returned no image');
+    const generatedImageUrl = imageData?.images?.[0]?.url;
+    if (!generatedImageUrl) {
+      throw new InternalServerErrorException('Image generation returned no image');
     }
 
-    // Step 2: Submit portrait to video generation queue (Wan)
+    // Step 2: Submit generated image to video generation queue (Wan)
     const videoResponse = await fetch(`https://queue.fal.run/${this.videoModel}`, {
       method: 'POST',
       headers: {
@@ -389,7 +388,7 @@ export class AiService {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        image_url: portraitUrl,
+        image_url: generatedImageUrl,
         prompt: dto.videoPrompt,
       }),
     });
@@ -412,8 +411,7 @@ export class AiService {
       status: videoData.status || 'IN_QUEUE',
       statusUrl: videoData.status_url,
       responseUrl: videoData.response_url,
-      portraitUrl,
-      imageUrl: portraitUrl,
+      imageUrl: generatedImageUrl,
     };
   }
 }

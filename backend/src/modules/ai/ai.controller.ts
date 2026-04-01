@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from '@nest
 import { AiService } from './ai.service';
 import { ReplaceBackgroundDto } from './dto/replace-background.dto';
 import { VideoSubmitDto } from './dto/video-generation.dto';
-import { VideoPortraitDto } from './dto/video-portrait.dto';
+import { VideoImagePipelineDto } from './dto/video-image-pipeline.dto';
 
 // Auth guard removed — DreamShot is a no-login freemium app
 // TODO: Add API key or rate-limiting guard before production
@@ -31,14 +31,14 @@ export class AiController {
   }
 
   @Post('video/image-pipeline')
-  async submitImagePipelineVideo(@Body() dto: VideoPortraitDto) {
-    return this.aiService.submitPortraitVideo(dto);
+  async submitImagePipelineVideo(@Body() dto: VideoImagePipelineDto) {
+    return this.aiService.submitImagePipelineVideo(dto);
   }
 
   // Backward-compatible route kept for older clients.
   @Post('video/portrait-pipeline')
-  async submitPortraitVideo(@Body() dto: VideoPortraitDto) {
-    return this.aiService.submitPortraitVideo(dto);
+  async submitPortraitVideo(@Body() dto: VideoImagePipelineDto) {
+    return this.aiService.submitImagePipelineVideo(dto);
   }
 
   @Post('video/submit')

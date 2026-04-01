@@ -210,7 +210,7 @@ export default function FullScreenViewer({ items, initialIndex, onDismiss, onDel
           <MaterialIcons name="close" size={26} color="#fff" />
         </Pressable>
         <View style={styles.topCenter}>
-          <Text style={styles.topTitle} numberOfLines={1}>{style?.title || 'Portrait'}</Text>
+          <Text style={styles.topTitle} numberOfLines={1}>{style?.title || 'Image'}</Text>
           <Text style={styles.topSub}>{isVideo ? 'Video' : 'Photo'} • {currentIndex + 1}/{items.length}</Text>
         </View>
         <View style={styles.topBtn} />
