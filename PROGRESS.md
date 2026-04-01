@@ -6,7 +6,7 @@
 - [ ] Final visual review complete
 
 ## Phase 2: Spec
-- [x] Spec directory created: `specs/royal-portrait/`
+- [x] Spec directory created: `specs/dreamshot/`
 - [x] `requirements.md` drafted
 - [x] `design.md` drafted
 - [x] `tasks.md` drafted
@@ -15,7 +15,7 @@
 ## Phase 3: Fork & Configure
 - [x] Skeleton copied into existing repo
 - [x] `setup.sh --non-interactive` run
-- [x] App identity updated (`com.bvg.royalportrait`)
+- [x] App identity updated (`com.bvg.dreamshot`)
 - [x] Modes configured (`backend` + `freemium`)
 - [x] Theme palette replaced with DreamShot colors
 - [x] Icons replaced
@@ -25,14 +25,14 @@
 - [x] `npm run type-check`
 - [x] `npx expo run:ios -d 2C77A126-5AFA-42DE-9153-4D19ED8689F2 --no-bundler`
 - [x] Appium capture refreshed for all target screens:
-  - `local-operations/royal-stageA-home.png`
-  - `local-operations/royal-stageA-style-detail.png`
-  - `local-operations/royal-stageA-photo-picker.png`
-  - `local-operations/royal-stageA-generation.png`
-  - `local-operations/royal-stageA-result.png`
-  - `local-operations/royal-stageA-my-gallery.png`
-  - `local-operations/royal-stageA-settings.png`
-  - `local-operations/royal-stageA-coins.png`
+  - `local-operations/dreamshot-stageA-home.png`
+  - `local-operations/dreamshot-stageA-style-detail.png`
+  - `local-operations/dreamshot-stageA-photo-picker.png`
+  - `local-operations/dreamshot-stageA-generation.png`
+  - `local-operations/dreamshot-stageA-result.png`
+  - `local-operations/dreamshot-stageA-my-gallery.png`
+  - `local-operations/dreamshot-stageA-settings.png`
+  - `local-operations/dreamshot-stageA-coins.png`
 
 ## Next
 1. Await Oracle review for Phase 1/Stage A closeout evidence.
