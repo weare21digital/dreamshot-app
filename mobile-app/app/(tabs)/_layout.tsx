@@ -68,7 +68,7 @@ export default function TabsLayout(): React.JSX.Element {
         options={{
           title: 'Create',
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="auto-fix-high" size={size} color={color} />
+            <MaterialIcons name="smart-button" size={size} color={color} />
           ),
         }}
       />
