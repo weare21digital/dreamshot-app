@@ -1,247 +1,248 @@
-import React, { useCallback } from 'react';
-import { Alert, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Text } from 'react-native-paper';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getStylePreviewSource, DREAMSHOT_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
-import { useCoins } from '../../src/features/coins/hooks/useCoins';
+import { Text } from 'react-native-paper';
+import { LinearGradient } from 'expo-linear-gradient';
+import { DREAMSHOT_STYLE_PRESETS, DREAMSHOT_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
+
+type AspectRatio = '1:1' | '4:3' | '16:9' | '9:16';
+
+const ASPECTS: AspectRatio[] = ['1:1', '4:3', '16:9', '9:16'];
 
 export default function StyleDetailScreen(): React.JSX.Element {
   const { styleId } = useLocalSearchParams<{ styleId?: string }>();
-  const style = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || Object.values(DREAMSHOT_STYLE_PRESETS_BY_ID)[0];
-  const { balance, reload } = useCoins();
-  const { palette, brand } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(palette, brand), [palette, brand]);
+  const defaultStyle = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || DREAMSHOT_STYLE_PRESETS[0];
+  const { palette } = useAppTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
 
-  const canAffordPhoto = balance >= style.photoCost;
-
-  useFocusEffect(useCallback(() => { void reload(); }, [reload]));
-
-  const handleCreatePhoto = () => {
-    if (balance < style.photoCost) {
-      Alert.alert(
-        'Not Enough Coins',
-        `You need ${style.photoCost} coins but only have ${balance}. Would you like to buy more?`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Buy Coins', onPress: () => router.push('/(tabs)/coins') },
-        ],
-      );
-      return;
-    }
-    router.push({ pathname: '/(main)/photo-picker', params: { styleId: style.id, mode: 'photo' } });
-  };
+  const [prompt, setPrompt] = useState('Dreamy cinematic portrait with soft neon rim light and rich details');
+  const [focused, setFocused] = useState(false);
+  const [selectedStyleId, setSelectedStyleId] = useState(defaultStyle.id);
+  const [selectedAspect, setSelectedAspect] = useState<AspectRatio>('16:9');
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Pressable testID="style-detail-back" onPress={() => router.back()} style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-          <MaterialIcons name="arrow-back" size={24} color={palette.text} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Style Detail</Text>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Style details info"
-          onPress={() => Alert.alert('Style details', `${style.title}\n\nPhoto: ${style.photoCost} coins`)}
-          style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}
-        >
-          <MaterialIcons name="info-outline" size={24} color={palette.text} />
-        </Pressable>
-      </View>
-
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <ImageBackground source={getStylePreviewSource(style)} style={styles.hero} imageStyle={styles.heroImage}>
-          <View style={styles.heroShade} />
-          <Text style={styles.heroCaption}>Example: {style.title} Style</Text>
-        </ImageBackground>
+        <View style={styles.header}>
+          <Pressable onPress={() => router.back()} style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
+            <MaterialIcons name="arrow-back" size={22} color={palette.text} />
+          </Pressable>
+          <Text style={styles.headerTitle}>Create</Text>
+          <View style={styles.iconButton} />
+        </View>
 
-        <View style={styles.titleRow}>
-          <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">{style.title}</Text>
-          <View style={styles.premiumBadge}>
-            <MaterialIcons name="auto-awesome" size={16} color={brand.accent} />
-            <Text style={styles.premiumText}>Premium</Text>
+        <View style={[styles.promptGlow, focused && styles.promptGlowActive]}>
+          <View style={[styles.promptCard, focused && styles.promptCardActive]}>
+            <TextInput
+              value={prompt}
+              onChangeText={setPrompt}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              style={styles.promptInput}
+              multiline
+              placeholder="Describe what you want to see..."
+              placeholderTextColor={palette.textSecondary}
+            />
+            <View style={styles.promptFooter}>
+              <View style={styles.promptActions}>
+                <Pressable style={styles.promptIconButton}>
+                  <MaterialIcons name="history-edu" size={19} color="#CC97FF" />
+                </Pressable>
+                <Pressable style={styles.promptIconButton}>
+                  <MaterialIcons name="auto-fix-high" size={19} color="#CC97FF" />
+                </Pressable>
+              </View>
+              <Text style={styles.engineLabel}>AI ENGINE v4.2</Text>
+            </View>
           </View>
         </View>
 
-        <View style={styles.goldLine} />
+        <View style={styles.sectionHead}>
+          <Text style={styles.sectionTitle}>Style Selector</Text>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsWrap}>
+          {DREAMSHOT_STYLE_PRESETS.slice(0, 8).map((item) => {
+            const active = item.id === selectedStyleId;
+            return (
+              <Pressable
+                key={item.id}
+                onPress={() => setSelectedStyleId(item.id)}
+                style={({ pressed }) => [styles.styleChip, active && styles.styleChipActive, pressed && styles.pressed]}
+              >
+                <Text style={[styles.styleChipText, active && styles.styleChipTextActive]}>{item.title}</Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
 
-        <Text style={styles.description}>{style.description}</Text>
-
-        <View style={styles.featuresWrap}>
-          <Text style={styles.featuresTitle}>Style Features</Text>
-          <View style={styles.featuresRow}>
-            <Feature icon="palette" label="Soft Tones" color={palette.textSecondary} styles={styles} />
-            <Feature icon="auto-awesome" label="Glow Filter" color={palette.textSecondary} styles={styles} />
-            <Feature icon="check-circle" label="HD Detail" color={palette.textSecondary} styles={styles} />
-          </View>
+        <View style={styles.sectionHead}>
+          <Text style={styles.sectionTitle}>Aspect Ratio</Text>
+        </View>
+        <View style={styles.aspectGrid}>
+          {ASPECTS.map((ratio) => {
+            const active = ratio === selectedAspect;
+            return (
+              <Pressable
+                key={ratio}
+                onPress={() => setSelectedAspect(ratio)}
+                style={({ pressed }) => [styles.aspectCard, active && styles.aspectCardActive, pressed && styles.pressed]}
+              >
+                <Text style={[styles.aspectText, active && styles.aspectTextActive]}>{ratio}</Text>
+              </Pressable>
+            );
+          })}
         </View>
       </ScrollView>
 
       <View style={styles.stickyFooter}>
         <Pressable
-          testID="create-photo-button"
-          accessibilityRole="button"
-          accessibilityLabel={`Create photo for ${style.photoCost} coins`}
-          onPress={handleCreatePhoto}
-          style={({ pressed }) => [styles.primaryAction, !canAffordPhoto && styles.actionDisabled, pressed && styles.pressed]}
+          onPress={() =>
+            router.push({
+              pathname: '/(main)/generation-progress',
+              params: {
+                styleId: selectedStyleId,
+                mode: 'photo',
+                prompt,
+                aspect: selectedAspect,
+              },
+            })
+          }
+          style={({ pressed }) => [styles.generateBtnWrap, pressed && styles.pressed]}
         >
-          <Text style={styles.actionText}>📸 Create Photo — {style.photoCost} coins</Text>
+          <LinearGradient colors={['#9C48EA', '#53DDFC']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.generateBtn}>
+            <MaterialIcons name="auto-awesome" size={18} color="#000000" />
+            <Text style={styles.generateBtnText}>Generate</Text>
+          </LinearGradient>
         </Pressable>
-
-        <View style={styles.balanceRow}>
-          <MaterialIcons name="monetization-on" size={16} color={brand.accent} />
-          <Text style={styles.balanceText}>Your balance: {balance} coins</Text>
-        </View>
       </View>
     </SafeAreaView>
   );
 }
 
-function Feature({
-  icon,
-  label,
-  color,
-  styles,
-}: {
-  icon: React.ComponentProps<typeof MaterialIcons>['name'];
-  label: string;
-  color: string;
-  styles: ReturnType<typeof createStyles>;
-}): React.JSX.Element {
-  return (
-    <View style={styles.featureItem}>
-      <MaterialIcons name={icon} size={20} color={color} />
-      <Text style={styles.featureLabel}>{label}</Text>
-    </View>
-  );
-}
-
-const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand: ReturnType<typeof useAppTheme>['brand']) =>
+const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: palette.background },
+    content: { paddingBottom: 120 },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: 12,
+      paddingHorizontal: 16,
       paddingVertical: 8,
-      borderBottomWidth: 1,
-      borderBottomColor: palette.borderVariant,
     },
-    headerTitle: { fontSize: 22, color: palette.text, fontWeight: '700', fontFamily: 'SpaceGrotesk_700Bold' },
     iconButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-    content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 },
-    hero: { width: '100%', aspectRatio: 4 / 5, justifyContent: 'flex-end', marginBottom: 20 },
-    heroImage: { borderRadius: 12 },
-    heroShade: {
-      ...StyleSheet.absoluteFillObject,
-      borderRadius: 12,
-      backgroundColor: 'rgba(0,0,0,0.2)',
+    headerTitle: { color: palette.text, fontFamily: 'SpaceGrotesk_700Bold', fontSize: 24 },
+    promptGlow: {
+      marginHorizontal: 16,
+      marginTop: 10,
+      borderRadius: 18,
+      backgroundColor: 'rgba(83,221,252,0.04)',
+      padding: 1,
     },
-    heroCaption: {
-      color: palette.onPrimary,
-      fontSize: 13,
-      marginHorizontal: 14,
-      marginBottom: 14,
-      fontStyle: 'italic',
-      zIndex: 1,
+    promptGlowActive: {
+      backgroundColor: 'rgba(156,72,234,0.35)',
+      shadowColor: '#9C48EA',
+      shadowOpacity: 0.4,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 0 },
     },
-    titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-    title: { fontSize: 40, color: palette.text, fontWeight: '700', fontFamily: 'SpaceGrotesk_700Bold', flex: 1, flexShrink: 1 },
-    premiumBadge: {
+    promptCard: {
+      borderRadius: 18,
+      backgroundColor: '#000000',
+      minHeight: 180,
+    },
+    promptCardActive: {
+      backgroundColor: '#091328',
+    },
+    promptInput: {
+      color: palette.text,
+      fontSize: 19,
+      lineHeight: 27,
+      minHeight: 132,
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      textAlignVertical: 'top',
+    },
+    promptFooter: {
+      paddingHorizontal: 12,
+      paddingBottom: 12,
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 4,
-      borderRadius: 999,
-      paddingHorizontal: 10,
-      paddingVertical: 5,
-      backgroundColor: palette.secondaryContainer,
+      justifyContent: 'space-between',
     },
-    premiumText: { textTransform: 'uppercase', color: palette.text, fontSize: 11, fontWeight: '700', letterSpacing: 0.6 },
-    goldLine: { width: 64, height: 4, borderRadius: 999, backgroundColor: brand.accent, marginTop: 10, marginBottom: 16 },
-    description: { color: palette.textSecondary, fontSize: 17, lineHeight: 27 },
-    stickyFooter: {
-      borderTopWidth: 1,
-      borderTopColor: palette.borderVariant,
-      backgroundColor: palette.surface,
-      paddingHorizontal: 16,
-      paddingTop: 12,
-      paddingBottom: 14,
-      gap: 10,
-    },
-    primaryAction: {
-      minHeight: 58,
-      borderRadius: 14,
-      backgroundColor: '#0F2345',
-      borderWidth: 1,
-      borderColor: '#D7B86E',
-      paddingHorizontal: 16,
+    promptActions: { flexDirection: 'row', gap: 8 },
+    promptIconButton: {
+      width: 34,
+      height: 34,
+      borderRadius: 17,
+      backgroundColor: '#141F38',
       alignItems: 'center',
       justifyContent: 'center',
     },
-    actionText: { color: '#D7B86E', fontSize: 16, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.6, textAlign: 'center' },
-    featuresWrap: { marginTop: 34, borderTopWidth: 1, borderTopColor: palette.borderVariant, paddingTop: 20, alignItems: 'center' },
-    featuresTitle: {
-      textTransform: 'uppercase',
+    engineLabel: {
       color: palette.textSecondary,
-      fontSize: 12,
-      fontWeight: '700',
-      letterSpacing: 3,
-      marginBottom: 16,
+      fontSize: 10,
+      letterSpacing: 1.5,
+      fontFamily: 'Inter_700Bold',
     },
-    featuresRow: { flexDirection: 'row', gap: 26 },
-    featureItem: { alignItems: 'center', gap: 4 },
-    featureLabel: { color: palette.textSecondary, fontSize: 12 },
-    actionDisabled: { opacity: 0.5 },
-    qaAction: {
-      height: 48,
-      borderRadius: 12,
+    sectionHead: { paddingHorizontal: 16, marginTop: 24, marginBottom: 10 },
+    sectionTitle: { color: palette.text, fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18 },
+    chipsWrap: { paddingHorizontal: 16, gap: 8 },
+    styleChip: {
+      paddingHorizontal: 14,
+      paddingVertical: 9,
+      borderRadius: 999,
+      backgroundColor: '#141F38',
+    },
+    styleChipActive: {
+      backgroundColor: '#53DDFC',
+    },
+    styleChipText: { color: palette.textSecondary, fontSize: 12, fontFamily: 'Inter_700Bold' },
+    styleChipTextActive: { color: '#003A45' },
+    aspectGrid: {
+      paddingHorizontal: 16,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 10,
+    },
+    aspectCard: {
+      width: '47.5%',
+      minHeight: 52,
+      borderRadius: 14,
       borderWidth: 1,
-      borderColor: palette.border,
-      backgroundColor: palette.surface,
+      borderColor: 'rgba(109,117,140,0.3)',
+      backgroundColor: '#0F1930',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    aspectCardActive: {
+      borderColor: '#53DDFC',
+      backgroundColor: '#141F38',
+    },
+    aspectText: { color: palette.textSecondary, fontFamily: 'Inter_700Bold' },
+    aspectTextActive: { color: '#53DDFC' },
+    stickyFooter: {
+      position: 'absolute',
+      left: 16,
+      right: 16,
+      bottom: 22,
+    },
+    generateBtnWrap: { borderRadius: 999, overflow: 'hidden' },
+    generateBtn: {
+      minHeight: 56,
+      borderRadius: 999,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       gap: 8,
     },
-    qaActionText: { color: palette.text, fontSize: 13, fontWeight: '700' },
-    balanceRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 6,
-      marginTop: 4,
+    generateBtnText: {
+      color: '#000000',
+      fontFamily: 'SpaceGrotesk_700Bold',
+      fontSize: 18,
     },
-    balanceText: { color: palette.textSecondary, fontSize: 13, fontWeight: '600' },
-    pressed: { opacity: 0.85 },
-    // Animation picker modal
-    modalBackdrop: {
-      flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.6)',
-      justifyContent: 'flex-end',
-    },
-    modalSheet: {
-      backgroundColor: palette.surface,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      paddingHorizontal: 20,
-      paddingTop: 24,
-      paddingBottom: 40,
-    },
-    modalTitle: { color: palette.text, fontSize: 20, fontWeight: '800', fontFamily: 'SpaceGrotesk_700Bold' },
-    modalSubtitle: { color: palette.textSecondary, fontSize: 13, marginTop: 4, marginBottom: 16 },
-    animOption: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingVertical: 14,
-      borderBottomWidth: 1,
-      borderBottomColor: palette.borderVariant,
-      gap: 12,
-    },
-    animEmoji: { fontSize: 28 },
-    animTextWrap: { flex: 1 },
-    animLabel: { color: palette.text, fontSize: 15, fontWeight: '700' },
-    animDesc: { color: palette.textSecondary, fontSize: 12, marginTop: 2 },
+    pressed: { opacity: 0.86 },
   });

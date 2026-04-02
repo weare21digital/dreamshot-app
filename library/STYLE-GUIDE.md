@@ -53,6 +53,17 @@
   - rounded container (24 radius)
   - no explicit divider lines (`borderTopWidth: 0`)
 
+## Create/Generation Hub Patterns
+
+- `style-detail.tsx` is now the prompt-first Create screen pattern.
+- Prompt composer uses a two-layer card:
+  - outer glow shell (`promptGlow`) for focus halo
+  - inner `promptCard` with `surface-container-lowest` black base
+- Focus state should shift background from pure black to low-surface (`#091328`) and add purple glow, not border outlines.
+- Style choices use horizontal rounded chips; selected chip uses cyan fill with dark text.
+- Aspect ratio selector uses two-column rounded cards with subtle outline, cyan-highlight on selected.
+- Primary Generate CTA is full-width, pill-shaped, signature gradient `#9C48EA → #53DDFC`.
+
 ## Typography System
 
 - **Headlines:** `SpaceGrotesk_700Bold` (or `SpaceGrotesk_500Medium` for secondary headings)
