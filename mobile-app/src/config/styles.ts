@@ -1,12 +1,12 @@
 import type { ImageSourcePropType } from 'react-native';
-import queenPreview from '../../assets/styles/the-queen.jpg';
-import diamondPreview from '../../assets/styles/the-diamond.jpg';
-import dukePreview from '../../assets/styles/the-duke.jpg';
-import gardenSoireePreview from '../../assets/styles/garden-soiree.jpg';
-import midnightCourtPreview from '../../assets/styles/midnight-court.jpg';
-import heiressPreview from '../../assets/styles/the-heiress.jpg';
-import regencyMasqueradePreview from '../../assets/styles/regency-masquerade.jpg';
-import coronationPreview from '../../assets/styles/the-coronation.jpg';
+import cinematicPreview from '../../assets/styles/the-queen.jpg';
+import render3dPreview from '../../assets/styles/the-diamond.jpg';
+import oilPaintingPreview from '../../assets/styles/the-duke.jpg';
+import watercolorPreview from '../../assets/styles/garden-soiree.jpg';
+import animePreview from '../../assets/styles/midnight-court.jpg';
+import photorealPreview from '../../assets/styles/the-heiress.jpg';
+import pixelArtPreview from '../../assets/styles/regency-masquerade.jpg';
+import fantasyMattePreview from '../../assets/styles/the-coronation.jpg';
 import type { DreamshotStylePreset } from '../features/generation/types';
 
 export const DREAMSHOT_PHOTO_COST = 20;
@@ -23,16 +23,16 @@ export type AnimationStyle = {
 
 export const ANIMATION_STYLES: AnimationStyle[] = [
   {
-    id: 'regal',
-    label: 'Regal & Poised',
-    emoji: '👑',
-    promptSuffix: 'Subtle regal head turn, composed aristocratic posture, slow dignified movement, candlelight flicker',
+    id: 'cinematic-pan',
+    label: 'Cinematic Pan',
+    emoji: '🎬',
+    promptSuffix: 'Slow cinematic camera pan, subtle subject movement, dramatic depth of field, atmospheric lighting',
   },
   {
-    id: 'ballroom',
-    label: 'Ballroom Dance',
-    emoji: '💃',
-    promptSuffix: 'Graceful ballroom waltz movement, flowing dress motion, elegant spinning, warm chandelier lighting',
+    id: 'dynamic-spin',
+    label: 'Dynamic Spin',
+    emoji: '🌀',
+    promptSuffix: 'Smooth rotational camera move, dynamic body turn, energetic momentum, stylized motion blur',
   },
   {
     id: 'dramatic',
@@ -56,123 +56,123 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
 
 export const DREAMSHOT_STYLE_PRESETS: DreamshotStylePreset[] = [
   {
-    id: 'the-queen',
+    id: 'cinematic-vibe',
     title: 'Cinematic',
     subtitle: 'Movie-grade lighting',
-    description: 'Regal throne image with crown, velvet gown, and gilded hall lighting.',
+    description: 'Movie-scene portrait with dramatic lighting, atmospheric haze, and deep color contrast.',
     prompt:
-      'A majestic cinematic queen in an ornate throne room, rich velvet gown, diamond crown, baroque details, dramatic neon violet and cyan lighting, ultra-detailed image',
+      'A cinematic portrait scene with dramatic key light, atmospheric haze, rich violet and cyan color contrast, shallow depth of field, ultra-detailed image',
     animationPrompt:
-      'The queen slowly turns toward camera, candlelight flickers, subtle fabric movement, cinematic cinematic atmosphere',
+      'Subject slowly turns toward camera, practical lights flicker softly, subtle fabric motion, dramatic cinematic atmosphere',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/7a/Elizabeth_I_%28Armada_Portrait%29.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
     videoCost: DREAMSHOT_VIDEO_COST,
-    tags: ['throne-room', 'crown', 'dramatic'],
+    tags: ['cinematic', 'portrait', 'dramatic'],
   },
   {
-    id: 'the-diamond',
+    id: 'render-3d',
     title: '3D Render',
     subtitle: 'Stylized CGI depth',
-    description: 'High-society ballroom image with crystal chandelier and jeweled styling.',
+    description: 'High-fidelity CGI portrait with glossy materials, volumetric light, and stylized depth.',
     prompt:
-      'Elegant aristocratic image in a grand ballroom, crystal chandeliers, sparkling jewels, satin dress, refined expression, warm cinematic tones',
+      'Stylized 3D render portrait, physically based materials, glossy highlights, volumetric rim light, refined expression, cinematic tones',
     animationPrompt:
-      'Slow camera drift in a candlelit ballroom, chandelier shimmer and subtle smile movement',
+      'Slow orbital camera drift, glinting highlights across metallic details, subtle facial expression change',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/59/Thomas_Lawrence_-_Lady_Maria_Conyngham.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
     videoCost: DREAMSHOT_VIDEO_COST,
-    tags: ['ballroom', 'jewels', 'luxury'],
+    tags: ['3d', 'cgi', 'stylized'],
   },
   {
-    id: 'the-duke',
+    id: 'oil-painting',
     title: 'Oil Painting',
     subtitle: 'Classic brushwork',
-    description: 'Refined noble image in tailored tailcoat against a stately manor backdrop.',
+    description: 'Classic painted portrait with rich brush texture and museum-style lighting.',
     prompt:
-      'A distinguished duke image in regency-era manor interior, tailored navy tailcoat, subtle violet embroidery, aristocratic posture, realistic cinematic image',
+      'Oil painting portrait, visible brush strokes, textured canvas look, warm chiaroscuro lighting, timeless composition',
     animationPrompt:
-      'Gentle head turn and coat movement near a manor window with warm sunlight',
+      'Subtle painted-style motion, brush-stroke shimmer, and warm gallery-like light shift',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/b3/Thomas_Lawrence_-_Arthur_Wellesley%2C_1st_Duke_of_Wellington_-_Google_Art_Project.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
     videoCost: DREAMSHOT_VIDEO_COST,
-    tags: ['tailcoat', 'manor', 'classic'],
+    tags: ['oil-painting', 'classic', 'artistic'],
   },
   {
-    id: 'garden-soiree',
+    id: 'watercolor-dream',
     title: 'Watercolor',
     subtitle: 'Soft pigment wash',
-    description: 'Soft natural-light image in a cinematic garden with ornate floral framing.',
+    description: 'Airy watercolor portrait with soft pigment blooms and delicate pastel transitions.',
     prompt:
-      'Cinematic aristocrat image in an elegant estate garden, blooming flowers, ornate arches, soft natural light, pastel details, period fashion',
-    animationPrompt: 'Light breeze through hair and garments, petals drifting in the air, serene garden ambiance',
+      'Watercolor portrait illustration, soft pigment wash, delicate edge bleed, pastel palette, airy natural lighting',
+    animationPrompt: 'Gentle watercolor ripple movement, drifting pigment texture, and soft floating particles',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Thomas_Gainsborough_-_Portrait_of_Mrs._Richard_Brinsley_Sheridan.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
     videoCost: DREAMSHOT_VIDEO_COST,
-    tags: ['garden', 'romantic', 'floral'],
+    tags: ['watercolor', 'pastel', 'soft'],
   },
   {
-    id: 'midnight-court',
+    id: 'anime-glow',
     title: 'Anime',
     subtitle: 'Bold cel-shaded look',
-    description: 'Dark, moody cinematic scene lit by candelabras and moonlight through drapes.',
+    description: 'Vibrant anime portrait with cel-shading, expressive eyes, and neon edge lighting.',
     prompt:
-      'Aristocratic image in a dim cinematic court, candlelit ambiance, moonlight through velvet drapes, intricate costume details, cinematic chiaroscuro',
-    animationPrompt: 'Candle flames flicker while subject maintains poised cinematic gaze in moonlit chamber',
+      'Anime style portrait, crisp cel-shading, expressive linework, neon rim lights, dramatic color blocking',
+    animationPrompt: 'Energetic anime camera push, hair sway, blinking highlights, and subtle speed lines',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/4b/George_Romney_-_Lady_Hamilton_as_Circe.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
     videoCost: DREAMSHOT_VIDEO_COST,
-    tags: ['candlelight', 'moody', 'court'],
+    tags: ['anime', 'cel-shaded', 'vibrant'],
   },
   {
-    id: 'the-heiress',
+    id: 'photoreal-pro',
     title: 'Photorealistic',
     subtitle: 'Natural DSLR realism',
-    description: 'Polished image with rich textures, pearls, and subtle vintage glamour.',
+    description: 'Natural DSLR-style portrait with realistic skin texture and balanced studio lighting.',
     prompt:
-      'Regency-era heiress image, velvet gown, pearl jewelry, aristocratic styling, soft-focus background, highly detailed skin and fabric texture',
-    animationPrompt: 'Subtle turn with elegant hand motion, pearls catching warm rim light',
+      'Photorealistic portrait capture, true-to-life skin detail, clean bokeh background, natural color grading, high dynamic range',
+    animationPrompt: 'Subtle head turn with realistic micro-expressions and natural studio light rolloff',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/89/Francois_Gerard_-_Josephine_empereur.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
     videoCost: DREAMSHOT_VIDEO_COST,
-    tags: ['pearls', 'velvet', 'glamour'],
+    tags: ['photoreal', 'dslr', 'natural'],
   },
   {
-    id: 'regency-masquerade',
+    id: 'pixel-pop',
     title: 'Pixel Art',
     subtitle: 'Retro game aesthetic',
-    description: 'Masked evening look with ornate decor and festive aristocratic drama.',
+    description: 'Retro pixel-art portrait with chunky dithering and arcade-era color palettes.',
     prompt:
-      'Cinematic masquerade image, ornate iridescent mask, luxurious regency ballroom, dramatic lighting, cinematic elegance, rich costume detail',
-    animationPrompt: 'Masked gaze shifts, silk mask ribbon moves, glittering ballroom ambience',
+      'Pixel art portrait scene, 16-bit palette, crisp dithering, stylized sprite-like features, retro game vibe',
+    animationPrompt: 'Sprite-style frame animation, blinking pixels, and looping retro background shimmer',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Franz_Xaver_Winterhalter_-_Empress_Elisabeth_of_Austria_in_Court_Gala_Dress_with_Diamond_Stars.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
     videoCost: DREAMSHOT_VIDEO_COST,
-    tags: ['masquerade', 'neon', 'dramatic'],
+    tags: ['pixel-art', 'retro', '8bit'],
   },
   {
-    id: 'the-coronation',
+    id: 'fantasy-matte',
     title: 'Fantasy Matte',
     subtitle: 'Epic concept art',
-    description: 'Ceremonial image in cathedral-like setting with cinematic insignia.',
+    description: 'Epic fantasy matte portrait with painterly depth and world-building atmosphere.',
     prompt:
-      'Cinematic coronation image, ceremonial robes, ornate cathedral interior, violet and cyan emblems, epic yet refined composition, photorealistic detail',
-    animationPrompt: 'Slow majestic camera push with glowing stained-glass light and subtle robe motion',
+      'Fantasy matte portrait, grand environmental backdrop, painterly atmosphere, dramatic scale, epic concept-art composition',
+    animationPrompt: 'Slow cinematic push through misty fantasy environment with subtle cloth and light movement',
     exampleImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/5f/Jacques-Louis_David%2C_The_Coronation_of_Napoleon_edit.jpg',
     photoCost: DREAMSHOT_PHOTO_COST,
     videoCost: DREAMSHOT_VIDEO_COST,
-    tags: ['ceremony', 'cathedral', 'epic'],
+    tags: ['fantasy', 'matte-painting', 'epic'],
   },
 ];
 
 const DREAMSHOT_STYLE_PREVIEW_IMAGES: Record<string, ImageSourcePropType> = {
-  'the-queen': queenPreview,
-  'the-diamond': diamondPreview,
-  'the-duke': dukePreview,
-  'garden-soiree': gardenSoireePreview,
-  'midnight-court': midnightCourtPreview,
-  'the-heiress': heiressPreview,
-  'regency-masquerade': regencyMasqueradePreview,
-  'the-coronation': coronationPreview,
+  'cinematic-vibe': cinematicPreview,
+  'render-3d': render3dPreview,
+  'oil-painting': oilPaintingPreview,
+  'watercolor-dream': watercolorPreview,
+  'anime-glow': animePreview,
+  'photoreal-pro': photorealPreview,
+  'pixel-pop': pixelArtPreview,
+  'fantasy-matte': fantasyMattePreview,
 };
 
 export const getStylePreviewSource = (style: DreamshotStylePreset): ImageSourcePropType =>
