@@ -89,4 +89,4 @@
 - Main tabs use a glassmorphic shell: `rgba(9,19,40,0.6)` + dark blur backdrop.
 - Tab container has rounded top corners (`32`) and soft purple lift shadow (`0 -10 40 rgba(156,72,234,0.1)`).
 - Active tab state uses cyan icon/text (`#53DDFC`) with `surfaceContainerHigh` rounded pill background.
-- DreamShot tab labels/icons map to: Home (`home`), Create (`auto-fix-high`), Styles (`grid-view`), Profile (`person`).
+- DreamShot tab labels/icons map to: Home (`home`), Create (`smart-button`) as MaterialIcons mapping for Material Symbols `magic_button`, Styles (`grid-view`), Profile (`person`).
