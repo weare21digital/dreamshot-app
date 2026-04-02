@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { Dimensions, FlatList, Image, ListRenderItemInfo, Pressable, StyleSheet, View } from 'react-native';
+import { Dimensions, FlatList, ListRenderItemInfo, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import { APP_THEME } from '../../src/config/theme';
@@ -14,7 +14,9 @@ type OnboardingCard = {
   id: string;
   title: string;
   subtitle: string;
-  image: number;
+  prompt: string;
+  style: string;
+  colors: [string, string];
   flowText?: string;
 };
 
@@ -23,28 +25,34 @@ const ONBOARDING_CARDS: OnboardingCard[] = [
     id: 'hero',
     title: 'Imagine Anything',
     subtitle: 'Describe your idea and turn any selfie into AI-generated art in seconds.',
-    image: require('../../assets/styles/midnight-court.jpg'),
+    prompt: 'Cyberpunk portrait with neon rain reflections',
+    style: 'Neon Synth',
+    colors: ['#8F5CFF', '#35D9FF'],
   },
   {
     id: 'flow',
     title: 'Choose Your Style',
     subtitle: 'Try cinematic, anime, neon, or fantasy looks tailored to your prompt.',
-    image: require('../../assets/styles/regency-masquerade.jpg'),
+    prompt: 'Anime hero close-up with glowing energy aura',
+    style: 'Anime Pulse',
+    colors: ['#A34DFF', '#5FE3C6'],
     flowText: 'Upload  →  Pick a style  →  Generate',
   },
   {
     id: 'gallery',
     title: 'Create in Seconds',
     subtitle: 'Generate, save, and share polished visuals in just a few taps.',
-    image: require('../../assets/styles/garden-soiree.jpg'),
+    prompt: 'Cinematic city rooftop portrait at blue hour',
+    style: 'Cine Glow',
+    colors: ['#7E59FF', '#3BB8FF'],
   },
 ];
 
-const GALLERY_IMAGES: number[] = [
-  require('../../assets/styles/midnight-court.jpg'),
-  require('../../assets/styles/regency-masquerade.jpg'),
-  require('../../assets/styles/garden-soiree.jpg'),
-  require('../../assets/styles/the-diamond.jpg'),
+const GALLERY_IMAGES: Array<{ prompt: string; colors: [string, string] }> = [
+  { prompt: 'Futuristic athlete with holographic trails', colors: ['#9C48EA', '#53DDFC'] },
+  { prompt: 'Fantasy forest mage with bioluminescent particles', colors: ['#B05CFF', '#4CE0D1'] },
+  { prompt: 'Retro film-noir portrait with dramatic rim light', colors: ['#8458FF', '#53B8FF'] },
+  { prompt: 'Surreal desert traveler with floating geometry', colors: ['#9A52FF', '#59D8FF'] },
 ];
 
 const navigateToMain = async (): Promise<void> => {
@@ -88,8 +96,13 @@ export default function OnboardingScreen(): React.JSX.Element {
 
         <Text style={styles.brand}>DREAMSHOT</Text>
 
-        <View style={[isLast ? styles.heroImageSmall : styles.heroImage, { overflow: 'hidden' }]}>
-          <Image source={item.image} style={{ width: '100%', height: '130%', top: 0 }} resizeMode="cover" />
+        <View style={isLast ? styles.heroImageSmall : styles.heroImage}>
+          <LinearGradient colors={item.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.aiPreviewCard}>
+            <View style={styles.previewBadge}>
+              <Text style={styles.previewBadgeText}>{item.style}</Text>
+            </View>
+            <Text style={styles.previewPrompt}>{item.prompt}</Text>
+          </LinearGradient>
         </View>
 
         <Text style={styles.title}>{item.title}</Text>
@@ -99,10 +112,10 @@ export default function OnboardingScreen(): React.JSX.Element {
 
         {isLast ? (
           <View style={styles.galleryWrap}>
-            {GALLERY_IMAGES.map((source, galleryIndex) => (
-              <View key={`gallery-${galleryIndex}`} style={[styles.galleryImageSmall, { overflow: 'hidden' }]}>
-                <Image source={source} style={{ width: '100%', height: '130%', top: 0 }} resizeMode="cover" />
-              </View>
+            {GALLERY_IMAGES.map((preview, galleryIndex) => (
+              <LinearGradient key={`gallery-${galleryIndex}`} colors={preview.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.galleryImageSmall}>
+                <Text style={styles.galleryPrompt} numberOfLines={2}>{preview.prompt}</Text>
+              </LinearGradient>
             ))}
           </View>
         ) : null}
@@ -186,6 +199,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     borderWidth: 1,
     borderColor: APP_THEME.dark.borderVariant,
+    overflow: 'hidden',
   },
   heroImageSmall: {
     width: '100%',
@@ -194,6 +208,30 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     borderWidth: 1,
     borderColor: APP_THEME.dark.borderVariant,
+    overflow: 'hidden',
+  },
+  aiPreviewCard: {
+    flex: 1,
+    padding: 16,
+    justifyContent: 'space-between',
+  },
+  previewBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(9, 19, 40, 0.6)',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  previewBadgeText: {
+    color: '#EAF1FF',
+    fontSize: 12,
+    fontFamily: 'Inter_700Bold',
+  },
+  previewPrompt: {
+    color: '#F6F8FF',
+    fontSize: 16,
+    lineHeight: 22,
+    fontFamily: 'Inter_600SemiBold',
   },
   title: {
     marginTop: 20,
@@ -226,19 +264,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
   },
-  galleryImage: {
-    width: 138,
-    height: 138,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: APP_THEME.brand.primary,
-  },
   galleryImageSmall: {
     width: 110,
     height: 110,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: APP_THEME.dark.borderVariant,
+    padding: 8,
+    justifyContent: 'flex-end',
+  },
+  galleryPrompt: {
+    color: '#F5F8FF',
+    fontSize: 10,
+    lineHeight: 13,
+    fontFamily: 'Inter_600SemiBold',
   },
   nextButton: {
     marginTop: 'auto',
