@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { DREAMSHOT_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
 import { useGenerationJob, useGeneratePhoto, useGenerateVideo } from '../../src/features/generation';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
@@ -54,6 +55,7 @@ export default function GenerationProgressScreen(): React.JSX.Element {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [quoteIndex, setQuoteIndex] = useState(() => Math.floor(Math.random() * REGENCY_QUOTES.length));
   const quoteOpacity = useRef(new Animated.Value(1)).current;
+  const shimmerTranslate = useRef(new Animated.Value(-260)).current;
   const didStartRef = useRef(false);
 
   const activeJob = useMemo(() => {
@@ -147,6 +149,32 @@ export default function GenerationProgressScreen(): React.JSX.Element {
     return () => clearInterval(interval);
   }, [busy, errorMessage, quoteOpacity]);
 
+
+  useEffect(() => {
+    if (!busy || !!errorMessage) {
+      shimmerTranslate.stopAnimation();
+      shimmerTranslate.setValue(-260);
+      return;
+    }
+
+    const loop = Animated.loop(
+      Animated.timing(shimmerTranslate, {
+        toValue: 260,
+        duration: 1400,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    );
+
+    loop.start();
+
+    return () => {
+      loop.stop();
+      shimmerTranslate.stopAnimation();
+      shimmerTranslate.setValue(-260);
+    };
+  }, [busy, errorMessage, shimmerTranslate]);
+
   const isQueued = activeJob?.status === 'queued';
   const isProcessing = activeJob?.status === 'processing';
   const canCancel = isQueued && requestId != null;
@@ -236,7 +264,23 @@ export default function GenerationProgressScreen(): React.JSX.Element {
             <Text style={[styles.corner, styles.cornerRight]}>✦</Text>
             <Text style={[styles.corner, styles.cornerBottom]}>✦</Text>
             <Text style={[styles.corner, styles.cornerBottomRight]}>✦</Text>
-            <View style={styles.canvas}>{busy ? <ActivityIndicator size="large" color={brand.accent} /> : <Text style={styles.brush}>🖌️</Text>}</View>
+            <View style={styles.canvas}>
+              {busy ? (
+                <View style={styles.shimmerStage}>
+                  <Animated.View style={[styles.shimmerSweep, { transform: [{ translateX: shimmerTranslate }] }]}>
+                    <LinearGradient
+                      colors={['rgba(156,72,234,0)', 'rgba(156,72,234,0.55)', 'rgba(83,221,252,0.75)', 'rgba(83,221,252,0)']}
+                      start={{ x: 0, y: 0.5 }}
+                      end={{ x: 1, y: 0.5 }}
+                      style={styles.shimmerGradient}
+                    />
+                  </Animated.View>
+                  <Text style={styles.shimmerLabel}>Rendering DreamShot…</Text>
+                </View>
+              ) : (
+                <Text style={styles.brush}>🖌️</Text>
+              )}
+            </View>
           </View>
         </View>
 
@@ -343,6 +387,29 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       backgroundColor: palette.surfaceVariant,
       alignItems: 'center',
       justifyContent: 'center',
+      overflow: 'hidden',
+    },
+    shimmerStage: {
+      width: '100%',
+      height: '100%',
+      justifyContent: 'center',
+      backgroundColor: '#050B19',
+    },
+    shimmerSweep: {
+      width: 220,
+      height: '100%',
+      position: 'absolute',
+    },
+    shimmerGradient: {
+      flex: 1,
+      transform: [{ skewX: '-22deg' }],
+    },
+    shimmerLabel: {
+      color: palette.text,
+      textAlign: 'center',
+      fontFamily: 'SpaceGrotesk_700Bold',
+      fontSize: 16,
+      letterSpacing: 0.4,
     },
     brush: { fontSize: 48, opacity: 0.6 },
     copyWrap: { marginTop: 14, alignItems: 'center' },

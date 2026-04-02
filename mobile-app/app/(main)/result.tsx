@@ -192,6 +192,14 @@ export default function ResultScreen(): React.JSX.Element {
     }
   }, [captureWatermarkedImage, mediaUri, style.title]);
 
+
+  const handleRemix = useCallback(() => {
+    router.push({
+      pathname: '/(main)/style-detail',
+      params: { styleId: style.id, prompt: `Remix of ${style.title}` },
+    });
+  }, [style.id, style.title]);
+
   const handleGenerateVideoPro = useCallback(() => {
     if (balance < style.videoCost) {
       Alert.alert(
@@ -303,55 +311,32 @@ export default function ResultScreen(): React.JSX.Element {
             </Pressable>
           ) : null}
 
-          <Pressable
-            testID="save-result"
-            style={({ pressed }) => [styles.secondaryBtn, saved && styles.savedBtn, pressed && styles.pressed]}
-            onPress={() => void handleSave()}
-            disabled={saving}
-          >
-            <MaterialIcons
-              name={saved ? 'check-circle' : 'save-alt'}
-              size={20}
-              color={saved ? '#FFFFFF' : palette.text}
-              style={{ marginRight: 8 }}
-            />
-            <Text style={[styles.secondaryBtnText, saved ? styles.savedBtnText : null]}>
-              {saving ? 'Saving...' : saved ? 'Saved to Gallery' : 'Save to Gallery'}
-            </Text>
-          </Pressable>
+          <View style={styles.quickActionsRow}>
+            <Pressable
+              testID="save-result"
+              style={({ pressed }) => [styles.quickActionBtn, saved && styles.savedBtn, pressed && styles.pressed]}
+              onPress={() => void handleSave()}
+              disabled={saving}
+            >
+              <MaterialIcons name={saved ? 'check-circle' : 'save-alt'} size={18} color={saved ? '#FFFFFF' : palette.text} />
+              <Text style={[styles.quickActionText, saved ? styles.savedBtnText : null]}>
+                {saving ? 'Saving...' : saved ? 'Saved' : 'Save'}
+              </Text>
+            </Pressable>
 
-          <Pressable
-            testID="share-result"
-            style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
-            onPress={() => void handleShare()}
-          >
-            <MaterialIcons name="ios-share" size={20} color={palette.text} style={{ marginRight: 8 }} />
-            <Text style={styles.secondaryBtnText}>Share</Text>
-          </Pressable>
+            <Pressable testID="share-result" style={({ pressed }) => [styles.quickActionBtn, pressed && styles.pressed]} onPress={() => void handleShare()}>
+              <MaterialIcons name="ios-share" size={18} color={palette.text} />
+              <Text style={styles.quickActionText}>Share</Text>
+            </Pressable>
 
-          <Pressable
-            testID="go-to-gallery"
-            style={({ pressed }) => [styles.tertiaryBtn, pressed && styles.pressed]}
-            onPress={() => {
-              router.dismissAll();
-              setTimeout(() => router.replace('/(tabs)/my-gallery'), 100);
-            }}
-          >
-            <MaterialIcons name="photo-library" size={18} color={palette.textSecondary} style={{ marginRight: 6 }} />
-            <Text style={styles.tertiaryBtnText}>View in Gallery</Text>
-          </Pressable>
+            <Pressable testID="remix-result" style={({ pressed }) => [styles.quickActionBtn, pressed && styles.pressed]} onPress={handleRemix}>
+              <MaterialIcons name="auto-fix-high" size={18} color={palette.text} />
+              <Text style={styles.quickActionText}>Remix</Text>
+            </Pressable>
+          </View>
 
           <Pressable
             testID="back-to-styles"
-            style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
-            onPress={() => router.replace('/(tabs)')}
-          >
-            <MaterialIcons name="home" size={20} color={palette.onPrimary} style={{ marginRight: 8 }} />
-            <Text style={styles.primaryBtnText}>Back to Styles</Text>
-          </Pressable>
-
-          <Pressable
-            testID="try-another-style"
             style={({ pressed }) => [styles.tertiaryBtn, pressed && styles.pressed]}
             onPress={() => router.replace('/(tabs)')}
           >
@@ -419,18 +404,16 @@ const createStyles = (
     },
     headerBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
     brand: { color: palette.text, fontSize: 14, fontWeight: '700', letterSpacing: 1.2 },
-    content: { paddingHorizontal: 16, paddingBottom: 30 },
+    content: { paddingBottom: 30 },
     imageWrap: {
       width: '100%',
-      aspectRatio: 0.7,
-      borderRadius: 16,
+      aspectRatio: 1,
+      borderRadius: 0,
       overflow: 'hidden',
-      borderWidth: 3,
-      borderColor: brand.accent,
     },
     image: { flex: 1, justifyContent: 'flex-end' },
-    imageRadius: { borderRadius: 13 },
-    video: { flex: 1, borderRadius: 13 },
+    imageRadius: { borderRadius: 0 },
+    video: { flex: 1, borderRadius: 0 },
     styleChipOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 12 },
     styleChip: {
       alignSelf: 'flex-start',
@@ -441,7 +424,25 @@ const createStyles = (
       paddingVertical: 6,
     },
     styleChipText: { color: '#FFFFFF', fontWeight: '700', fontSize: 12, letterSpacing: 0.6 },
-    actionsSection: { paddingTop: 16, gap: 12 },
+    actionsSection: { paddingTop: 16, gap: 12, paddingHorizontal: 16 },
+
+    quickActionsRow: {
+      flexDirection: 'row',
+      gap: 10,
+    },
+    quickActionBtn: {
+      flex: 1,
+      height: 52,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: palette.borderVariant,
+      backgroundColor: palette.surfaceVariant,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+      gap: 6,
+    },
+    quickActionText: { color: palette.text, fontSize: 14, fontWeight: '700' },
     primaryBtn: {
       height: 54,
       borderRadius: 13,

@@ -71,3 +71,6 @@
 - Fonts are loaded in `mobile-app/app/_layout.tsx` via `expo-font` + `@expo-google-fonts/*` packages.
 - `APP_THEME.typography` in `mobile-app/src/config/theme.ts` is the canonical token map for font families.
 - Legacy `serif` heading usage has been replaced with Space Grotesk heading tokens.
+
+- Generation progress screen uses a shimmer-first loading treatment (moving purple→cyan sweep) instead of a spinner.
+- Result screen media should render full-bleed edge-to-edge, with primary actions grouped as pill quick-actions: Save / Share / Remix.
