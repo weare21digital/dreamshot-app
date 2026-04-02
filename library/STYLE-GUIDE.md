@@ -74,3 +74,12 @@
 
 - Generation progress screen uses a shimmer-first loading treatment (moving purple→cyan sweep) instead of a spinner.
 - Result screen media should render full-bleed edge-to-edge, with primary actions grouped as pill quick-actions: Save / Share / Remix.
+
+## My Collection/Profile Patterns
+
+- `my-gallery.tsx` now follows a profile-led collection layout:
+  - centered avatar with soft purple glow ring
+  - 3 glass stat cards for Creations / Saved / Recent
+  - chip filters for `All`, `Favorites`, `Recent`
+- Collection cards use rounded, borderless masonry-style tiles with variable aspect ratios for visual rhythm.
+- Empty state headline uses `SpaceGrotesk_700Bold` at display scale to match design direction.
