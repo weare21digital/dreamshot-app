@@ -14,14 +14,14 @@ type StyleCategory = 'All' | 'Portraits' | 'Landscapes' | 'Abstract' | 'Fantasy'
 const STYLE_CATEGORIES: StyleCategory[] = ['All', 'Portraits', 'Landscapes', 'Abstract', 'Fantasy'];
 
 const STYLE_CATEGORY_MAP: Record<string, Exclude<StyleCategory, 'All'>> = {
-  'the-queen': 'Portraits',
-  'the-diamond': 'Abstract',
-  'the-duke': 'Portraits',
-  'garden-soiree': 'Landscapes',
-  'midnight-court': 'Fantasy',
-  'the-heiress': 'Portraits',
-  'regency-masquerade': 'Fantasy',
-  'the-coronation': 'Abstract',
+  'cinematic-vibe': 'Portraits',
+  'render-3d': 'Abstract',
+  'oil-painting': 'Portraits',
+  'watercolor-dream': 'Landscapes',
+  'anime-glow': 'Fantasy',
+  'photoreal-pro': 'Portraits',
+  'pixel-pop': 'Abstract',
+  'fantasy-matte': 'Fantasy',
 };
 
 export default function HomeScreen(): React.JSX.Element {
