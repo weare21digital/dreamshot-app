@@ -83,3 +83,10 @@
   - chip filters for `All`, `Favorites`, `Recent`
 - Collection cards use rounded, borderless masonry-style tiles with variable aspect ratios for visual rhythm.
 - Empty state headline uses `SpaceGrotesk_700Bold` at display scale to match design direction.
+
+## Bottom Tab Bar Pattern
+
+- Main tabs use a glassmorphic shell: `rgba(9,19,40,0.6)` + dark blur backdrop.
+- Tab container has rounded top corners (`32`) and soft purple lift shadow (`0 -10 40 rgba(156,72,234,0.1)`).
+- Active tab state uses cyan icon/text (`#53DDFC`) with `surfaceContainerHigh` rounded pill background.
+- DreamShot tab labels/icons map to: Home (`home`), Create (`auto-fix-high`), Styles (`grid-view`), Profile (`person`).
