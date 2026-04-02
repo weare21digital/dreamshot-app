@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, ListRenderItemInfo, Pressable, StyleSheet, View } from 'react-native';
@@ -20,30 +21,30 @@ type OnboardingCard = {
 const ONBOARDING_CARDS: OnboardingCard[] = [
   {
     id: 'hero',
-    title: 'Transform your photos into DreamShot art',
-    subtitle: 'Turn any selfie into a cinematic AI style in seconds.',
-    image: require('../../assets/styles/the-queen.jpg'),
+    title: 'Imagine Anything',
+    subtitle: 'Describe your idea and turn any selfie into AI-generated art in seconds.',
+    image: require('../../assets/styles/midnight-court.jpg'),
   },
   {
     id: 'flow',
-    title: 'Take a selfie → Pick a style → Generate your image',
-    subtitle: 'Three simple steps from camera to stylized image in seconds.',
-    image: require('../../assets/styles/the-duke.jpg'),
-    flowText: 'Take a selfie  →  Pick a style  →  Generate your image',
+    title: 'Choose Your Style',
+    subtitle: 'Try cinematic, anime, neon, or fantasy looks tailored to your prompt.',
+    image: require('../../assets/styles/regency-masquerade.jpg'),
+    flowText: 'Upload  →  Pick a style  →  Generate',
   },
   {
     id: 'gallery',
-    title: 'Your DreamShot gallery starts now',
-    subtitle: 'Explore a selection of best-in-class styles and create your own.',
-    image: require('../../assets/styles/the-coronation.jpg'),
+    title: 'Create in Seconds',
+    subtitle: 'Generate, save, and share polished visuals in just a few taps.',
+    image: require('../../assets/styles/garden-soiree.jpg'),
   },
 ];
 
 const GALLERY_IMAGES: number[] = [
-  require('../../assets/styles/the-queen.jpg'),
-  require('../../assets/styles/the-duke.jpg'),
+  require('../../assets/styles/midnight-court.jpg'),
+  require('../../assets/styles/regency-masquerade.jpg'),
   require('../../assets/styles/garden-soiree.jpg'),
-  require('../../assets/styles/the-coronation.jpg'),
+  require('../../assets/styles/the-diamond.jpg'),
 ];
 
 const navigateToMain = async (): Promise<void> => {
@@ -106,9 +107,17 @@ export default function OnboardingScreen(): React.JSX.Element {
           </View>
         ) : null}
 
-        <Pressable style={isLast ? styles.getStartedButton : styles.nextButton} onPress={isLast ? handleGetStarted : () => listRef.current?.scrollToIndex({ index: index + 1, animated: true })}>
-          <Text style={isLast ? styles.getStartedText : styles.nextText}>{isLast ? 'Get Started' : 'Next'}</Text>
-        </Pressable>
+        {isLast ? (
+          <Pressable onPress={handleGetStarted} style={styles.getStartedButtonWrap}>
+            <LinearGradient colors={['#9C48EA', '#53DDFC']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.getStartedButton}>
+              <Text style={styles.getStartedText}>Get Started</Text>
+            </LinearGradient>
+          </Pressable>
+        ) : (
+          <Pressable style={styles.nextButton} onPress={() => listRef.current?.scrollToIndex({ index: index + 1, animated: true })}>
+            <Text style={styles.nextText}>Next</Text>
+          </Pressable>
+        )}
       </View>
     );
   }, [handleGetStarted, handleSkip]);
@@ -158,15 +167,15 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   skipText: {
-    color: APP_THEME.dark.text,
+    color: APP_THEME.dark.textSecondary,
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Inter_600SemiBold',
   },
   brand: {
-    color: APP_THEME.brand.primary,
-    letterSpacing: 1.2,
-    fontSize: 12,
-    fontWeight: '700',
+    color: APP_THEME.brand.secondary,
+    letterSpacing: 2,
+    fontSize: 11,
+    fontFamily: 'Inter_700Bold',
     marginTop: 4,
     marginBottom: 16,
   },
@@ -175,16 +184,16 @@ const styles = StyleSheet.create({
     maxWidth: 320,
     height: 320,
     borderRadius: 22,
-    borderWidth: 2,
-    borderColor: APP_THEME.brand.primary,
+    borderWidth: 1,
+    borderColor: APP_THEME.dark.borderVariant,
   },
   heroImageSmall: {
     width: '100%',
     maxWidth: 280,
     height: 240,
     borderRadius: 22,
-    borderWidth: 2,
-    borderColor: APP_THEME.brand.primary,
+    borderWidth: 1,
+    borderColor: APP_THEME.dark.borderVariant,
   },
   title: {
     marginTop: 20,
@@ -204,9 +213,9 @@ const styles = StyleSheet.create({
   },
   flowText: {
     marginTop: 12,
-    color: APP_THEME.brand.primary,
+    color: APP_THEME.brand.secondary,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: 'Inter_700Bold',
     textAlign: 'center',
   },
   galleryWrap: {
@@ -229,7 +238,7 @@ const styles = StyleSheet.create({
     height: 110,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: APP_THEME.brand.primary,
+    borderColor: APP_THEME.dark.borderVariant,
   },
   nextButton: {
     marginTop: 'auto',
@@ -238,30 +247,33 @@ const styles = StyleSheet.create({
     height: 54,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: APP_THEME.brand.primary,
+    borderColor: 'rgba(83, 221, 252, 0.55)',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: APP_THEME.dark.surfaceVariant,
+    backgroundColor: APP_THEME.dark.surfaceContainerHigh,
   },
   nextText: {
-    color: APP_THEME.dark.text,
+    color: APP_THEME.brand.secondary,
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'Inter_700Bold',
   },
-  getStartedButton: {
+  getStartedButtonWrap: {
     marginTop: 'auto',
     width: '100%',
     maxWidth: 320,
+    borderRadius: 14,
+    overflow: 'hidden',
+  },
+  getStartedButton: {
     height: 56,
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: APP_THEME.brand.primary,
   },
   getStartedText: {
     color: APP_THEME.dark.onPrimary,
     fontSize: 16,
-    fontWeight: '800',
+    fontFamily: 'Inter_700Bold',
   },
   indicatorsWrap: {
     position: 'absolute',
