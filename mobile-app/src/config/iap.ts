@@ -73,7 +73,7 @@ export type CoinPack = {
 };
 
 export const COIN_PACKS: CoinPack[] = [
-  { sku: 'com.bvg.dreamshot.coins_100', coins: 100, label: "The Squire's Pouch", fallbackPrice: '$1.99', icon: 'stars' },
-  { sku: 'com.bvg.dreamshot.coins_500', coins: 500, label: "The Duke's Purse", fallbackPrice: '$7.99', icon: 'diamond', popular: true },
-  { sku: 'com.bvg.dreamshot.coins_1000', coins: 1000, label: "The King's Treasury", fallbackPrice: '$12.99', icon: 'workspace-premium' },
+  { sku: 'com.bvg.dreamshot.coins_100', coins: 100, label: 'Starter Pack', fallbackPrice: '$1.99', icon: 'stars' },
+  { sku: 'com.bvg.dreamshot.coins_500', coins: 500, label: 'Pro Pack', fallbackPrice: '$7.99', icon: 'diamond', popular: true },
+  { sku: 'com.bvg.dreamshot.coins_1000', coins: 1000, label: 'Ultimate Pack', fallbackPrice: '$12.99', icon: 'workspace-premium' },
 ];

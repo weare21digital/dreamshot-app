@@ -9,24 +9,24 @@ import { useGenerationJob, useGeneratePhoto, useGenerateVideo } from '../../src/
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
 
-const REGENCY_QUOTES = [
+const PROGRESS_QUOTES = [
   'Every diamond must endure pressure before it shines...',
-  'The Queen demands perfection. Please wait...',
+  'Perfection takes a moment. Almost there...',
   'A great image captures not just the face, but the story...',
   'Patience is the companion of wisdom...',
   'Great beauty requires great patience...',
   'The artist is at work on your likeness...',
   'Elegance is the only beauty that never fades...',
-  'Your Majesty, the court painter requests a moment more...',
+  'The studio needs just a moment more...',
   'A masterpiece cannot be rushed...',
   'The finest things in life are worth the wait...',
   'Poise and patience — your DreamShot is almost ready...',
   'The DreamShot studio is preparing your image...',
-  'Even the crown jewels took time to polish...',
-  'Rome was not built in a day, nor a dreamshot image in a moment...',
+  'Even gems take time to polish...',
+  'Rome was not built in a day, nor a DreamShot in a moment...',
   'Your likeness is being rendered with the utmost care...',
   'A refined image is crafted detail by detail...',
-  'Courtly splendor takes time to perfect...',
+  'Visual magic takes time to perfect...',
   'The finishing touches are being applied with great care...',
 ];
 
@@ -53,7 +53,7 @@ export default function GenerationProgressScreen(): React.JSX.Element {
   const [retryCount, setRetryCount] = useState(0);
   const [startedAt, setStartedAt] = useState<number>(Date.now());
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [quoteIndex, setQuoteIndex] = useState(() => Math.floor(Math.random() * REGENCY_QUOTES.length));
+  const [quoteIndex, setQuoteIndex] = useState(() => Math.floor(Math.random() * PROGRESS_QUOTES.length));
   const quoteOpacity = useRef(new Animated.Value(1)).current;
   const shimmerTranslate = useRef(new Animated.Value(-260)).current;
   const didStartRef = useRef(false);
@@ -130,11 +130,11 @@ export default function GenerationProgressScreen(): React.JSX.Element {
         useNativeDriver: true,
       }).start(() => {
         setQuoteIndex((prev) => {
-          if (REGENCY_QUOTES.length <= 1) {
+          if (PROGRESS_QUOTES.length <= 1) {
             return prev;
           }
 
-          const next = (prev + 1 + Math.floor(Math.random() * (REGENCY_QUOTES.length - 1))) % REGENCY_QUOTES.length;
+          const next = (prev + 1 + Math.floor(Math.random() * (PROGRESS_QUOTES.length - 1))) % PROGRESS_QUOTES.length;
           return next;
         });
 
@@ -286,7 +286,7 @@ export default function GenerationProgressScreen(): React.JSX.Element {
 
         <View style={styles.copyWrap}>
           <Text style={styles.title}>Your DreamShot image is being crafted...</Text>
-          <Text style={styles.subTitle}>Our master painters are meticulously crafting every detail for {style.title}.</Text>
+          <Text style={styles.subTitle}>Our AI is meticulously crafting every detail for {style.title}.</Text>
         </View>
 
         <View style={styles.progressWrap}>
@@ -320,7 +320,7 @@ export default function GenerationProgressScreen(): React.JSX.Element {
 
           {!errorMessage ? (
             <Animated.View style={[styles.quoteWrap, { opacity: quoteOpacity }]}>
-              <Text style={styles.quoteText}>{REGENCY_QUOTES[quoteIndex]}</Text>
+              <Text style={styles.quoteText}>{PROGRESS_QUOTES[quoteIndex]}</Text>
             </Animated.View>
           ) : null}
         </View>
