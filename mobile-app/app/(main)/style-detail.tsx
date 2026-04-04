@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
 import { DREAMSHOT_STYLE_PRESETS, DREAMSHOT_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
@@ -22,6 +23,45 @@ export default function StyleDetailScreen(): React.JSX.Element {
   const [focused, setFocused] = useState(false);
   const [selectedStyleId, setSelectedStyleId] = useState(defaultStyle.id);
   const [selectedAspect, setSelectedAspect] = useState<AspectRatio>('16:9');
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+
+  const handleTakePhoto = async (): Promise<void> => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Camera Access', 'Please allow camera access in Settings to take a photo.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setSelectedImageUri(result.assets[0].uri);
+    }
+  };
+
+  const handlePickFromGallery = async (): Promise<void> => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Photo Library', 'Please allow photo library access in Settings.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setSelectedImageUri(result.assets[0].uri);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -57,6 +97,32 @@ export default function StyleDetailScreen(): React.JSX.Element {
               </View>
               <Text style={styles.engineLabel}>AI ENGINE v4.2</Text>
             </View>
+          </View>
+        </View>
+
+        <View style={styles.sectionHead}>
+          <Text style={styles.sectionTitle}>Your Photo</Text>
+        </View>
+        <View style={styles.photoPickerCard}>
+          <View style={styles.photoPreviewWrap}>
+            {selectedImageUri ? (
+              <Image source={{ uri: selectedImageUri }} style={styles.photoPreview} />
+            ) : (
+              <View style={styles.photoPlaceholder}>
+                <MaterialIcons name="add-a-photo" size={28} color="#CC97FF" />
+                <Text style={styles.photoPlaceholderText}>Select a photo to continue</Text>
+              </View>
+            )}
+          </View>
+          <View style={styles.photoActions}>
+            <Pressable onPress={() => void handleTakePhoto()} style={({ pressed }) => [styles.photoActionBtn, pressed && styles.pressed]}>
+              <MaterialIcons name="photo-camera" size={16} color="#53DDFC" />
+              <Text style={styles.photoActionBtnText}>Take Photo</Text>
+            </Pressable>
+            <Pressable onPress={() => void handlePickFromGallery()} style={({ pressed }) => [styles.photoActionBtn, pressed && styles.pressed]}>
+              <MaterialIcons name="photo-library" size={16} color="#53DDFC" />
+              <Text style={styles.photoActionBtnText}>Upload</Text>
+            </Pressable>
           </View>
         </View>
 
@@ -99,7 +165,12 @@ export default function StyleDetailScreen(): React.JSX.Element {
 
       <View style={styles.stickyFooter}>
         <Pressable
-          onPress={() =>
+          disabled={!selectedImageUri}
+          onPress={() => {
+            if (!selectedImageUri) {
+              return;
+            }
+
             router.push({
               pathname: '/(main)/generation-progress',
               params: {
@@ -107,10 +178,11 @@ export default function StyleDetailScreen(): React.JSX.Element {
                 mode: 'photo',
                 prompt,
                 aspect: selectedAspect,
+                imageUri: selectedImageUri,
               },
-            })
-          }
-          style={({ pressed }) => [styles.generateBtnWrap, pressed && styles.pressed]}
+            });
+          }}
+          style={({ pressed }) => [styles.generateBtnWrap, !selectedImageUri && styles.generateBtnWrapDisabled, pressed && styles.pressed]}
         >
           <LinearGradient colors={['#9C48EA', '#53DDFC']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.generateBtn}>
             <MaterialIcons name="auto-awesome" size={18} color="#000000" />
@@ -190,6 +262,59 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
     },
     sectionHead: { paddingHorizontal: 16, marginTop: 24, marginBottom: 10 },
     sectionTitle: { color: palette.text, fontFamily: 'SpaceGrotesk_700Bold', fontSize: 18 },
+    photoPickerCard: {
+      marginHorizontal: 16,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: 'rgba(109,117,140,0.3)',
+      backgroundColor: '#0F1930',
+      padding: 12,
+      gap: 12,
+    },
+    photoPreviewWrap: {
+      height: 180,
+      borderRadius: 14,
+      overflow: 'hidden',
+      borderWidth: 1,
+      borderColor: 'rgba(109,117,140,0.35)',
+      backgroundColor: '#091328',
+    },
+    photoPreview: {
+      width: '100%',
+      height: '100%',
+    },
+    photoPlaceholder: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 10,
+    },
+    photoPlaceholderText: {
+      color: palette.textSecondary,
+      fontFamily: 'Inter_700Bold',
+      fontSize: 13,
+    },
+    photoActions: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    photoActionBtn: {
+      flex: 1,
+      minHeight: 42,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: '#53DDFC',
+      backgroundColor: '#141F38',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+      gap: 6,
+    },
+    photoActionBtnText: {
+      color: '#53DDFC',
+      fontFamily: 'Inter_700Bold',
+      fontSize: 13,
+    },
     chipsWrap: { paddingHorizontal: 16, gap: 8 },
     styleChip: {
       paddingHorizontal: 14,
@@ -231,6 +356,7 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
       bottom: 22,
     },
     generateBtnWrap: { borderRadius: 999, overflow: 'hidden' },
+    generateBtnWrapDisabled: { opacity: 0.45 },
     generateBtn: {
       minHeight: 56,
       borderRadius: 999,
