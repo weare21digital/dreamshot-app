@@ -30,6 +30,25 @@ const PROGRESS_QUOTES = [
   'The finishing touches are being applied with great care...',
 ];
 
+
+const STYLE_AVG_SECONDS: Record<string, { photo: number; video: number }> = {
+  royal: { photo: 32, video: 64 },
+  cyberpunk: { photo: 34, video: 68 },
+  anime: { photo: 30, video: 62 },
+  noir: { photo: 33, video: 66 },
+  fantasy: { photo: 36, video: 72 },
+  editorial: { photo: 31, video: 63 },
+  sketch: { photo: 28, video: 58 },
+  vintage: { photo: 29, video: 60 },
+};
+
+function formatEta(seconds: number): string {
+  const safeSeconds = Math.max(0, seconds);
+  const mins = Math.floor(safeSeconds / 60);
+  const secs = safeSeconds % 60;
+  return `${mins}:${String(secs).padStart(2, '0')}`;
+}
+
 function getNextQuoteIndex(previousIndex: number): number {
   if (PROGRESS_QUOTES.length <= 1) {
     return previousIndex;
@@ -231,6 +250,11 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
   const isProcessing = activeJob?.status === 'processing';
   const canCancel = isQueued && requestId != null;
   const expectedWindow = generationMode === 'video' ? { min: 40, max: 90 } : { min: 20, max: 45 };
+  const styleAverages = style ? STYLE_AVG_SECONDS[style.id] : undefined;
+  const expectedDurationSeconds = styleAverages
+    ? (generationMode === 'video' ? styleAverages.video : styleAverages.photo)
+    : Math.round((expectedWindow.min + expectedWindow.max) / 2);
+  const remainingSeconds = Math.max(0, expectedDurationSeconds - elapsedSeconds);
 
   const currentStage: ProgressStage = useMemo(() => {
     if (errorMessage) {
@@ -283,7 +307,7 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
 
   const etaText = errorMessage
     ? errorMessage
-    : `Elapsed ${elapsedLabel} · Usually ${expectedWindow.min}-${expectedWindow.max}s for ${generationMode === 'video' ? 'video' : 'photo'} generation`;
+    : `Elapsed ${elapsedLabel} · ETA ${formatEta(remainingSeconds)} · Avg ${expectedDurationSeconds}s for ${generationMode === 'video' ? 'video' : 'photo'} generation`;
 
   const handleCancel = () => {
     if (requestId) {
