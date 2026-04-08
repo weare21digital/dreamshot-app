@@ -53,6 +53,20 @@ function groupByDate(jobs: DreamshotGenerationJob[]): Array<{ title: string; dat
   }
   return Array.from(groups.entries()).map(([title, data]) => ({ title, data }));
 }
+function getArchiveExpiryLabel(archivedAt?: string): string {
+  if (!archivedAt) return 'Expires soon';
+
+  const archivedAtMs = new Date(archivedAt).getTime();
+  if (!Number.isFinite(archivedAtMs)) return 'Expires soon';
+
+  const expireAtMs = archivedAtMs + (7 * 24 * 60 * 60 * 1000);
+  const remainingDays = Math.max(0, Math.ceil((expireAtMs - Date.now()) / (24 * 60 * 60 * 1000)));
+
+  if (remainingDays <= 0) return 'Expires today';
+  if (remainingDays === 1) return 'Expires in 1 day';
+  return `Expires in ${remainingDays} days`;
+}
+
 
 export default function MyGalleryScreen(): React.JSX.Element {
   const router = useRouter();
@@ -225,6 +239,9 @@ export default function MyGalleryScreen(): React.JSX.Element {
                 {archivedJobs.map((job) => (
                   <View key={job.jobId} style={styles.archiveCard}>
                     <Image source={{ uri: job.outputUrl }} style={styles.archiveImage} />
+                    <View style={styles.archiveExpiryChip}>
+                      <Text style={styles.archiveExpiryText}>{getArchiveExpiryLabel(job.archivedAt)}</Text>
+                    </View>
                     <Pressable
                         style={styles.restoreBtn}
                         hitSlop={8}
@@ -386,6 +403,8 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
   archiveGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10, marginTop: 8 },
   archiveCard: { width: '48.7%', aspectRatio: 0.75, borderRadius: 12, overflow: 'hidden', opacity: 0.78 },
   archiveImage: { width: '100%', height: '100%' },
+  archiveExpiryChip: { position: 'absolute', left: 8, bottom: 8, backgroundColor: 'rgba(0,0,0,0.62)', borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4 },
+  archiveExpiryText: { color: '#fff', fontSize: 10, fontWeight: '700' },
   restoreBtn: { position: 'absolute', top: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 10, padding: 6 },
   undoBar: { position: 'absolute', bottom: 24, left: 16, right: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: palette.surface, borderRadius: 12, borderWidth: 1, borderColor: palette.border, paddingHorizontal: 16, paddingVertical: 14 },
   undoText: { color: palette.text, fontSize: 14, fontWeight: '500', flex: 1, marginRight: 12 },

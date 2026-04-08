@@ -84,6 +84,7 @@
   - 3 glass stat cards for Creations / Saved / Recent
   - chip filters for `All`, `Favorites`, `Recent`
 - Collection cards use rounded, borderless masonry-style tiles with variable aspect ratios for visual rhythm.
+- Archived gallery tiles display an inline expiry chip in the image corner ("Expires in X days") to make 7-day cleanup timing visible without opening dialogs.
 - Empty state headline uses `SpaceGrotesk_700Bold` at display scale to match design direction.
 
 ## Bottom Tab Bar Pattern
