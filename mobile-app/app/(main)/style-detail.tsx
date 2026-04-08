@@ -12,6 +12,12 @@ import { useAppTheme } from '../../src/contexts/ThemeContext';
 type AspectRatio = '1:1' | '4:3' | '16:9' | '9:16';
 
 const ASPECTS: AspectRatio[] = ['1:1', '4:3', '16:9', '9:16'];
+const ASPECT_PREVIEW_SIZES: Record<AspectRatio, { width: number; height: number }> = {
+  '1:1': { width: 42, height: 42 },
+  '4:3': { width: 48, height: 36 },
+  '16:9': { width: 56, height: 32 },
+  '9:16': { width: 30, height: 52 },
+};
 
 export default function StyleDetailScreen(): React.JSX.Element {
   const { styleId } = useLocalSearchParams<{ styleId?: string }>();
@@ -179,6 +185,16 @@ export default function StyleDetailScreen(): React.JSX.Element {
                 onPress={() => setSelectedAspect(ratio)}
                 style={({ pressed }) => [styles.aspectCard, active && styles.aspectCardActive, pressed && styles.pressed]}
               >
+                <View
+                  style={[
+                    styles.aspectPreview,
+                    {
+                      width: ASPECT_PREVIEW_SIZES[ratio].width,
+                      height: ASPECT_PREVIEW_SIZES[ratio].height,
+                    },
+                    active && styles.aspectPreviewActive,
+                  ]}
+                />
                 <Text style={[styles.aspectText, active && styles.aspectTextActive]}>{ratio}</Text>
               </Pressable>
             );
@@ -358,17 +374,29 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
     },
     aspectCard: {
       width: '47.5%',
-      minHeight: 52,
+      minHeight: 86,
       borderRadius: 14,
       borderWidth: 1,
       borderColor: 'rgba(109,117,140,0.3)',
       backgroundColor: '#0F1930',
       alignItems: 'center',
       justifyContent: 'center',
+      gap: 8,
+      paddingVertical: 10,
     },
     aspectCardActive: {
       borderColor: '#53DDFC',
       backgroundColor: '#141F38',
+    },
+    aspectPreview: {
+      borderRadius: 8,
+      borderWidth: 2,
+      borderColor: 'rgba(109,117,140,0.7)',
+      backgroundColor: 'rgba(83,221,252,0.08)',
+    },
+    aspectPreviewActive: {
+      borderColor: '#53DDFC',
+      backgroundColor: 'rgba(83,221,252,0.22)',
     },
     aspectText: { color: palette.textSecondary, fontFamily: 'Inter_700Bold' },
     aspectTextActive: { color: '#53DDFC' },

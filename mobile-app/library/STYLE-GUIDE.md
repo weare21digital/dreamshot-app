@@ -31,6 +31,7 @@
 
 - Pill chips for style selection with active cyan fill.
 - Aspect options use 2-column bordered cards with active border/fill.
+- Aspect ratio options use mini framed previews (`aspectPreview`) inside each card so proportions are recognizable at a glance.
 
 ### Photo selection section (Create)
 
