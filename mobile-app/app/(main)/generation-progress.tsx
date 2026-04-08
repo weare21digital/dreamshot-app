@@ -37,9 +37,10 @@ type ProgressStage = {
   percent: number;
 };
 
-export default function GenerationProgressScreen(): React.JSX.Element {
+export default function GenerationProgressScreen(): React.JSX.Element | null {
   const { styleId, mode, imageUri, animStyle } = useLocalSearchParams<{ styleId?: string; mode?: 'photo' | 'video'; imageUri?: string; animStyle?: string }>();
-  const style = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || Object.values(DREAMSHOT_STYLE_PRESETS_BY_ID)[0];
+  const fallbackStyle = Object.values(DREAMSHOT_STYLE_PRESETS_BY_ID)[0];
+  const style = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || fallbackStyle || null;
   const generationMode = mode ?? 'photo';
 
   const { submitPhoto, cancelPhoto, isSubmitting: isPhotoSubmitting } = useGeneratePhoto();
@@ -58,13 +59,18 @@ export default function GenerationProgressScreen(): React.JSX.Element {
   const shimmerTranslate = useRef(new Animated.Value(-260)).current;
   const didStartRef = useRef(false);
 
+  useEffect(() => {
+    if (style) return;
+    router.replace('/(main)/home');
+  }, [style]);
+
   const activeJob = useMemo(() => {
     if (!requestId) return undefined;
     return jobs.find((job) => job.requestId === requestId);
   }, [jobs, requestId]);
 
   useEffect(() => {
-    if (didStartRef.current) return;
+    if (didStartRef.current || !style) return;
     didStartRef.current = true;
 
     const sourceImageUri = imageUri || style.exampleImageUrl;
@@ -246,6 +252,10 @@ export default function GenerationProgressScreen(): React.JSX.Element {
   const handleBackPress = () => {
     router.back();
   };
+
+  if (!style) {
+    return null;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
