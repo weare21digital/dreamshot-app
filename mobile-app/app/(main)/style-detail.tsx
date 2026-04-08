@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Alert, Image, Linking, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,10 +25,29 @@ export default function StyleDetailScreen(): React.JSX.Element {
   const [selectedAspect, setSelectedAspect] = useState<AspectRatio>('16:9');
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
 
+  const openSettings = useCallback(async (): Promise<void> => {
+    try {
+      await Linking.openSettings();
+    } catch {
+      Alert.alert('Settings', 'Unable to open Settings automatically. Please open Settings manually.');
+    }
+  }, []);
+
+  const handleBlockedPermission = useCallback((title: string, message: string): void => {
+    Alert.alert(title, message, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Open Settings', onPress: () => void openSettings() },
+    ]);
+  }, [openSettings]);
+
   const handleTakePhoto = async (): Promise<void> => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Camera Access', 'Please allow camera access in Settings to take a photo.');
+      if (permission.canAskAgain) {
+        Alert.alert('Camera Access', 'Please allow camera access to take a photo.');
+      } else {
+        handleBlockedPermission('Camera Access Blocked', 'Camera access is blocked. Enable it in Settings to take a photo.');
+      }
       return;
     }
 
@@ -47,7 +66,11 @@ export default function StyleDetailScreen(): React.JSX.Element {
   const handlePickFromGallery = async (): Promise<void> => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Photo Library', 'Please allow photo library access in Settings.');
+      if (permission.canAskAgain) {
+        Alert.alert('Photo Library', 'Please allow photo library access to upload an image.');
+      } else {
+        handleBlockedPermission('Photo Library Blocked', 'Photo library access is blocked. Enable it in Settings to upload an image.');
+      }
       return;
     }
 
