@@ -115,6 +115,7 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
   const fallbackStyle = Object.values(DREAMSHOT_STYLE_PRESETS_BY_ID)[0];
   const style = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || fallbackStyle || null;
   const generationMode = mode ?? 'photo';
+  const sourceImageUri = imageUri || style?.exampleImageUrl;
 
   const { submitPhoto, cancelPhoto, isSubmitting: isPhotoSubmitting } = useGeneratePhoto();
   const { submitVideo, cancelVideo, isSubmitting: isVideoSubmitting } = useGenerateVideo();
@@ -147,11 +148,13 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
     if (didStartRef.current || !style) return;
     didStartRef.current = true;
 
-    const sourceImageUri = imageUri || style.exampleImageUrl;
-
     const run = async (): Promise<void> => {
       try {
         setErrorMessage(null);
+
+        if (!sourceImageUri) {
+          throw new Error('No source image available for retry. Please pick an image again.');
+        }
 
         if (generationMode === 'video') {
           const id = await submitVideo({ imageUri: sourceImageUri, style, animStyleId: animStyle });
@@ -168,7 +171,7 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
     };
 
     void run();
-  }, [generationMode, imageUri, style, submitPhoto, submitVideo, retryCount]);
+  }, [animStyle, generationMode, sourceImageUri, style, submitPhoto, submitVideo, retryCount]);
 
   useEffect(() => {
     if (!activeJob) return;
@@ -462,7 +465,7 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
                 setStartedAt(Date.now());
               }}
             >
-              <Text style={styles.primaryBtnText}>Retry Generation</Text>
+              <Text style={styles.primaryBtnText}>Retry with same image</Text>
             </Pressable>
           )
         ) : null}
