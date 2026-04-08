@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, FlatList, ListRenderItemInfo, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
@@ -55,22 +55,32 @@ const GALLERY_IMAGES: Array<{ prompt: string; colors: [string, string] }> = [
   { prompt: 'Surreal desert traveler with floating geometry', colors: ['#9A52FF', '#59D8FF'] },
 ];
 
-const navigateToMain = async (): Promise<void> => {
-  await AsyncStorage.setItem(ONBOARDING_FLAG_KEY, '1');
-  router.replace('/(main)/style-detail');
-};
-
 export default function OnboardingScreen(): React.JSX.Element {
   const [currentIndex, setCurrentIndex] = useState(0);
   const listRef = useRef<FlatList<OnboardingCard>>(null);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const navigateToMain = useCallback(async (): Promise<void> => {
+    await AsyncStorage.setItem(ONBOARDING_FLAG_KEY, '1');
+    if (!isMountedRef.current) {
+      return;
+    }
+    router.replace('/(main)/style-detail');
+  }, []);
 
   const handleSkip = useCallback(() => {
     void navigateToMain();
-  }, []);
+  }, [navigateToMain]);
 
   const handleGetStarted = useCallback(() => {
     void navigateToMain();
-  }, []);
+  }, [navigateToMain]);
 
   const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: Array<{ index: number | null }> }) => {
     const nextIndex = viewableItems[0]?.index;
