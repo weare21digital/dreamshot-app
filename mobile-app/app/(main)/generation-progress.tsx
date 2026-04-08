@@ -42,6 +42,8 @@ const STYLE_AVG_SECONDS: Record<string, { photo: number; video: number }> = {
   vintage: { photo: 29, video: 60 },
 };
 
+const POLL_FAILURE_BANNER_THRESHOLD = 3;
+
 function formatEta(seconds: number): string {
   const safeSeconds = Math.max(0, seconds);
   const mins = Math.floor(safeSeconds / 60);
@@ -248,6 +250,8 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
 
   const isQueued = activeJob?.status === 'queued';
   const isProcessing = activeJob?.status === 'processing';
+  const pollFailures = activeJob?.pollFailures ?? 0;
+  const showConnectionLostBanner = !errorMessage && busy && pollFailures >= POLL_FAILURE_BANNER_THRESHOLD;
   const canCancel = isQueued && requestId != null;
   const expectedWindow = generationMode === 'video' ? { min: 40, max: 90 } : { min: 20, max: 45 };
   const styleAverages = style ? STYLE_AVG_SECONDS[style.id] : undefined;
@@ -374,6 +378,12 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
           <Text style={styles.title}>Your DreamShot image is being crafted...</Text>
           <Text style={styles.subTitle}>Our AI is meticulously crafting every detail for {style.title}.</Text>
         </View>
+
+        {showConnectionLostBanner ? (
+          <View testID="connection-lost-banner" style={styles.connectionLostBanner}>
+            <Text style={styles.connectionLostBannerText}>Connection lost - retrying</Text>
+          </View>
+        ) : null}
 
         <View style={styles.progressWrap}>
           <View style={styles.progressHeader}>
@@ -561,6 +571,21 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
     copyWrap: { marginTop: 14, alignItems: 'center' },
     title: { color: palette.text, fontSize: 22, textAlign: 'center', fontFamily: 'SpaceGrotesk_700Bold', fontWeight: '700' },
     subTitle: { marginTop: 6, color: palette.textSecondary, fontSize: 14, textAlign: 'center', lineHeight: 20 },
+    connectionLostBanner: {
+      marginTop: 14,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: '#F59E0B',
+      backgroundColor: 'rgba(245, 158, 11, 0.14)',
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+    },
+    connectionLostBannerText: {
+      color: '#FDE68A',
+      fontSize: 13,
+      fontWeight: '600',
+      textAlign: 'center',
+    },
     progressWrap: { marginTop: 16, gap: 6 },
     progressHeader: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
     phaseLabel: { fontSize: 11, color: palette.textSecondary, letterSpacing: 1.1, fontWeight: '700' },

@@ -13,7 +13,6 @@ import { useGenerationJob } from './useGenerationJob';
 
 const POLL_INTERVAL_MS = 5000;
 const QUEUE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
-const MAX_POLL_FAILURES = 3;
 
 const mapProviderStatus = (status: string): 'queued' | 'processing' | 'completed' | 'failed' => {
   if (status === 'COMPLETED') return 'completed';
@@ -99,20 +98,9 @@ export function useGenerateVideo(): UseGenerateVideoResult {
       }
 
       await patchJob(jobId, { status: mappedStatus, pollFailures: 0 });
-    } catch (error) {
+    } catch {
       const failures = ((job?.pollFailures) || 0) + 1;
-      if (failures >= MAX_POLL_FAILURES) {
-        const refunded = await refundIfNeeded(jobId);
-        await patchJob(jobId, {
-          status: 'failed',
-          pollFailures: failures,
-          errorMessage: refunded
-            ? (error instanceof Error ? error.message : 'Unable to fetch status.') + ' Coins refunded.'
-            : (error instanceof Error ? error.message : 'Unable to fetch status.'),
-        });
-      } else {
-        await patchJob(jobId, { pollFailures: failures });
-      }
+      await patchJob(jobId, { pollFailures: failures });
     }
   }, [patchJob, refundIfNeeded]);
 
