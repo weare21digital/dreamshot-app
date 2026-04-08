@@ -30,6 +30,19 @@ const PROGRESS_QUOTES = [
   'The finishing touches are being applied with great care...',
 ];
 
+function getNextQuoteIndex(previousIndex: number): number {
+  if (PROGRESS_QUOTES.length <= 1) {
+    return previousIndex;
+  }
+
+  const candidateIndexes = PROGRESS_QUOTES
+    .map((_, index) => index)
+    .filter((index) => index !== previousIndex);
+
+  const randomCandidate = Math.floor(Math.random() * candidateIndexes.length);
+  return candidateIndexes[randomCandidate] ?? previousIndex;
+}
+
 type ProgressStage = {
   key: 'queued' | 'processing' | 'finalizing';
   label: string;
@@ -174,14 +187,7 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
         duration: 300,
         useNativeDriver: true,
       }).start(() => {
-        setQuoteIndex((prev) => {
-          if (PROGRESS_QUOTES.length <= 1) {
-            return prev;
-          }
-
-          const next = (prev + 1 + Math.floor(Math.random() * (PROGRESS_QUOTES.length - 1))) % PROGRESS_QUOTES.length;
-          return next;
-        });
+        setQuoteIndex((prev) => getNextQuoteIndex(prev));
 
         Animated.timing(quoteOpacity, {
           toValue: 1,
