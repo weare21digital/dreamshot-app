@@ -1,15 +1,28 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import * as StoreReview from 'expo-store-review';
 import React, { useCallback } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import type { ThemeMode } from '../../src/types/settings';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
+type ThemeOption = {
+  value: ThemeMode;
+  label: string;
+  icon: React.ComponentProps<typeof MaterialIcons>['name'];
+  testID: string;
+};
+
+const THEME_OPTIONS: ThemeOption[] = [
+  { value: 'light', label: 'Light', icon: 'light-mode', testID: 'theme-light' },
+  { value: 'dark', label: 'Dark', icon: 'dark-mode', testID: 'theme-dark' },
+  { value: 'auto', label: 'Auto (System)', icon: 'brightness-auto', testID: 'theme-auto' },
+];
+
 export default function SettingsScreen(): React.JSX.Element {
-  const { resolvedThemeMode, toggleTheme, palette, brand } = useAppTheme();
-  const isDark = resolvedThemeMode === 'dark';
-  const styles = React.useMemo(() => createStyles(palette, brand, isDark), [palette, brand, isDark]);
+  const { themeMode, setThemeMode, palette, brand } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(palette, brand), [palette, brand]);
 
   const handleRateApp = useCallback(async () => {
     const canRequestReview = await StoreReview.hasAction();
@@ -40,17 +53,25 @@ export default function SettingsScreen(): React.JSX.Element {
       <ScrollView contentContainerStyle={styles.content}>
         <SectionLabel label="Appearance" styles={styles} />
         <View style={styles.groupCard}>
-          <View style={styles.row}>
-            <RowLeft icon="dark-mode" label="Dark Mode" styles={styles} />
-            <Switch
-              testID="toggle-theme"
-              value={isDark}
-              onValueChange={() => void toggleTheme()}
-              trackColor={{ false: palette.surfaceContainerHigh, true: brand.primaryDim }}
-              thumbColor={palette.onPrimary}
-              ios_backgroundColor={palette.surfaceContainerHigh}
-              style={{ marginRight: -4 }}
-            />
+          <View style={styles.themeList}>
+            {THEME_OPTIONS.map((option, index) => {
+              const isActive = themeMode === option.value;
+              return (
+                <React.Fragment key={option.value}>
+                  {index > 0 ? <View style={styles.divider} /> : null}
+                  <Pressable
+                    testID={option.testID}
+                    style={({ pressed }) => [styles.themeRow, isActive && styles.themeRowActive, pressed && styles.pressed]}
+                    onPress={() => void setThemeMode(option.value)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Set theme to ${option.label}`}
+                  >
+                    <RowLeft icon={option.icon} label={option.label} styles={styles} />
+                    {isActive ? <MaterialIcons name="check-circle" size={20} color={brand.primary} /> : null}
+                  </Pressable>
+                </React.Fragment>
+              );
+            })}
           </View>
         </View>
 
@@ -68,8 +89,6 @@ export default function SettingsScreen(): React.JSX.Element {
     </SafeAreaView>
   );
 }
-
-/* ---------- Sub-components ---------- */
 
 function SectionLabel({ label, styles }: { label: string; styles: ReturnType<typeof createStyles> }) {
   return <Text style={styles.sectionLabel}>{label}</Text>;
@@ -113,12 +132,9 @@ function MenuItem({
   );
 }
 
-/* ---------- Styles ---------- */
-
 const createStyles = (
   palette: ReturnType<typeof useAppTheme>['palette'],
   brand: ReturnType<typeof useAppTheme>['brand'],
-  isDark: boolean,
 ) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: palette.background },
@@ -155,20 +171,26 @@ const createStyles = (
       borderColor: palette.borderVariant,
       overflow: 'hidden',
     },
-    row: {
-      minHeight: 52,
+    themeList: {
+      overflow: 'hidden',
+      borderRadius: 14,
+    },
+    themeRow: {
+      minHeight: 56,
       paddingHorizontal: 14,
-      paddingVertical: 8,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+    },
+    themeRowActive: {
+      backgroundColor: palette.primaryContainer,
     },
     rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     iconWrap: {
       width: 34,
       height: 34,
       borderRadius: 8,
-      backgroundColor: isDark ? palette.secondaryContainer : palette.surfaceContainerHigh,
+      backgroundColor: palette.surfaceContainerHigh,
       alignItems: 'center',
       justifyContent: 'center',
     },
