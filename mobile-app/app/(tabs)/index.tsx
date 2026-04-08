@@ -29,6 +29,7 @@ export default function HomeScreen(): React.JSX.Element {
   const styles = useMemo(() => createStyles(palette), [palette]);
   const [selectedCategory, setSelectedCategory] = useState<StyleCategory>('All');
   const [selectedStyleId, setSelectedStyleId] = useState<string>(DREAMSHOT_STYLE_PRESETS[0]?.id ?? '');
+  const [loadedStyleImages, setLoadedStyleImages] = useState<Record<string, boolean>>({});
 
   const filteredStyles = useMemo(() => {
     if (selectedCategory === 'All') {
@@ -103,7 +104,18 @@ export default function HomeScreen(): React.JSX.Element {
                   router.push({ pathname: '/(main)/style-detail', params: { styleId: stylePreset.id } });
                 }}
               >
-                <Image source={getStylePreviewSource(stylePreset)} style={styles.styleImage} resizeMode="cover" />
+                {!loadedStyleImages[stylePreset.id] ? <View style={styles.styleSkeleton} /> : null}
+                <Image
+                  source={getStylePreviewSource(stylePreset)}
+                  style={[styles.styleImage, !loadedStyleImages[stylePreset.id] && styles.hiddenStyleImage]}
+                  resizeMode="cover"
+                  onLoadEnd={() => {
+                    setLoadedStyleImages((current) => {
+                      if (current[stylePreset.id]) return current;
+                      return { ...current, [stylePreset.id]: true };
+                    });
+                  }}
+                />
                 <LinearGradient
                   colors={['transparent', 'rgba(6, 14, 32, 0.94)']}
                   start={{ x: 0.5, y: 0.25 }}
@@ -208,6 +220,13 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
     styleImage: {
       width: '100%',
       height: 214,
+    },
+    hiddenStyleImage: {
+      opacity: 0,
+    },
+    styleSkeleton: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(20, 31, 56, 0.8)',
     },
     styleGradientOverlay: {
       ...StyleSheet.absoluteFillObject,

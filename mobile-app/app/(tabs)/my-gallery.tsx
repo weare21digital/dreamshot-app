@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -286,6 +286,11 @@ function GalleryCard({ job, index, styles, palette, isFavorite, onToggleFavorite
   const hasOutput = job.status === 'completed' && typeof job.outputUrl === 'string' && job.outputUrl.length > 0;
   const thumbnail = useVideoThumbnail(isVideo && hasOutput ? job.outputUrl : null);
   const imageSource = hasOutput ? (isVideo ? (thumbnail ? { uri: thumbnail } : undefined) : { uri: job.outputUrl }) : undefined;
+  const [isImageReady, setIsImageReady] = useState(false);
+
+  useEffect(() => {
+    setIsImageReady(false);
+  }, [imageSource?.uri]);
   const stylePreset = DREAMSHOT_STYLE_PRESETS_BY_ID[job.styleId];
   const label = job.styleTitle || stylePreset?.title || 'Unknown style';
   const longPressTriggeredRef = useRef(false);
@@ -308,7 +313,12 @@ function GalleryCard({ job, index, styles, palette, isFavorite, onToggleFavorite
   return (
     <View style={styles.cardWrap}>
       <Pressable style={[styles.card, index % 3 === 0 ? styles.cardTall : styles.cardRegular]} onPress={handlePress} onLongPress={handleLongPress} delayLongPress={320}>
-        {imageSource ? <Image source={imageSource} style={styles.image} /> : <View style={[styles.image, styles.pendingCardBackground]}><ActivityIndicator color={palette.text} /></View>}
+        {imageSource ? (
+          <>
+            {!isImageReady ? <View style={[styles.image, styles.gallerySkeleton]} /> : null}
+            <Image source={imageSource} style={[styles.image, !isImageReady && styles.hiddenImage]} onLoadEnd={() => setIsImageReady(true)} />
+          </>
+        ) : <View style={[styles.image, styles.pendingCardBackground]}><ActivityIndicator color={palette.text} /></View>}
         <View style={styles.overlay} />
         <Pressable style={styles.favoriteBtn} onPress={() => onToggleFavorite(job.jobId)} hitSlop={6}>
           <MaterialIcons name={isFavorite ? 'favorite' : 'favorite-border'} size={18} color={isFavorite ? '#FF86C3' : '#FFFFFF'} />
@@ -348,6 +358,8 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
   cardRegular: { aspectRatio: 0.78 },
   cardTall: { aspectRatio: 0.62 },
   image: { width: '100%', height: '100%' },
+  hiddenImage: { opacity: 0 },
+  gallerySkeleton: { backgroundColor: 'rgba(20,31,56,0.75)' },
   pendingCardBackground: { backgroundColor: palette.surfaceVariant, alignItems: 'center', justifyContent: 'center' },
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.18)' },
   favoriteBtn: { position: 'absolute', top: 8, right: 8, width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(6,14,32,0.55)', alignItems: 'center', justifyContent: 'center' },

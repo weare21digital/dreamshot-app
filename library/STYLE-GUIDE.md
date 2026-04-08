@@ -41,6 +41,7 @@
 
 ## Home/Gallery Patterns
 
+- Home style cards and My Collection tiles must render a tonal skeleton placeholder (`rgba(20,31,56,0.75+)`) until each preview image finishes loading to avoid blank/janky pop-in on slow networks.
 - Home header uses a compact brand lockup (`blur-on` icon + gradient DreamShot wordmark from purple→cyan) with a circular glass notification action.
 - Hero blocks use large rounded cards (24 radius), deep overlay (`rgba(6,14,32,0.5)`), and dual CTA actions:
   - Primary CTA: signature gradient pill (`#9C48EA` → `#53DDFC`) with white label.
