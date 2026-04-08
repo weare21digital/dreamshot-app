@@ -45,6 +45,14 @@ function isValidStatus(status: unknown): status is GenerationJobStatus {
   return status === 'queued' || status === 'processing' || status === 'completed' || status === 'failed';
 }
 
+function isOptionalString(value: unknown): value is string | undefined {
+  return value === undefined || typeof value === 'string';
+}
+
+function isOptionalNumber(value: unknown): value is number | undefined {
+  return value === undefined || (typeof value === 'number' && Number.isFinite(value));
+}
+
 function normalizeStoredJobs(raw: string | null): DreamshotGenerationJob[] {
   if (!raw) return [];
 
@@ -64,7 +72,16 @@ function normalizeStoredJobs(raw: string | null): DreamshotGenerationJob[] {
           (job.kind === 'photo' || job.kind === 'video') &&
           isValidStatus(job.status) &&
           typeof job.createdAt === 'string' &&
-          typeof job.updatedAt === 'string'
+          typeof job.updatedAt === 'string' &&
+          isOptionalString(job.outputUrl) &&
+          isOptionalString(job.errorMessage) &&
+          isOptionalString(job.refundedAt) &&
+          isOptionalString(job.styleTitle) &&
+          isOptionalString(job.statusUrl) &&
+          isOptionalString(job.responseUrl) &&
+          isOptionalString(job.archivedAt) &&
+          isOptionalNumber(job.coinCost) &&
+          isOptionalNumber(job.pollFailures)
         );
       })
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
