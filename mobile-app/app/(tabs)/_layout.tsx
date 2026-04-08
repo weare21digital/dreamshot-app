@@ -90,6 +90,12 @@ export default function TabsLayout(): React.JSX.Element {
           ),
         }}
       />
+      <Tabs.Screen
+        name="coin-history"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { recordCoinTransaction } from '../utils/coinTransactions';
 
 const COIN_BALANCE_KEY = '@coins/balance';
 const FIRST_LAUNCH_BONUS_FLAG_KEY = 'dreamshot_first_launch_bonus_given';
@@ -47,8 +48,8 @@ async function ensureFirstLaunchBonus(currentBalance: number): Promise<number> {
 export type UseCoinsResult = {
   balance: number;
   isLoading: boolean;
-  addCoins: (amount: number) => Promise<number>;
-  spendCoins: (amount: number) => Promise<boolean>;
+  addCoins: (amount: number, metadata?: { source?: 'purchase' | 'refund' | 'bonus' | 'adjustment'; note?: string }) => Promise<number>;
+  spendCoins: (amount: number, metadata?: { source?: 'generation' | 'adjustment'; note?: string }) => Promise<boolean>;
   hasEnough: (amount: number) => Promise<boolean>;
   reload: () => Promise<void>;
 };
@@ -69,7 +70,7 @@ export function useCoins(): UseCoinsResult {
     void reload();
   }, [reload]);
 
-  const addCoins = useCallback(async (amount: number): Promise<number> => {
+  const addCoins = useCallback(async (amount: number, metadata?: { source?: 'purchase' | 'refund' | 'bonus' | 'adjustment'; note?: string }): Promise<number> => {
     const safeAmount = Math.max(0, Math.floor(amount));
 
     if (safeAmount === 0) {
@@ -81,10 +82,17 @@ export function useCoins(): UseCoinsResult {
     const nextBalance = current + safeAmount;
     setBalance(nextBalance);
     await saveBalanceToStorage(nextBalance);
+    await recordCoinTransaction({
+      type: 'credit',
+      amount: safeAmount,
+      balanceAfter: nextBalance,
+      source: metadata?.source ?? 'adjustment',
+      note: metadata?.note,
+    });
     return nextBalance;
   }, []);
 
-  const spendCoins = useCallback(async (amount: number): Promise<boolean> => {
+  const spendCoins = useCallback(async (amount: number, metadata?: { source?: 'generation' | 'adjustment'; note?: string }): Promise<boolean> => {
     const safeAmount = Math.max(0, Math.floor(amount));
 
     if (safeAmount === 0) {
@@ -100,6 +108,13 @@ export function useCoins(): UseCoinsResult {
     const nextBalance = current - safeAmount;
     setBalance(nextBalance);
     await saveBalanceToStorage(nextBalance);
+    await recordCoinTransaction({
+      type: 'debit',
+      amount: safeAmount,
+      balanceAfter: nextBalance,
+      source: metadata?.source ?? 'adjustment',
+      note: metadata?.note,
+    });
     return true;
   }, []);
 

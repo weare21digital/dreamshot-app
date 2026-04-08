@@ -63,7 +63,7 @@ export default function CoinsScreen(): React.JSX.Element {
           });
 
           if (result.granted) {
-            await addCoins(coins);
+            await addCoins(coins, { source: 'purchase', note: productId });
           }
         }
 
@@ -110,9 +110,15 @@ export default function CoinsScreen(): React.JSX.Element {
           <MaterialIcons name="monetization-on" size={24} color={palette.text} />
         </View>
         <Text style={styles.headerTitle}>DreamShot</Text>
-        <View style={styles.headerIcon}>
+        <Pressable
+          style={styles.headerIcon}
+          onPress={() => router.push('/(tabs)/coin-history')}
+          accessibilityRole="button"
+          accessibilityLabel="Open coin history"
+          testID="coins-open-history"
+        >
           <MaterialIcons name="history" size={24} color={palette.text} />
-        </View>
+        </Pressable>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>

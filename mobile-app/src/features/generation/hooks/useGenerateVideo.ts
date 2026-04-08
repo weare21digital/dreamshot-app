@@ -50,7 +50,7 @@ export function useGenerateVideo(): UseGenerateVideoResult {
       return false;
     }
 
-    await addCoins(targetJob.coinCost);
+    await addCoins(targetJob.coinCost, { source: 'refund', note: targetJob.styleTitle });
     await patchJob(jobId, { refundedAt: new Date().toISOString() });
     return true;
   }, [addCoins, patchJob]);
@@ -138,7 +138,7 @@ export function useGenerateVideo(): UseGenerateVideoResult {
     let coinsSpent = false;
 
     try {
-      const spent = await spendCoins(style.videoCost);
+      const spent = await spendCoins(style.videoCost, { source: 'generation', note: style.title });
       if (!spent) {
         throw new Error('Not enough coins. Please top up and try again.');
       }
@@ -169,7 +169,7 @@ export function useGenerateVideo(): UseGenerateVideoResult {
       return submitted.requestId;
     } catch (error) {
       if (coinsSpent && style.videoCost > 0) {
-        await addCoins(style.videoCost);
+        await addCoins(style.videoCost, { source: 'refund', note: style.title });
       }
       throw error;
     } finally {

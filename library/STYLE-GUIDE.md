@@ -48,6 +48,7 @@
   - Secondary CTA: glass pill with cyan-tinted border.
 - Popular creations should use a bento composition with one featured large tile and supporting smaller tiles.
 - Image card overlays are bottom-anchored, semi-transparent black (`rgba(0,0,0,0.5)`) with title + author metadata.
+- Coins flow includes a dedicated `Coin History` surface (opened from the history icon in Coins) using stacked ledger cards with signed amount (`+/-`) and post-transaction balance for each row.
 - Bottom tab bar style for DreamShot main tabs is glassmorphic:
   - Blur backdrop (`expo-blur`, dark tint, medium intensity)
   - translucent shell (`rgba(15, 25, 48, 0.55)`)

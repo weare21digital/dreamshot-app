@@ -48,7 +48,7 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
       return false;
     }
 
-    await addCoins(targetJob.coinCost);
+    await addCoins(targetJob.coinCost, { source: 'refund', note: targetJob.styleTitle });
     await patchJob(jobId, { refundedAt: new Date().toISOString() });
     return true;
   }, [addCoins, patchJob]);
@@ -142,7 +142,7 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
         stylePreset: style.id,
       });
 
-      const spent = await spendCoins(style.photoCost);
+      const spent = await spendCoins(style.photoCost, { source: 'generation', note: style.title });
       if (!spent) {
         try {
           await cancelImageGeneration(submitted.requestId);
@@ -169,7 +169,7 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
       return submitted.requestId;
     } catch (error) {
       if (coinsSpent && style.photoCost > 0) {
-        await addCoins(style.photoCost);
+        await addCoins(style.photoCost, { source: 'refund', note: style.title });
       }
       throw error;
     } finally {
