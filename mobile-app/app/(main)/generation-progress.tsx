@@ -37,7 +37,46 @@ type ProgressStage = {
   percent: number;
 };
 
-export default function GenerationProgressScreen(): React.JSX.Element | null {
+type ProgressErrorBoundaryState = {
+  hasError: boolean;
+};
+
+class ProgressErrorBoundary extends React.Component<React.PropsWithChildren, ProgressErrorBoundaryState> {
+  state: ProgressErrorBoundaryState = { hasError: false };
+
+  static getDerivedStateFromError(): ProgressErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error): void {
+    console.error('Generation progress screen crashed', error);
+  }
+
+  private handleGoHome = (): void => {
+    this.setState({ hasError: false });
+    router.replace('/(main)/home');
+  };
+
+  render(): React.ReactNode {
+    if (!this.state.hasError) {
+      return this.props.children;
+    }
+
+    return (
+      <SafeAreaView style={fallbackStyles.container}>
+        <View style={fallbackStyles.content}>
+          <Text style={fallbackStyles.title}>Something went wrong</Text>
+          <Text style={fallbackStyles.subtitle}>The generation screen crashed. You can return home and try again.</Text>
+          <Pressable style={fallbackStyles.button} onPress={this.handleGoHome}>
+            <Text style={fallbackStyles.buttonText}>Back to Home</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+}
+
+function GenerationProgressScreenContent(): React.JSX.Element | null {
   const { styleId, mode, imageUri, animStyle } = useLocalSearchParams<{ styleId?: string; mode?: 'photo' | 'video'; imageUri?: string; animStyle?: string }>();
   const fallbackStyle = Object.values(DREAMSHOT_STYLE_PRESETS_BY_ID)[0];
   const style = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || fallbackStyle || null;
@@ -365,6 +404,52 @@ export default function GenerationProgressScreen(): React.JSX.Element | null {
     </SafeAreaView>
   );
 }
+
+export default function GenerationProgressScreen(): React.JSX.Element {
+  return (
+    <ProgressErrorBoundary>
+      <GenerationProgressScreenContent />
+    </ProgressErrorBoundary>
+  );
+}
+
+const fallbackStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#050B19',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  title: {
+    color: '#F6F8FF',
+    fontSize: 24,
+    textAlign: 'center',
+    fontFamily: 'SpaceGrotesk_700Bold',
+  },
+  subtitle: {
+    color: '#B9C7E6',
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+  button: {
+    marginTop: 8,
+    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    backgroundColor: '#9C48EA',
+  },
+  buttonText: {
+    color: '#F6F8FF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+});
 
 const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand: ReturnType<typeof useAppTheme>['brand']) =>
   StyleSheet.create({
