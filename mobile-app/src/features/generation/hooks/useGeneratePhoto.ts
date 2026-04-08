@@ -148,17 +148,22 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
     let coinsSpent = false;
 
     try {
-      const spent = await spendCoins(style.photoCost);
-      if (!spent) {
-        throw new Error('Not enough coins. Please top up and try again.');
-      }
-      coinsSpent = true;
-
       const submitted = await submitImageGeneration({
         imageUri,
         prompt: style.prompt,
         stylePreset: style.id,
       });
+
+      const spent = await spendCoins(style.photoCost);
+      if (!spent) {
+        try {
+          await cancelImageGeneration(submitted.requestId);
+        } catch {
+          // best effort
+        }
+        throw new Error('Not enough coins. Please top up and try again.');
+      }
+      coinsSpent = true;
 
       const job = await createJob({
         requestId: submitted.requestId,
