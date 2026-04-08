@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 import * as StoreReview from 'expo-store-review';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import ViewShot from 'react-native-view-shot';
@@ -166,13 +167,38 @@ export default function ResultScreen(): React.JSX.Element {
     return captureUri || mediaUri;
   }, [isVideo, mediaUri]);
 
+  const ensureLocalShareUri = useCallback(async (uri: string): Promise<{ shareUri: string; tempUri: string | null }> => {
+    if (!uri.startsWith('http')) {
+      return { shareUri: uri, tempUri: null };
+    }
+
+    const ext = isVideo ? 'mp4' : 'png';
+    const localPath = `${FileSystem.cacheDirectory}dreamshot-share-${Date.now()}.${ext}`;
+    const download = await FileSystem.downloadAsync(uri, localPath);
+    return { shareUri: download.uri, tempUri: download.uri };
+  }, [isVideo]);
+
   const handleShare = useCallback(async () => {
     let tempUri: string | null = null;
 
     try {
-      const shareUri = await captureWatermarkedImage();
-      if (shareUri !== mediaUri) {
-        tempUri = shareUri;
+      const watermarkedUri = await captureWatermarkedImage();
+      if (watermarkedUri !== mediaUri) {
+        tempUri = watermarkedUri;
+      }
+
+      const { shareUri, tempUri: downloadedTempUri } = await ensureLocalShareUri(watermarkedUri);
+      if (downloadedTempUri) {
+        tempUri = downloadedTempUri;
+      }
+
+      const nativeSharingAvailable = await Sharing.isAvailableAsync();
+      if (nativeSharingAvailable) {
+        await Sharing.shareAsync(shareUri, {
+          dialogTitle: `Share ${style.title}`,
+          mimeType: isVideo ? 'video/mp4' : 'image/png',
+        });
+        return;
       }
 
       await Share.share({
@@ -190,7 +216,7 @@ export default function ResultScreen(): React.JSX.Element {
         }
       }
     }
-  }, [captureWatermarkedImage, mediaUri, style.title]);
+  }, [captureWatermarkedImage, ensureLocalShareUri, isVideo, mediaUri, style.title]);
 
 
   const handleRemix = useCallback(() => {
