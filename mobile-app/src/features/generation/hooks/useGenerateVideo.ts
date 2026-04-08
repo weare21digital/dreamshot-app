@@ -39,6 +39,7 @@ export function useGenerateVideo(): UseGenerateVideoResult {
   const { jobs, pendingJobs, createJob, patchJob, isRestoring } = useGenerationJob();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const jobsRef = useRef(jobs);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     jobsRef.current = jobs;
@@ -116,19 +117,30 @@ export function useGenerateVideo(): UseGenerateVideoResult {
   }, [patchJob, refundIfNeeded]);
 
   useEffect(() => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+
     if (isRestoring) return;
+
     const pendingVideoJobs = pendingJobs.filter((job) => job.kind === 'video');
     if (pendingVideoJobs.length === 0) return;
 
-    void Promise.all(pendingVideoJobs.map((job) => pollJob(job.requestId, job.jobId, job.statusUrl, job.responseUrl)));
+    const runPoll = () => Promise.all(pendingVideoJobs.map((job) => pollJob(job.requestId, job.jobId, job.statusUrl, job.responseUrl)));
+    void runPoll();
 
-    const interval = setInterval(() => {
-      void Promise.all(pendingVideoJobs.map((job) => pollJob(job.requestId, job.jobId, job.statusUrl, job.responseUrl)));
+    pollIntervalRef.current = setInterval(() => {
+      void runPoll();
     }, POLL_INTERVAL_MS);
 
-    return () => clearInterval(interval);
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
   }, [isRestoring, pendingJobs, pollJob]);
-
   const submitVideo = useCallback(async ({ imageUri, style, animStyleId }: SubmitVideoInput): Promise<string> => {
     if (!(await hasEnough(style.videoCost))) {
       throw new Error(`Not enough coins. You need ${style.videoCost} coins.`);
