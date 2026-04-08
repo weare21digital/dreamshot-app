@@ -59,7 +59,13 @@ export default function PhotoPickerScreen(): React.JSX.Element {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.topBar}>
-          <Pressable onPress={() => router.back()} style={styles.iconBtn}>
+          <Pressable
+            onPress={() => router.back()}
+            style={styles.iconBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            testID="photo-picker-back-button"
+          >
             <Text style={styles.iconText}>←</Text>
           </Pressable>
           <Text style={styles.brand}>DREAMSHOT</Text>

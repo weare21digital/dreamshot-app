@@ -306,7 +306,13 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} bounces={false}>
         <View style={styles.topBar}>
-          <Pressable onPress={handleBackPress} style={styles.iconBtn} testID="generation-back">
+          <Pressable
+            onPress={handleBackPress}
+            style={styles.iconBtn}
+            testID="generation-back"
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
             <Text style={styles.icon}>←</Text>
           </Pressable>
           <Text style={styles.brand}>DREAMSHOT</Text>

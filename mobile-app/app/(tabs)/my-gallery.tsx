@@ -225,7 +225,14 @@ export default function MyGalleryScreen(): React.JSX.Element {
                 {archivedJobs.map((job) => (
                   <View key={job.jobId} style={styles.archiveCard}>
                     <Image source={{ uri: job.outputUrl }} style={styles.archiveImage} />
-                    <Pressable style={styles.restoreBtn} hitSlop={8} onPress={() => void restoreJob(job.jobId)}>
+                    <Pressable
+                        style={styles.restoreBtn}
+                        hitSlop={8}
+                        onPress={() => void restoreJob(job.jobId)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Restore archived item"
+                        testID={`restore-archived-${job.jobId}`}
+                      >
                       <MaterialIcons name="restore" size={18} color="#fff" />
                     </Pressable>
                   </View>
@@ -320,7 +327,14 @@ function GalleryCard({ job, index, styles, palette, isFavorite, onToggleFavorite
           </>
         ) : <View style={[styles.image, styles.pendingCardBackground]}><ActivityIndicator color={palette.text} /></View>}
         <View style={styles.overlay} />
-        <Pressable style={styles.favoriteBtn} onPress={() => onToggleFavorite(job.jobId)} hitSlop={6}>
+        <Pressable
+          style={styles.favoriteBtn}
+          onPress={() => onToggleFavorite(job.jobId)}
+          hitSlop={6}
+          accessibilityRole="button"
+          accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          testID={`gallery-favorite-${job.jobId}`}
+        >
           <MaterialIcons name={isFavorite ? 'favorite' : 'favorite-border'} size={18} color={isFavorite ? '#FF86C3' : '#FFFFFF'} />
         </Pressable>
         <View style={styles.metaWrap}><Text style={styles.styleName} numberOfLines={1}>{label}</Text></View>

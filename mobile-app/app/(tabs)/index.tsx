@@ -57,7 +57,12 @@ export default function HomeScreen(): React.JSX.Element {
               </SvgText>
             </Svg>
           </View>
-          <Pressable style={({ pressed }) => [styles.notifyButton, pressed && styles.pressed]}>
+          <Pressable
+            style={({ pressed }) => [styles.notifyButton, pressed && styles.pressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Open notifications"
+            testID="home-notifications-button"
+          >
             <MaterialIcons name="notifications-none" size={22} color={palette.textSecondary} />
           </Pressable>
         </View>
