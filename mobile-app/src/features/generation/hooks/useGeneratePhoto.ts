@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCoins } from '../../coins/hooks/useCoins';
 import {
   cancelImageGeneration,
@@ -36,9 +36,14 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
   const { hasEnough, spendCoins, addCoins } = useCoins();
   const { jobs, pendingJobs, createJob, patchJob, isRestoring } = useGenerationJob();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const jobsRef = useRef(jobs);
+
+  useEffect(() => {
+    jobsRef.current = jobs;
+  }, [jobs]);
 
   const refundIfNeeded = useCallback(async (jobId: string): Promise<boolean> => {
-    const targetJob = jobs.find((job) => job.jobId === jobId);
+    const targetJob = jobsRef.current.find((job) => job.jobId === jobId);
     if (!targetJob || targetJob.refundedAt || !targetJob.coinCost || targetJob.coinCost <= 0) {
       return false;
     }
@@ -46,10 +51,10 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
     await addCoins(targetJob.coinCost);
     await patchJob(jobId, { refundedAt: new Date().toISOString() });
     return true;
-  }, [addCoins, jobs, patchJob]);
+  }, [addCoins, patchJob]);
 
   const pollJob = useCallback(async (requestId: string, jobId: string, statusUrl?: string, responseUrl?: string): Promise<void> => {
-    const job = jobs.find((j) => j.jobId === jobId);
+    const job = jobsRef.current.find((j) => j.jobId === jobId);
 
     // Auto-timeout: if stuck in queue for too long
     if (job && job.status === 'queued') {
@@ -106,7 +111,7 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
         await patchJob(jobId, { pollFailures: failures });
       }
     }
-  }, [jobs, patchJob, refundIfNeeded]);
+  }, [patchJob, refundIfNeeded]);
 
   useEffect(() => {
     if (isRestoring) return;
