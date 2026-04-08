@@ -165,6 +165,7 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
   }, [activeJob, generationMode, style.id]);
 
   const busy = isPhotoSubmitting || isVideoSubmitting || (!!activeJob && (activeJob.status === 'queued' || activeJob.status === 'processing'));
+  const isInsufficientCoinsError = !!errorMessage && /not enough coins/i.test(errorMessage);
 
   useEffect(() => {
     if (!busy) return;
@@ -393,20 +394,34 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
         ) : null}
 
         {errorMessage ? (
-          <Pressable
-            testID="retry-generation"
-            style={styles.primaryBtn}
-            onPress={() => {
-              didStartRef.current = false;
-              setRequestId(null);
-              setErrorMessage(null);
-              setRetryCount((c) => c + 1);
-              setElapsedSeconds(0);
-              setStartedAt(Date.now());
-            }}
-          >
-            <Text style={styles.primaryBtnText}>Retry Generation</Text>
-          </Pressable>
+          isInsufficientCoinsError ? (
+            <View testID="buy-coins-cta-modal" style={styles.buyCoinsCard}>
+              <Text style={styles.buyCoinsTitle}>You are out of coins</Text>
+              <Text style={styles.buyCoinsSubtitle}>This generation requires more coins. Top up to continue.</Text>
+              <Pressable
+                testID="buy-coins-cta-button"
+                style={styles.primaryBtn}
+                onPress={() => router.push('/(tabs)/coins')}
+              >
+                <Text style={styles.primaryBtnText}>Buy Coins</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              testID="retry-generation"
+              style={styles.primaryBtn}
+              onPress={() => {
+                didStartRef.current = false;
+                setRequestId(null);
+                setErrorMessage(null);
+                setRetryCount((c) => c + 1);
+                setElapsedSeconds(0);
+                setStartedAt(Date.now());
+              }}
+            >
+              <Text style={styles.primaryBtnText}>Retry Generation</Text>
+            </Pressable>
+          )
         ) : null}
 
         <View style={styles.footerGlyph}>
@@ -561,6 +576,25 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       justifyContent: 'center',
     },
     primaryBtnText: { color: palette.onPrimary, fontSize: 15, fontWeight: '700' },
+    buyCoinsCard: {
+      marginTop: 22,
+      padding: 16,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: palette.borderVariant,
+      backgroundColor: palette.surface,
+      gap: 6,
+    },
+    buyCoinsTitle: {
+      color: palette.text,
+      fontSize: 18,
+      fontFamily: 'SpaceGrotesk_700Bold',
+    },
+    buyCoinsSubtitle: {
+      color: palette.textSecondary,
+      fontSize: 13,
+      lineHeight: 18,
+    },
     footerGlyph: { alignItems: 'center', marginTop: 16 },
     footerGlyphText: { color: brand.accent, fontSize: 22 },
   });
