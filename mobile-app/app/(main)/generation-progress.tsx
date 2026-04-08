@@ -125,6 +125,7 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
   const [requestId, setRequestId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [startedAt, setStartedAt] = useState<number>(Date.now());
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [quoteIndex, setQuoteIndex] = useState(() => Math.floor(Math.random() * PROGRESS_QUOTES.length));
@@ -248,6 +249,12 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
     };
   }, [busy, errorMessage, shimmerTranslate]);
 
+  useEffect(() => {
+    if (!toastMessage) return;
+    const timer = setTimeout(() => setToastMessage(null), 2200);
+    return () => clearTimeout(timer);
+  }, [toastMessage]);
+
   const isQueued = activeJob?.status === 'queued';
   const isProcessing = activeJob?.status === 'processing';
   const pollFailures = activeJob?.pollFailures ?? 0;
@@ -314,13 +321,15 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
     : `Elapsed ${elapsedLabel} · ETA ${formatEta(remainingSeconds)} · Avg ${expectedDurationSeconds}s for ${generationMode === 'video' ? 'video' : 'photo'} generation`;
 
   const handleCancel = () => {
-    if (requestId) {
-      if (generationMode === 'video') {
-        void cancelVideo(requestId);
-      } else {
-        void cancelPhoto(requestId);
-      }
+    if (!requestId) return;
+
+    if (generationMode === 'video') {
+      void cancelVideo(requestId);
+    } else {
+      void cancelPhoto(requestId);
     }
+
+    setToastMessage('Refund successful. Coins are back.');
   };
 
   const handleBackPress = () => {
@@ -456,6 +465,12 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
               <Text style={styles.primaryBtnText}>Retry Generation</Text>
             </Pressable>
           )
+        ) : null}
+
+        {toastMessage ? (
+          <View testID="refund-toast" style={styles.toastWrap}>
+            <Text style={styles.toastText}>{toastMessage}</Text>
+          </View>
         ) : null}
 
         <View style={styles.footerGlyph}>
@@ -643,6 +658,21 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
       color: palette.textSecondary,
       fontSize: 13,
       lineHeight: 18,
+    },
+    toastWrap: {
+      marginTop: 18,
+      borderRadius: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      backgroundColor: 'rgba(34,197,94,0.2)',
+      borderWidth: 1,
+      borderColor: 'rgba(34,197,94,0.45)',
+    },
+    toastText: {
+      color: '#BBF7D0',
+      textAlign: 'center',
+      fontSize: 13,
+      fontWeight: '700',
     },
     footerGlyph: { alignItems: 'center', marginTop: 16 },
     footerGlyphText: { color: brand.accent, fontSize: 22 },
