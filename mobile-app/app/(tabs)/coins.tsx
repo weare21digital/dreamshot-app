@@ -8,7 +8,34 @@ import { useCoins } from '../../src/features/coins/hooks/useCoins';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 import { COIN_PACKS, SKU_COINS } from '../../src/config/iap';
 import { paymentService } from '../../src/services/payments/paymentService';
+import type { PaymentPurchase } from '../../src/services/payments/paymentTypes';
 import { grantCoinsOnce } from '../../src/features/coins/utils/coinPurchaseLedger';
+
+
+type PurchaseWithOptionalTransaction = PaymentPurchase & {
+  transactionId?: string | null;
+  transactionReceipt?: string | null;
+};
+
+const getPurchaseProductId = (purchase: PaymentPurchase): string => {
+  const productId = purchase.productId;
+  if (typeof productId === 'string' && productId.trim().length > 0) {
+    return productId;
+  }
+
+  console.error('[Coins] Missing purchase.productId in purchase update payload', purchase);
+  throw new Error('Purchase completed but product identifier was missing. Coins were not granted.');
+};
+
+const getPurchaseTransactionId = (purchase: PurchaseWithOptionalTransaction): string => {
+  if (typeof purchase.transactionId === 'string' && purchase.transactionId.trim().length > 0) {
+    return purchase.transactionId;
+  }
+  if (typeof purchase.transactionReceipt === 'string' && purchase.transactionReceipt.trim().length > 0) {
+    return purchase.transactionReceipt;
+  }
+  return '';
+};
 
 export default function CoinsScreen(): React.JSX.Element {
   const router = useRouter();
@@ -22,29 +49,36 @@ export default function CoinsScreen(): React.JSX.Element {
     void paymentService.initialize().catch(() => {});
 
     listenerRef.current = paymentService.onPurchaseUpdated(async (purchase) => {
-      const productId = (purchase as any).productId ?? (purchase as any).id ?? '';
-      const transactionId = (purchase as any).transactionId ?? (purchase as any).transactionReceipt ?? '';
-      const coins = SKU_COINS[productId] ?? 0;
-
-      if (coins > 0) {
-        const result = await grantCoinsOnce({
-          transactionId,
-          productId,
-          coins,
-          source: 'purchase',
-        });
-
-        if (result.granted) {
-          await addCoins(coins);
-        }
-      }
-
       try {
-        await paymentService.finishPurchase(purchase, true);
-      } catch { /* best effort */ }
+        const productId = getPurchaseProductId(purchase);
+        const transactionId = getPurchaseTransactionId(purchase as PurchaseWithOptionalTransaction);
+        const coins = SKU_COINS[productId] ?? 0;
 
-      setPurchasing(null);
-      void reload();
+        if (coins > 0) {
+          const result = await grantCoinsOnce({
+            transactionId,
+            productId,
+            coins,
+            source: 'purchase',
+          });
+
+          if (result.granted) {
+            await addCoins(coins);
+          }
+        }
+
+        try {
+          await paymentService.finishPurchase(purchase, true);
+        } catch {
+          // best effort
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Purchase processing failed unexpectedly.';
+        Alert.alert('Purchase Processing Error', message);
+      } finally {
+        setPurchasing(null);
+        void reload();
+      }
     });
 
     const errorUnsub = paymentService.onPurchaseError(() => {
