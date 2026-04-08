@@ -206,7 +206,14 @@ export default function FullScreenViewer({ items, initialIndex, onDismiss, onDel
 
       {/* Top bar */}
       <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
-        <Pressable onPress={onDismiss} style={styles.topBtn} hitSlop={12}>
+        <Pressable
+          onPress={onDismiss}
+          style={styles.topBtn}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="Close full screen viewer"
+          testID="viewer-close"
+        >
           <MaterialIcons name="close" size={26} color="#fff" />
         </Pressable>
         <View style={styles.topCenter}>

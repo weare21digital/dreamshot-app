@@ -256,7 +256,13 @@ export default function ResultScreen(): React.JSX.Element {
   return (
     <SafeAreaView style={styles.container} testID="result-screen">
       <View style={styles.header}>
-        <Pressable onPress={() => router.dismissAll()} style={styles.headerBtn}>
+        <Pressable
+          onPress={() => router.dismissAll()}
+          style={styles.headerBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Close result screen"
+          testID="result-close"
+        >
           <MaterialIcons name="close" size={22} color={palette.text} />
         </Pressable>
         <Text style={styles.brand}>DREAMSHOT</Text>

@@ -96,7 +96,13 @@ export default function StyleDetailScreen(): React.JSX.Element {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Pressable onPress={() => router.back()} style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
+          <Pressable
+            onPress={() => router.back()}
+            style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            testID="style-detail-back"
+          >
             <MaterialIcons name="arrow-back" size={22} color={palette.text} />
           </Pressable>
           <Text style={styles.headerTitle}>Create</Text>
@@ -117,10 +123,20 @@ export default function StyleDetailScreen(): React.JSX.Element {
             />
             <View style={styles.promptFooter}>
               <View style={styles.promptActions}>
-                <Pressable style={styles.promptIconButton}>
+                <Pressable
+                  style={styles.promptIconButton}
+                  accessibilityRole="button"
+                  accessibilityLabel="Open prompt history"
+                  testID="prompt-history-button"
+                >
                   <MaterialIcons name="history-edu" size={19} color="#CC97FF" />
                 </Pressable>
-                <Pressable style={styles.promptIconButton}>
+                <Pressable
+                  style={styles.promptIconButton}
+                  accessibilityRole="button"
+                  accessibilityLabel="Enhance prompt"
+                  testID="prompt-enhance-button"
+                >
                   <MaterialIcons name="auto-fix-high" size={19} color="#CC97FF" />
                 </Pressable>
               </View>
