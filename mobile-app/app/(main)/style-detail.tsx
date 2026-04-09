@@ -21,6 +21,7 @@ const ASPECT_PREVIEW_SIZES: Record<AspectRatio, { width: number; height: number 
 };
 
 const PROMPT_HISTORY_KEY = 'dreamshot_prompt_history_v1';
+const INITIAL_PROMPT = 'Dreamy cinematic portrait with soft neon rim light and rich details';
 const PROMPT_SUGGESTIONS = [
   'Soft cinematic portrait, neon rim light, ultra-detailed face',
   'Golden hour lifestyle portrait, natural skin tones, shallow depth of field',
@@ -36,7 +37,7 @@ export default function StyleDetailScreen(): React.JSX.Element {
   const { palette } = useAppTheme();
   const styles = useMemo(() => createStyles(palette), [palette]);
 
-  const [prompt, setPrompt] = useState('Dreamy cinematic portrait with soft neon rim light and rich details');
+  const [prompt, setPrompt] = useState(INITIAL_PROMPT);
   const [focused, setFocused] = useState(false);
   const [selectedStyleId, setSelectedStyleId] = useState(defaultStyle.id);
   const [selectedAspect, setSelectedAspect] = useState<AspectRatio>('16:9');
@@ -122,6 +123,25 @@ export default function StyleDetailScreen(): React.JSX.Element {
     }
   };
 
+  const handleBackPress = useCallback((): void => {
+    const normalizedPrompt = prompt.trim();
+    const hasUnsavedPrompt = normalizedPrompt.length > 0 && normalizedPrompt !== INITIAL_PROMPT;
+
+    if (!hasUnsavedPrompt) {
+      router.back();
+      return;
+    }
+
+    Alert.alert(
+      'Discard changes?',
+      'You have unsaved prompt edits. If you leave now, your changes will be lost.',
+      [
+        { text: 'Keep editing', style: 'cancel' },
+        { text: 'Discard', style: 'destructive', onPress: () => router.back() },
+      ],
+    );
+  }, [prompt, router]);
+
   const handlePickFromGallery = async (): Promise<void> => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
@@ -150,7 +170,7 @@ export default function StyleDetailScreen(): React.JSX.Element {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Pressable
-            onPress={() => router.back()}
+            onPress={handleBackPress}
             style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}
             accessibilityRole="button"
             accessibilityLabel="Go back"
