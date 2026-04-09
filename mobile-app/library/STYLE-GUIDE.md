@@ -33,6 +33,7 @@
 - Aspect options use 2-column bordered cards with active border/fill.
 - Aspect ratio options use mini framed previews (`aspectPreview`) inside each card so proportions are recognizable at a glance.
 - Settings appearance uses stacked option rows (`themeRow`) with icon + checkmark for explicit `Light` / `Dark` / `Auto (System)` mode selection.
+- Prompt composer now supports quick-pick suggestion chips plus a collapsible recent history panel (triggered from history icon). Persist prompt history in AsyncStorage key `dreamshot_prompt_history_v1`, deduped and capped at 8 entries.
 
 ### Photo selection section (Create)
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Image, Linking, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DREAMSHOT_STYLE_PRESETS, DREAMSHOT_STYLE_PRESETS_BY_ID } from '../../src/config/styles';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
@@ -19,6 +20,16 @@ const ASPECT_PREVIEW_SIZES: Record<AspectRatio, { width: number; height: number 
   '9:16': { width: 30, height: 52 },
 };
 
+const PROMPT_HISTORY_KEY = 'dreamshot_prompt_history_v1';
+const PROMPT_SUGGESTIONS = [
+  'Soft cinematic portrait, neon rim light, ultra-detailed face',
+  'Golden hour lifestyle portrait, natural skin tones, shallow depth of field',
+  'Moody studio portrait, dramatic shadows, editorial fashion look',
+  'Fantasy hero portrait, glowing particles, epic atmosphere',
+  'Anime-inspired portrait, vivid colors, expressive eyes',
+  'Vintage film portrait, grain texture, warm nostalgic tones',
+];
+
 export default function StyleDetailScreen(): React.JSX.Element {
   const { styleId } = useLocalSearchParams<{ styleId?: string }>();
   const defaultStyle = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || DREAMSHOT_STYLE_PRESETS[0];
@@ -30,6 +41,48 @@ export default function StyleDetailScreen(): React.JSX.Element {
   const [selectedStyleId, setSelectedStyleId] = useState(defaultStyle.id);
   const [selectedAspect, setSelectedAspect] = useState<AspectRatio>('16:9');
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+  const [showPromptHistory, setShowPromptHistory] = useState(false);
+  const [promptHistory, setPromptHistory] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadPromptHistory = async (): Promise<void> => {
+      try {
+        const raw = await AsyncStorage.getItem(PROMPT_HISTORY_KEY);
+        if (!raw) {
+          return;
+        }
+
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          setPromptHistory(parsed.filter((item) => typeof item === 'string').slice(0, 8));
+        }
+      } catch {
+        setPromptHistory([]);
+      }
+    };
+
+    void loadPromptHistory();
+  }, []);
+
+  const savePromptToHistory = useCallback(async (value: string): Promise<void> => {
+    const normalized = value.trim();
+    if (!normalized) {
+      return;
+    }
+
+    const next = [normalized, ...promptHistory.filter((item) => item !== normalized)].slice(0, 8);
+    setPromptHistory(next);
+    try {
+      await AsyncStorage.setItem(PROMPT_HISTORY_KEY, JSON.stringify(next));
+    } catch {
+      // Best-effort persistence only.
+    }
+  }, [promptHistory]);
+
+  const applyPrompt = useCallback((value: string): void => {
+    setPrompt(value);
+    setShowPromptHistory(false);
+  }, []);
 
   const openSettings = useCallback(async (): Promise<void> => {
     try {
@@ -113,7 +166,12 @@ export default function StyleDetailScreen(): React.JSX.Element {
           <View style={[styles.promptCard, focused && styles.promptCardActive]}>
             <TextInput
               value={prompt}
-              onChangeText={setPrompt}
+              onChangeText={(value) => {
+                setPrompt(value);
+                if (showPromptHistory) {
+                  setShowPromptHistory(false);
+                }
+              }}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               style={styles.promptInput}
@@ -125,6 +183,7 @@ export default function StyleDetailScreen(): React.JSX.Element {
               <View style={styles.promptActions}>
                 <Pressable
                   style={styles.promptIconButton}
+                  onPress={() => setShowPromptHistory((prev) => !prev)}
                   accessibilityRole="button"
                   accessibilityLabel="Open prompt history"
                   testID="prompt-history-button"
@@ -142,6 +201,44 @@ export default function StyleDetailScreen(): React.JSX.Element {
               </View>
               <Text style={styles.engineLabel}>AI ENGINE v4.2</Text>
             </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.promptSuggestionRow}
+            >
+              {PROMPT_SUGGESTIONS.map((suggestion) => (
+                <Pressable
+                  key={suggestion}
+                  onPress={() => applyPrompt(suggestion)}
+                  style={({ pressed }) => [styles.promptSuggestionChip, pressed && styles.pressed]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Use prompt suggestion: ${suggestion}`}
+                >
+                  <Text style={styles.promptSuggestionText} numberOfLines={1}>{suggestion}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+            {showPromptHistory && (
+              <View style={styles.promptHistoryPanel}>
+                <Text style={styles.promptHistoryTitle}>Recent prompts</Text>
+                {promptHistory.length === 0 ? (
+                  <Text style={styles.promptHistoryEmpty}>No saved prompts yet.</Text>
+                ) : (
+                  promptHistory.map((item) => (
+                    <Pressable
+                      key={item}
+                      onPress={() => applyPrompt(item)}
+                      style={({ pressed }) => [styles.promptHistoryRow, pressed && styles.pressed]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Use prompt from history: ${item}`}
+                    >
+                      <MaterialIcons name="history" size={16} color="#CC97FF" />
+                      <Text style={styles.promptHistoryRowText} numberOfLines={2}>{item}</Text>
+                    </Pressable>
+                  ))
+                )}
+              </View>
+            )}
           </View>
         </View>
 
@@ -226,6 +323,8 @@ export default function StyleDetailScreen(): React.JSX.Element {
               return;
             }
 
+            void savePromptToHistory(prompt);
+
             router.push({
               pathname: '/(main)/generation-progress',
               params: {
@@ -293,6 +392,25 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
       paddingTop: 16,
       textAlignVertical: 'top',
     },
+    promptSuggestionRow: {
+      paddingHorizontal: 12,
+      gap: 8,
+      paddingBottom: 8,
+    },
+    promptSuggestionChip: {
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: 'rgba(83,221,252,0.5)',
+      backgroundColor: '#101A32',
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      maxWidth: 280,
+    },
+    promptSuggestionText: {
+      color: '#8EEBFF',
+      fontSize: 12,
+      fontFamily: 'Inter_700Bold',
+    },
     promptFooter: {
       paddingHorizontal: 12,
       paddingBottom: 12,
@@ -313,6 +431,44 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
       color: palette.textSecondary,
       fontSize: 10,
       letterSpacing: 1.5,
+      fontFamily: 'Inter_700Bold',
+    },
+    promptHistoryPanel: {
+      marginHorizontal: 12,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: 'rgba(109,117,140,0.35)',
+      borderRadius: 12,
+      backgroundColor: '#0B1428',
+      padding: 10,
+      gap: 8,
+    },
+    promptHistoryTitle: {
+      color: palette.text,
+      fontFamily: 'Inter_700Bold',
+      fontSize: 12,
+    },
+    promptHistoryEmpty: {
+      color: palette.textSecondary,
+      fontSize: 12,
+      fontFamily: 'Inter_700Bold',
+    },
+    promptHistoryRow: {
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: 'rgba(109,117,140,0.35)',
+      backgroundColor: '#111C35',
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      flexDirection: 'row',
+      gap: 8,
+      alignItems: 'center',
+    },
+    promptHistoryRowText: {
+      flex: 1,
+      color: palette.text,
+      fontSize: 12,
+      lineHeight: 17,
       fontFamily: 'Inter_700Bold',
     },
     sectionHead: { paddingHorizontal: 16, marginTop: 24, marginBottom: 10 },
