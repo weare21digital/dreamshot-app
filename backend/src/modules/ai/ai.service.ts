@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import OpenAI from 'openai';
 import { ReplaceBackgroundDto } from './dto/replace-background.dto';
 import { VideoSubmitDto } from './dto/video-generation.dto';
 import { VideoImagePipelineDto } from './dto/video-image-pipeline.dto';
@@ -6,6 +7,9 @@ import { VideoImagePipelineDto } from './dto/video-image-pipeline.dto';
 @Injectable()
 export class AiService {
   private readonly imageModel = process.env.FAL_IMAGE_MODEL || 'fal-ai/pulid';
+  private readonly openAiImageModel = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
+  private readonly openAiClient = new OpenAI({ apiKey: this.getOpenAiApiKey() });
+  private readonly imageJobResults = new Map<string, { status: string; imageUrl?: string; error?: string; cancelled?: boolean }>();
 
   /** Upload a base64 image to fal.ai CDN and return the hosted URL */
   private async uploadToFal(base64: string, mimeType: string): Promise<string> {
@@ -72,124 +76,62 @@ export class AiService {
       throw new BadRequestException('imageBase64 is required');
     }
 
-    const mimeType = dto.mimeType || 'image/jpeg';
-    const apiKey = this.getFalApiKey();
-    const imageUrl = await this.uploadToFal(imageBase64, mimeType);
-
     const stylePreset = dto.stylePreset || 'realistic';
     const styleSuffix = this.styleSuffixMap[stylePreset] || this.styleSuffixMap.realistic;
 
     const prompt = `${dto.prompt}. ${styleSuffix}. High quality dreamshot image painting, single person, anatomically correct, two arms only.`;
+    const requestId = `openai-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
-    const response = await fetch(`https://queue.fal.run/${this.imageModel}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Key ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        reference_images: [{ image_url: imageUrl }],
+    try {
+      const result = await this.openAiClient.images.generate({
+        model: this.openAiImageModel,
         prompt,
-        negative_prompt: 'extra arms, extra hands, extra fingers, extra limbs, multiple arms, four arms, 3 arms, duplicate limbs, fused limbs, malformed hands, bad anatomy, flaws in the eyes, flaws in the face, lowres, low quality, worst quality, artifacts, noise, text, watermark, glitch, deformed, mutated, ugly, disfigured, blurry, modern clothing, t-shirt, casual wear',
-        num_images: 1,
-        guidance_scale: 1.2,
-        num_inference_steps: 12,
-        image_size: { width: 1024, height: 1536 },
-        id_scale: 0.8,
-        mode: 'fidelity',
-      }),
-    });
+        size: '1024x1536',
+      });
 
-    const data = (await response.json()) as {
-      request_id?: string;
-      status?: string;
-      status_url?: string;
-      response_url?: string;
-      cancel_url?: string;
-      detail?: string;
-    };
+      const imageUrl = result.data?.[0]?.url;
+      if (!imageUrl) {
+        throw new InternalServerErrorException('OpenAI image generation returned no image URL');
+      }
 
-    console.log('[submitImage] fal response:', response.status, JSON.stringify(data).slice(0, 300));
-
-    if (!response.ok || !data.request_id) {
-      throw new InternalServerErrorException(data?.detail || 'Failed to submit image generation');
+      this.imageJobResults.set(requestId, { status: 'COMPLETED', imageUrl });
+    } catch (error) {
+      this.imageJobResults.set(requestId, { status: 'FAILED', error: 'OpenAI image generation failed' });
+      throw error;
     }
 
     return {
-      requestId: data.request_id,
-      status: data.status || 'IN_QUEUE',
-      statusUrl: data.status_url,
-      responseUrl: data.response_url,
-      cancelUrl: data.cancel_url,
+      requestId,
+      status: 'COMPLETED',
+      statusUrl: `openai://${requestId}/status`,
+      responseUrl: `openai://${requestId}/result`,
+      cancelUrl: `openai://${requestId}/cancel`,
     };
   }
 
   async getImageStatus(requestId: string, statusUrl?: string): Promise<{ status: string }> {
-    if (!statusUrl) {
-      return { status: 'FAILED' };
-    }
-    const apiKey = this.getFalApiKey();
-
-    const response = await fetch(statusUrl, {
-      method: 'GET',
-      headers: { Authorization: `Key ${apiKey}` },
-    });
-
-    const text = await response.text();
-    let data: { status?: string; detail?: string };
-    try {
-      data = JSON.parse(text);
-    } catch {
-      throw new InternalServerErrorException(`Unexpected fal.ai response: ${text.slice(0, 200)}`);
-    }
-
-    if (!response.ok || !data.status) {
-      throw new InternalServerErrorException(data?.detail || 'Failed to check image status');
-    }
-
-    return { status: data.status };
+    const result = this.imageJobResults.get(requestId);
+    if (!result) return { status: 'FAILED' };
+    return { status: result.cancelled ? 'CANCELED' : result.status };
   }
 
   async getImageResult(requestId: string, responseUrl?: string): Promise<{ imageUrl: string }> {
-    if (!responseUrl) {
-      throw new InternalServerErrorException('No response URL available for this job');
-    }
-    const apiKey = this.getFalApiKey();
-
-    const response = await fetch(responseUrl, {
-      method: 'GET',
-      headers: { Authorization: `Key ${apiKey}` },
-    });
-
-    const text = await response.text();
-    let data: {
-      images?: Array<{ url?: string }>;
-      detail?: string;
-    };
-    try {
-      data = JSON.parse(text);
-    } catch {
-      throw new InternalServerErrorException(`Unexpected fal.ai response: ${text.slice(0, 200)}`);
+    const result = this.imageJobResults.get(requestId);
+    if (!result?.imageUrl) {
+      throw new InternalServerErrorException(result?.error || 'Failed to retrieve image result');
     }
 
-    const imageUrl = data?.images?.[0]?.url;
-
-    if (!response.ok || !imageUrl) {
-      throw new InternalServerErrorException(data?.detail || 'Failed to retrieve image result');
-    }
-
-    return { imageUrl };
+    return { imageUrl: result.imageUrl };
   }
 
   async cancelImageGeneration(requestId: string): Promise<{ cancelled: boolean }> {
-    const apiKey = this.getFalApiKey();
+    const current = this.imageJobResults.get(requestId);
+    if (!current || current.status === 'COMPLETED') {
+      return { cancelled: false };
+    }
 
-    const response = await fetch(`https://queue.fal.run/${this.imageModel}/requests/${requestId}/cancel`, {
-      method: 'PUT',
-      headers: { Authorization: `Key ${apiKey}` },
-    });
-
-    return { cancelled: response.ok };
+    this.imageJobResults.set(requestId, { ...current, cancelled: true, status: 'CANCELED' });
+    return { cancelled: true };
   }
 
   // ---------- Video Generation (fal.ai) ----------
@@ -200,6 +142,14 @@ export class AiService {
     const key = process.env.FAL_API_KEY;
     if (!key) {
       throw new InternalServerErrorException('FAL_API_KEY is not configured on backend');
+    }
+    return key;
+  }
+
+  private getOpenAiApiKey(): string {
+    const key = process.env.OPENAI_API_KEY;
+    if (!key) {
+      throw new InternalServerErrorException('OPENAI_API_KEY is not configured on backend');
     }
     return key;
   }
