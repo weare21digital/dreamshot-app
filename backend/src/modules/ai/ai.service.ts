@@ -5,7 +5,6 @@ import { VideoImagePipelineDto } from './dto/video-image-pipeline.dto';
 
 @Injectable()
 export class AiService {
-  private readonly imageModel = process.env.FAL_IMAGE_MODEL || 'fal-ai/pulid';
   private readonly openAiImageModel = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
   private readonly imageJobResults = new Map<string, { status: string; imageUrl?: string; error?: string; cancelled?: boolean }>();
 
@@ -62,6 +61,48 @@ export class AiService {
     studio: 'clean studio look, professional softbox lighting, polished commercial style',
   };
 
+  private async generateOpenAiImageUrl(imageBase64: string, mimeType: string, prompt: string): Promise<string> {
+    const imageBytes = Buffer.from(imageBase64, 'base64');
+
+    const form = new FormData();
+    form.append('model', this.openAiImageModel);
+    form.append('prompt', prompt);
+    form.append('size', '1024x1536');
+    form.append('image', new Blob([imageBytes], { type: mimeType }), `selfie.${mimeType.includes('png') ? 'png' : 'jpg'}`);
+
+    const response = await fetch('https://api.openai.com/v1/images/edits', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.getOpenAiApiKey()}`,
+      },
+      body: form,
+    });
+
+    const data = (await response.json()) as {
+      data?: Array<{ url?: string }>;
+      error?: { message?: string };
+    };
+
+    const imageUrl = data?.data?.[0]?.url;
+    if (!response.ok || !imageUrl) {
+      throw new InternalServerErrorException(data?.error?.message || 'OpenAI image edit failed');
+    }
+
+    return imageUrl;
+  }
+
+  private async hostRemoteImageOnFal(remoteImageUrl: string): Promise<string> {
+    const response = await fetch(remoteImageUrl, { method: 'GET' });
+    if (!response.ok) {
+      throw new InternalServerErrorException('Failed to fetch OpenAI image output for video pipeline');
+    }
+
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    const arrayBuffer = await response.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString('base64');
+    return this.uploadToFal(base64, contentType);
+  }
+
   async submitImageGeneration(dto: ReplaceBackgroundDto): Promise<{
     requestId: string;
     status: string;
@@ -82,31 +123,7 @@ export class AiService {
 
     try {
       const mimeType = dto.mimeType || 'image/jpeg';
-      const imageBytes = Buffer.from(imageBase64, 'base64');
-
-      const form = new FormData();
-      form.append('model', this.openAiImageModel);
-      form.append('prompt', prompt);
-      form.append('size', '1024x1536');
-      form.append('image', new Blob([imageBytes], { type: mimeType }), `selfie.${mimeType.includes('png') ? 'png' : 'jpg'}`);
-
-      const response = await fetch('https://api.openai.com/v1/images/edits', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.getOpenAiApiKey()}`,
-        },
-        body: form,
-      });
-
-      const data = (await response.json()) as {
-        data?: Array<{ url?: string }>;
-        error?: { message?: string };
-      };
-
-      const imageUrl = data?.data?.[0]?.url;
-      if (!response.ok || !imageUrl) {
-        throw new InternalServerErrorException(data?.error?.message || 'OpenAI image edit failed');
-      }
+      const imageUrl = await this.generateOpenAiImageUrl(imageBase64, mimeType, prompt);
 
       this.imageJobResults.set(requestId, { status: 'COMPLETED', imageUrl });
     } catch (error) {
@@ -284,7 +301,7 @@ export class AiService {
     return { cancelled: response.ok };
   }
 
-  // ---------- Image-to-Video Pipeline (PuLID → Wan) ----------
+  // ---------- Image-to-Video Pipeline (OpenAI image edit → fal hosting → Wan) ----------
 
   async submitImagePipelineVideo(dto: VideoImagePipelineDto): Promise<{
     requestId: string;
@@ -300,51 +317,18 @@ export class AiService {
 
     const mimeType = dto.mimeType || 'image/jpeg';
     const apiKey = this.getFalApiKey();
-    const imageUrl = await this.uploadToFal(imageBase64, mimeType);
 
     const stylePreset = dto.stylePreset || 'realistic';
     const styleSuffix = this.styleSuffixMap[stylePreset] || this.styleSuffixMap.realistic;
 
-    // Step 1: Generate image with PuLID (synchronous call)
+    // Step 1: Generate image with OpenAI (synchronous call)
     const imagePrompt = `${dto.prompt}. ${styleSuffix}. High quality dreamshot image painting, single person, anatomically correct, two arms only.`;
+    const generatedImageUrl = await this.generateOpenAiImageUrl(imageBase64, mimeType, imagePrompt);
 
-    const imageResponse = await fetch(`https://fal.run/${this.imageModel}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Key ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        reference_images: [{ image_url: imageUrl }],
-        prompt: imagePrompt,
-        negative_prompt: 'extra arms, extra hands, extra fingers, extra limbs, multiple arms, four arms, 3 arms, duplicate limbs, fused limbs, malformed hands, bad anatomy, flaws in the eyes, flaws in the face, lowres, low quality, worst quality, artifacts, noise, text, watermark, glitch, deformed, mutated, ugly, disfigured, blurry, modern clothing, t-shirt, casual wear',
-        num_images: 1,
-        guidance_scale: 1.2,
-        num_inference_steps: 12,
-        image_size: { width: 1024, height: 1536 },
-        id_scale: 0.8,
-        mode: 'fidelity',
-      }),
-    });
+    // Step 2: Re-host generated image on fal storage before Wan submit
+    const hostedImageUrl = await this.hostRemoteImageOnFal(generatedImageUrl);
 
-    const imageText = await imageResponse.text();
-    let imageData: { images?: Array<{ url?: string }>; detail?: string };
-    try {
-      imageData = JSON.parse(imageText);
-    } catch {
-      throw new InternalServerErrorException(`Unexpected fal.ai image response: ${imageText.slice(0, 200)}`);
-    }
-
-    if (!imageResponse.ok) {
-      throw new InternalServerErrorException(imageData?.detail || `Image generation failed (${imageResponse.status})`);
-    }
-
-    const generatedImageUrl = imageData?.images?.[0]?.url;
-    if (!generatedImageUrl) {
-      throw new InternalServerErrorException('Image generation returned no image');
-    }
-
-    // Step 2: Submit generated image to video generation queue (Wan)
+    // Step 3: Submit generated image to video generation queue (Wan)
     const videoResponse = await fetch(`https://queue.fal.run/${this.videoModel}`, {
       method: 'POST',
       headers: {
@@ -352,7 +336,7 @@ export class AiService {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        image_url: generatedImageUrl,
+        image_url: hostedImageUrl,
         prompt: dto.videoPrompt,
       }),
     });

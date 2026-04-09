@@ -16,7 +16,7 @@ Documents backend conventions for DreamShot.
   - Image generation primary provider: OpenAI `gpt-image-1` via `POST /v1/images/edits`
   - Selfie preservation pattern: pass user selfie as `image` multipart input to OpenAI edits endpoint
   - Video generation provider: fal.ai (`fal-ai/wan/v2.2-5b/image-to-video`)
-  - Image→video pipeline keeps fal.ai for video submit path
+  - Image→video pipeline: generate still with OpenAI `gpt-image-1`, re-host that image to fal storage, then submit to fal.ai Wan queue
 
 ## Configuration
 
