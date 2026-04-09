@@ -1,11 +1,11 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, InternalServerErrorException, OnModuleInit } from '@nestjs/common';
 import { ReplaceBackgroundDto } from './dto/replace-background.dto';
 import { VideoSubmitDto } from './dto/video-generation.dto';
 import { VideoImagePipelineDto } from './dto/video-image-pipeline.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
-export class AiService {
+export class AiService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
   private readonly imageModel = process.env.FAL_IMAGE_MODEL || 'fal-ai/pulid';
   private readonly openAiImageModel = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
@@ -18,6 +18,15 @@ export class AiService {
   private readonly imageJobResults = new Map<string, { status: string; imageUrl?: string; error?: string; cancelled?: boolean }>();
   private readonly perClientImageRequests = new Map<string, number[]>();
   private openAiInFlight = 0;
+
+
+
+  onModuleInit(): void {
+    const openAiKey = process.env.OPENAI_API_KEY;
+    if (!openAiKey) {
+      throw new Error('OPENAI_API_KEY is required at backend startup for DreamShot image generation. Add it to deployment secrets and backend env.');
+    }
+  }
 
   /** Upload a base64 image to fal.ai CDN and return the hosted URL */
   private async uploadToFal(base64: string, mimeType: string): Promise<string> {

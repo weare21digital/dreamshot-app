@@ -48,3 +48,9 @@ Documents backend conventions for DreamShot.
 - Admin summary routes:
   - `GET /ai/admin/costs/daily?day=YYYY-MM-DD`
   - `GET /ai/admin/costs/clients?day=YYYY-MM-DD`
+
+
+## OpenAI Credentials
+
+- Deployment requirement: `OPENAI_API_KEY` must be present in runtime secrets (backend fails fast on startup if missing).
+- Ensure the OpenAI project key has Images API access enabled for `gpt-image-1`.
