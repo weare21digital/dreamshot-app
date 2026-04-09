@@ -50,16 +50,16 @@ export function getIAPConfig(): IAPPlatformConfig {
 
 /** Local SKU-to-features mapping for UI display */
 export const SKU_FEATURES: Record<string, string[]> = {
-  'com.bvg.dreamshot.coins_100': ['100 dreamshot coins'],
-  'com.bvg.dreamshot.coins_500': ['500 dreamshot coins', 'Best value'],
-  'com.bvg.dreamshot.coins_1000': ['1000 dreamshot coins', 'Ultimate pack'],
+  'com.bvg.dreamshot.coins_100': ['180 dreamshot coins'],
+  'com.bvg.dreamshot.coins_500': ['1000 dreamshot coins', 'Best value'],
+  'com.bvg.dreamshot.coins_1000': ['2200 dreamshot coins', 'Ultimate pack'],
 };
 
 /** SKU → coin amount mapping */
 export const SKU_COINS: Record<string, number> = {
-  'com.bvg.dreamshot.coins_100': 100,
-  'com.bvg.dreamshot.coins_500': 500,
-  'com.bvg.dreamshot.coins_1000': 1000,
+  'com.bvg.dreamshot.coins_100': 180,
+  'com.bvg.dreamshot.coins_500': 1000,
+  'com.bvg.dreamshot.coins_1000': 2200,
 };
 
 /** Coin pack definitions — single source of truth for coins screen */
@@ -73,7 +73,7 @@ export type CoinPack = {
 };
 
 export const COIN_PACKS: CoinPack[] = [
-  { sku: 'com.bvg.dreamshot.coins_100', coins: 100, label: 'Starter Pack', fallbackPrice: '$1.99', icon: 'stars' },
-  { sku: 'com.bvg.dreamshot.coins_500', coins: 500, label: 'Pro Pack', fallbackPrice: '$7.99', icon: 'diamond', popular: true },
-  { sku: 'com.bvg.dreamshot.coins_1000', coins: 1000, label: 'Ultimate Pack', fallbackPrice: '$12.99', icon: 'workspace-premium' },
+  { sku: 'com.bvg.dreamshot.coins_100', coins: 180, label: 'Starter Pack', fallbackPrice: '$1.99', icon: 'stars' },
+  { sku: 'com.bvg.dreamshot.coins_500', coins: 1000, label: 'Pro Pack', fallbackPrice: '$7.99', icon: 'diamond', popular: true },
+  { sku: 'com.bvg.dreamshot.coins_1000', coins: 2200, label: 'Ultimate Pack', fallbackPrice: '$12.99', icon: 'workspace-premium' },
 ];

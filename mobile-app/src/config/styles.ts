@@ -9,8 +9,8 @@ import pixelArtPreview from '../../assets/styles/regency-masquerade.jpg';
 import fantasyMattePreview from '../../assets/styles/the-coronation.jpg';
 import type { DreamshotStylePreset } from '../features/generation/types';
 
-export const DREAMSHOT_PHOTO_COST = 20;
-export const DREAMSHOT_VIDEO_COST = 50;
+export const DREAMSHOT_PHOTO_COST = 35;
+export const DREAMSHOT_VIDEO_COST = 70;
 export const DREAMSHOT_BRAND_COLOR = '#CC97FF';
 export const DREAMSHOT_SIGNATURE_GRADIENT = ['#9C48EA', '#53DDFC'] as const;
 
