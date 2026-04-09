@@ -47,6 +47,7 @@ const envSchema = z.object({
   IMAGE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().optional(),
   IMAGE_RATE_LIMIT_PER_DAY: z.coerce.number().int().positive().optional(),
   OPENAI_IMAGE_CONCURRENCY_LIMIT: z.coerce.number().int().positive().optional(),
+  OPENAI_IMAGE_COST_USD: z.coerce.number().positive().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -122,6 +123,7 @@ export const environmentConfig = {
     rateLimitPerMinute: env.IMAGE_RATE_LIMIT_PER_MINUTE ?? 5,
     rateLimitPerDay: env.IMAGE_RATE_LIMIT_PER_DAY ?? 50,
     openAiConcurrencyLimit: env.OPENAI_IMAGE_CONCURRENCY_LIMIT ?? 5,
+    openAiImageCostUsd: env.OPENAI_IMAGE_COST_USD ?? 0.08,
   },
 } as const;
 

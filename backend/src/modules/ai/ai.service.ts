@@ -2,9 +2,11 @@ import { BadRequestException, HttpException, HttpStatus, Injectable, InternalSer
 import { ReplaceBackgroundDto } from './dto/replace-background.dto';
 import { VideoSubmitDto } from './dto/video-generation.dto';
 import { VideoImagePipelineDto } from './dto/video-image-pipeline.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AiService {
+  constructor(private readonly prisma: PrismaService) {}
   private readonly imageModel = process.env.FAL_IMAGE_MODEL || 'fal-ai/pulid';
   private readonly openAiImageModel = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
   private readonly imageBackend = process.env.IMAGE_BACKEND || 'openai';
@@ -12,6 +14,7 @@ export class AiService {
   private readonly imageRateLimitPerMinute = Number(process.env.IMAGE_RATE_LIMIT_PER_MINUTE || '5');
   private readonly imageRateLimitPerDay = Number(process.env.IMAGE_RATE_LIMIT_PER_DAY || '50');
   private readonly openAiConcurrencyLimit = Number(process.env.OPENAI_IMAGE_CONCURRENCY_LIMIT || '5');
+  private readonly openAiImageCostUsd = Number(process.env.OPENAI_IMAGE_COST_USD || '0.08');
   private readonly imageJobResults = new Map<string, { status: string; imageUrl?: string; error?: string; cancelled?: boolean }>();
   private readonly perClientImageRequests = new Map<string, number[]>();
   private openAiInFlight = 0;
@@ -203,6 +206,57 @@ export class AiService {
     }
   }
 
+
+  private async logGenerationCost(params: {
+    clientKey: string;
+    provider: string;
+    model: string;
+    size: string;
+    quality: string;
+    costUsd: number;
+  }): Promise<void> {
+    await this.prisma.$executeRaw`
+      INSERT INTO "generation_costs" ("id", "clientKey", "provider", "model", "size", "quality", "costUsd")
+      VALUES (${`cost-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`}, ${params.clientKey}, ${params.provider}, ${params.model}, ${params.size}, ${params.quality}, ${params.costUsd})
+    `;
+  }
+
+  async getCostSummaryByDay(dayIso?: string): Promise<{
+    day: string;
+    totalCostUsd: number;
+    totalRequests: number;
+  }> {
+    const day = dayIso || new Date().toISOString().slice(0, 10);
+    const rows = await this.prisma.$queryRaw<Array<{ totalCostUsd: number | null; totalRequests: bigint | number | null }>>`
+      SELECT COALESCE(SUM("costUsd"), 0) AS "totalCostUsd", COALESCE(COUNT(*), 0) AS "totalRequests"
+      FROM "generation_costs"
+      WHERE DATE("createdAt") = ${day}::date
+    `;
+    const row = rows[0] || { totalCostUsd: 0, totalRequests: 0 };
+    return {
+      day,
+      totalCostUsd: Number(row.totalCostUsd || 0),
+      totalRequests: Number(row.totalRequests || 0),
+    };
+  }
+
+  async getCostSummaryByClient(dayIso?: string): Promise<Array<{ clientKey: string; totalCostUsd: number; totalRequests: number }>> {
+    const day = dayIso || new Date().toISOString().slice(0, 10);
+    const rows = await this.prisma.$queryRaw<Array<{ clientKey: string; totalCostUsd: number | null; totalRequests: bigint | number | null }>>`
+      SELECT "clientKey", COALESCE(SUM("costUsd"), 0) AS "totalCostUsd", COALESCE(COUNT(*), 0) AS "totalRequests"
+      FROM "generation_costs"
+      WHERE DATE("createdAt") = ${day}::date
+      GROUP BY "clientKey"
+      ORDER BY "totalCostUsd" DESC
+    `;
+
+    return rows.map((row) => ({
+      clientKey: row.clientKey,
+      totalCostUsd: Number(row.totalCostUsd || 0),
+      totalRequests: Number(row.totalRequests || 0),
+    }));
+  }
+
   async submitImageGeneration(dto: ReplaceBackgroundDto, clientKey = "anonymous"): Promise<{
     requestId: string;
     status: string;
@@ -236,6 +290,15 @@ export class AiService {
         : await this.generateFalImageUrl(imageBase64, mimeType, prompt);
 
       this.imageJobResults.set(requestId, { status: 'COMPLETED', imageUrl });
+
+      await this.logGenerationCost({
+        clientKey,
+        provider: useOpenAi ? 'openai' : 'fal',
+        model: useOpenAi ? this.openAiImageModel : this.imageModel,
+        size: '1024x1536',
+        quality: 'standard',
+        costUsd: useOpenAi ? this.openAiImageCostUsd : 0,
+      });
 
       if (useOpenAi) {
         this.releaseOpenAiSlot();

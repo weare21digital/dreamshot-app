@@ -33,6 +33,17 @@ export class AiController {
     return this.aiService.cancelImageGeneration(requestId);
   }
 
+
+  @Get('admin/costs/daily')
+  async getDailyCostSummary(@Query('day') day?: string) {
+    return this.aiService.getCostSummaryByDay(day);
+  }
+
+  @Get('admin/costs/clients')
+  async getClientCostSummary(@Query('day') day?: string) {
+    return this.aiService.getCostSummaryByClient(day);
+  }
+
   @Post('video/image-pipeline')
   async submitImagePipelineVideo(@Body() dto: VideoImagePipelineDto) {
     return this.aiService.submitImagePipelineVideo(dto);

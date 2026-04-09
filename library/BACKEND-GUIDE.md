@@ -32,6 +32,7 @@ Documents backend conventions for DreamShot.
   - `IMAGE_RATE_LIMIT_PER_MINUTE` per-client short-window cap for image submit
   - `IMAGE_RATE_LIMIT_PER_DAY` per-client daily cap for image submit
   - `OPENAI_IMAGE_CONCURRENCY_LIMIT` global in-flight cap for OpenAI image calls
+  - `OPENAI_IMAGE_COST_USD` estimated USD cost recorded per OpenAI image request
 
 ## Database
 
@@ -40,3 +41,10 @@ Documents backend conventions for DreamShot.
   - Generate client: `npm run db:generate`
   - Dev migration: `npm run db:migrate`
   - Deploy migration: `npm run db:migrate:deploy`
+
+## AI Cost Telemetry
+
+- Persist per-request image telemetry in `generation_costs` table (provider/model/size/quality/cost/client key).
+- Admin summary routes:
+  - `GET /ai/admin/costs/daily?day=YYYY-MM-DD`
+  - `GET /ai/admin/costs/clients?day=YYYY-MM-DD`

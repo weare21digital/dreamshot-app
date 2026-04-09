@@ -182,3 +182,19 @@ enum AdAction {
   CLOSE
   ERROR
 }
+
+
+model GenerationCost {
+  id          String   @id @default(cuid())
+  clientKey   String
+  provider    String
+  model       String
+  size        String
+  quality     String
+  costUsd     Float
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([clientKey, createdAt])
+  @@map("generation_costs")
+}
