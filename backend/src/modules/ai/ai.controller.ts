@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query, Req } from '@nestjs/common';
 import { AiService } from './ai.service';
 import { ReplaceBackgroundDto } from './dto/replace-background.dto';
 import { VideoSubmitDto } from './dto/video-generation.dto';
@@ -11,8 +11,11 @@ export class AiController {
   constructor(private readonly aiService: AiService) {}
 
   @Post('image/submit')
-  async submitImage(@Body() dto: ReplaceBackgroundDto) {
-    return this.aiService.submitImageGeneration(dto);
+  async submitImage(@Body() dto: ReplaceBackgroundDto, @Req() req: { ip?: string; headers?: Record<string, string | string[] | undefined> }) {
+    const forwardedHeader = req.headers?.['x-forwarded-for'];
+    const forwarded = Array.isArray(forwardedHeader) ? forwardedHeader[0] : forwardedHeader;
+    const clientKey = (forwarded?.split(',')[0] || req.ip || 'anonymous').trim();
+    return this.aiService.submitImageGeneration(dto, clientKey);
   }
 
   @Get('image/status/:requestId')

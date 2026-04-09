@@ -44,6 +44,9 @@ const envSchema = z.object({
   FAL_VIDEO_MODEL: z.string().optional(),
   IMAGE_BACKEND: z.enum(['fal', 'openai', 'rollout']).optional(),
   GPT_IMAGE_PERCENTAGE: z.coerce.number().min(0).max(100).optional(),
+  IMAGE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().optional(),
+  IMAGE_RATE_LIMIT_PER_DAY: z.coerce.number().int().positive().optional(),
+  OPENAI_IMAGE_CONCURRENCY_LIMIT: z.coerce.number().int().positive().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -116,6 +119,9 @@ export const environmentConfig = {
   imageRouting: {
     backend: env.IMAGE_BACKEND || 'openai',
     gptImagePercentage: env.GPT_IMAGE_PERCENTAGE ?? 100,
+    rateLimitPerMinute: env.IMAGE_RATE_LIMIT_PER_MINUTE ?? 5,
+    rateLimitPerDay: env.IMAGE_RATE_LIMIT_PER_DAY ?? 50,
+    openAiConcurrencyLimit: env.OPENAI_IMAGE_CONCURRENCY_LIMIT ?? 5,
   },
 } as const;
 

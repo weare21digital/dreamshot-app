@@ -29,6 +29,9 @@ Documents backend conventions for DreamShot.
   - `FAL_VIDEO_MODEL` optional override for video model
   - `IMAGE_BACKEND` rollout switch (`openai`, `fal`, `rollout`)
   - `GPT_IMAGE_PERCENTAGE` percentage routing for OpenAI when `IMAGE_BACKEND=rollout`
+  - `IMAGE_RATE_LIMIT_PER_MINUTE` per-client short-window cap for image submit
+  - `IMAGE_RATE_LIMIT_PER_DAY` per-client daily cap for image submit
+  - `OPENAI_IMAGE_CONCURRENCY_LIMIT` global in-flight cap for OpenAI image calls
 
 ## Database
 

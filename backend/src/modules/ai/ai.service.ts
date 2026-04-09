@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ReplaceBackgroundDto } from './dto/replace-background.dto';
 import { VideoSubmitDto } from './dto/video-generation.dto';
 import { VideoImagePipelineDto } from './dto/video-image-pipeline.dto';
@@ -9,7 +9,12 @@ export class AiService {
   private readonly openAiImageModel = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
   private readonly imageBackend = process.env.IMAGE_BACKEND || 'openai';
   private readonly gptImagePercentage = Number(process.env.GPT_IMAGE_PERCENTAGE || '100');
+  private readonly imageRateLimitPerMinute = Number(process.env.IMAGE_RATE_LIMIT_PER_MINUTE || '5');
+  private readonly imageRateLimitPerDay = Number(process.env.IMAGE_RATE_LIMIT_PER_DAY || '50');
+  private readonly openAiConcurrencyLimit = Number(process.env.OPENAI_IMAGE_CONCURRENCY_LIMIT || '5');
   private readonly imageJobResults = new Map<string, { status: string; imageUrl?: string; error?: string; cancelled?: boolean }>();
+  private readonly perClientImageRequests = new Map<string, number[]>();
+  private openAiInFlight = 0;
 
   /** Upload a base64 image to fal.ai CDN and return the hosted URL */
   private async uploadToFal(base64: string, mimeType: string): Promise<string> {
@@ -164,7 +169,41 @@ export class AiService {
     return Math.random() * 100 < percentage;
   }
 
-  async submitImageGeneration(dto: ReplaceBackgroundDto): Promise<{
+  private enforceImageRateLimit(clientKey: string): void {
+    const now = Date.now();
+    const oneMinuteAgo = now - 60_000;
+    const oneDayAgo = now - 86_400_000;
+
+    const allRequests = this.perClientImageRequests.get(clientKey) || [];
+    const recentRequests = allRequests.filter((timestamp) => timestamp >= oneDayAgo);
+    const minuteCount = recentRequests.filter((timestamp) => timestamp >= oneMinuteAgo).length;
+
+    if (minuteCount >= this.imageRateLimitPerMinute) {
+      throw new HttpException('Too many image requests. Please wait a minute and try again.', HttpStatus.TOO_MANY_REQUESTS);
+    }
+    if (recentRequests.length >= this.imageRateLimitPerDay) {
+      throw new HttpException('Daily image limit reached. Please try again tomorrow.', HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    recentRequests.push(now);
+    this.perClientImageRequests.set(clientKey, recentRequests);
+  }
+
+  private tryAcquireOpenAiSlot(): boolean {
+    if (this.openAiInFlight >= this.openAiConcurrencyLimit) {
+      return false;
+    }
+    this.openAiInFlight += 1;
+    return true;
+  }
+
+  private releaseOpenAiSlot(): void {
+    if (this.openAiInFlight > 0) {
+      this.openAiInFlight -= 1;
+    }
+  }
+
+  async submitImageGeneration(dto: ReplaceBackgroundDto, clientKey = "anonymous"): Promise<{
     requestId: string;
     status: string;
     statusUrl?: string;
@@ -176,6 +215,8 @@ export class AiService {
       throw new BadRequestException('imageBase64 is required');
     }
 
+    this.enforceImageRateLimit(clientKey);
+
     const stylePreset = dto.stylePreset || 'realistic';
     const styleSuffix = this.styleSuffixMap[stylePreset] || this.styleSuffixMap.realistic;
 
@@ -184,13 +225,24 @@ export class AiService {
 
     try {
       const mimeType = dto.mimeType || 'image/jpeg';
-      const imageUrl = this.shouldUseOpenAiForImage()
+      const useOpenAi = this.shouldUseOpenAiForImage();
+
+      if (useOpenAi && !this.tryAcquireOpenAiSlot()) {
+        throw new HttpException('Image generation is busy right now. Please retry in a moment.', HttpStatus.TOO_MANY_REQUESTS);
+      }
+
+      const imageUrl = useOpenAi
         ? await this.generateOpenAiImageUrl(imageBase64, mimeType, prompt)
         : await this.generateFalImageUrl(imageBase64, mimeType, prompt);
 
       this.imageJobResults.set(requestId, { status: 'COMPLETED', imageUrl });
+
+      if (useOpenAi) {
+        this.releaseOpenAiSlot();
+      }
     } catch (error) {
       this.imageJobResults.set(requestId, { status: 'FAILED', error: 'Image generation failed' });
+      this.releaseOpenAiSlot();
       throw error;
     }
 
