@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  TextInput,
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -23,6 +24,7 @@ const UNDO_TIMEOUT_MS = 5000;
 const RECENT_DAYS_WINDOW = 7;
 
 type FilterMode = 'all' | 'favorites' | 'recent';
+type DateRangeFilter = 'all_time' | '7d' | '30d' | '90d';
 type UndoState = { jobId: string; label: string; timer: ReturnType<typeof setTimeout> } | null;
 
 function getDateGroup(isoDate: string): string {
@@ -37,10 +39,14 @@ function getDateGroup(isoDate: string): string {
   return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: now.getFullYear() !== d.getFullYear() ? 'numeric' : undefined });
 }
 
-function isRecent(createdAt: string): boolean {
+function isWithinDays(createdAt: string, days: number): boolean {
   const createdAtMs = new Date(createdAt).getTime();
-  const windowMs = RECENT_DAYS_WINDOW * 24 * 60 * 60 * 1000;
+  const windowMs = days * 24 * 60 * 60 * 1000;
   return Date.now() - createdAtMs <= windowMs;
+}
+
+function isRecent(createdAt: string): boolean {
+  return isWithinDays(createdAt, RECENT_DAYS_WINDOW);
 }
 
 function groupByDate(jobs: DreamshotGenerationJob[]): Array<{ title: string; data: DreamshotGenerationJob[] }> {
@@ -78,6 +84,8 @@ export default function MyGalleryScreen(): React.JSX.Element {
   const styles = React.useMemo(() => createStyles(palette, brand), [palette, brand]);
 
   const [filter, setFilter] = useState<FilterMode>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateRange, setDateRange] = useState<DateRangeFilter>('all_time');
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [undo, setUndo] = useState<UndoState>(null);
@@ -88,10 +96,38 @@ export default function MyGalleryScreen(): React.JSX.Element {
   const recentCount = useMemo(() => visibleJobs.filter((job) => isRecent(job.createdAt)).length, [visibleJobs]);
 
   const filteredJobs = useMemo(() => {
-    if (filter === 'all') return visibleJobs;
-    if (filter === 'favorites') return visibleJobs.filter((job) => favoriteIds.has(job.jobId));
-    return visibleJobs.filter((job) => isRecent(job.createdAt));
-  }, [visibleJobs, filter, favoriteIds]);
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    const byPrimaryFilter = visibleJobs.filter((job) => {
+      if (filter === 'favorites') return favoriteIds.has(job.jobId);
+      if (filter === 'recent') return isRecent(job.createdAt);
+      return true;
+    });
+
+    const byDateRange = byPrimaryFilter.filter((job) => {
+      if (dateRange === 'all_time') return true;
+      if (dateRange === '7d') return isWithinDays(job.createdAt, 7);
+      if (dateRange === '30d') return isWithinDays(job.createdAt, 30);
+      return isWithinDays(job.createdAt, 90);
+    });
+
+    if (!normalizedQuery) {
+      return byDateRange;
+    }
+
+    return byDateRange.filter((job) => {
+      const stylePreset = DREAMSHOT_STYLE_PRESETS_BY_ID[job.styleId];
+      const haystack = [
+        job.styleTitle || '',
+        stylePreset?.title || '',
+        stylePreset?.prompt || '',
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      return haystack.includes(normalizedQuery);
+    });
+  }, [visibleJobs, filter, favoriteIds, searchQuery, dateRange]);
 
   const sections = useMemo(() => groupByDate(filteredJobs), [filteredJobs]);
 
@@ -171,11 +207,38 @@ export default function MyGalleryScreen(): React.JSX.Element {
         </View>
 
         {visibleJobs.length > 0 ? (
-          <View style={styles.filterRow}>
-            <FilterPill label="All" count={visibleJobs.length} active={filter === 'all'} onPress={() => setFilter('all')} styles={styles} brand={brand} palette={palette} />
-            <FilterPill label="Favorites" count={favoriteIds.size} active={filter === 'favorites'} onPress={() => setFilter('favorites')} styles={styles} brand={brand} palette={palette} />
-            <FilterPill label="Recent" count={recentCount} active={filter === 'recent'} onPress={() => setFilter('recent')} styles={styles} brand={brand} palette={palette} />
-          </View>
+          <>
+            <View style={styles.searchWrap}>
+              <MaterialIcons name="search" size={18} color={palette.textSecondary} />
+              <TextInput
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="Search style or prompt"
+                placeholderTextColor={palette.textSecondary}
+                style={styles.searchInput}
+                accessibilityLabel="Search gallery by style or prompt"
+                testID="gallery-search-input"
+              />
+              {searchQuery.trim().length > 0 ? (
+                <Pressable onPress={() => setSearchQuery('')} hitSlop={8} accessibilityRole="button" accessibilityLabel="Clear search">
+                  <MaterialIcons name="close" size={18} color={palette.textSecondary} />
+                </Pressable>
+              ) : null}
+            </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+              <FilterPill label="All" count={visibleJobs.length} active={filter === 'all'} onPress={() => setFilter('all')} styles={styles} brand={brand} palette={palette} />
+              <FilterPill label="Favorites" count={favoriteIds.size} active={filter === 'favorites'} onPress={() => setFilter('favorites')} styles={styles} brand={brand} palette={palette} />
+              <FilterPill label="Recent" count={recentCount} active={filter === 'recent'} onPress={() => setFilter('recent')} styles={styles} brand={brand} palette={palette} />
+            </ScrollView>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dateRangeRow}>
+              <DateRangePill label="All time" active={dateRange === 'all_time'} onPress={() => setDateRange('all_time')} styles={styles} palette={palette} />
+              <DateRangePill label="Last 7 days" active={dateRange === '7d'} onPress={() => setDateRange('7d')} styles={styles} palette={palette} />
+              <DateRangePill label="Last 30 days" active={dateRange === '30d'} onPress={() => setDateRange('30d')} styles={styles} palette={palette} />
+              <DateRangePill label="Last 90 days" active={dateRange === '90d'} onPress={() => setDateRange('90d')} styles={styles} palette={palette} />
+            </ScrollView>
+          </>
         ) : null}
 
         {isRestoring ? (
@@ -296,6 +359,19 @@ function FilterPill({ label, count, active, onPress, styles, brand, palette }: {
   );
 }
 
+
+function DateRangePill({ label, active, onPress, styles, palette }: {
+  label: string; active: boolean; onPress: () => void;
+  styles: ReturnType<typeof createStyles>;
+  palette: ReturnType<typeof useAppTheme>['palette'];
+}): React.JSX.Element {
+  return (
+    <Pressable onPress={onPress} style={[styles.dateRangePill, active && styles.dateRangePillActive]}>
+      <Text style={[styles.dateRangePillText, active && styles.dateRangePillTextActive, !active && { color: palette.textSecondary }]}>{label}</Text>
+    </Pressable>
+  );
+}
+
 function GalleryCard({ job, index, styles, palette, isFavorite, onToggleFavorite, onRequestDelete, onPress }: {
   job: DreamshotGenerationJob;
   index: number;
@@ -372,10 +448,17 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette'], brand:
   statCard: { flex: 1, borderRadius: 14, backgroundColor: 'rgba(15,25,48,0.6)', borderWidth: 1, borderColor: 'rgba(64,72,93,0.35)', paddingVertical: 10, alignItems: 'center' },
   statValue: { color: palette.text, fontSize: 20, fontFamily: 'SpaceGrotesk_700Bold' },
   statLabel: { color: palette.textSecondary, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.8 },
-  filterRow: { flexDirection: 'row', paddingBottom: 10, gap: 8 },
+  searchWrap: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: palette.border, backgroundColor: 'rgba(15,25,48,0.6)', borderRadius: 12, paddingHorizontal: 12, minHeight: 44, marginBottom: 10 },
+  searchInput: { flex: 1, color: palette.text, fontSize: 14, paddingVertical: 8 },
+  filterRow: { flexDirection: 'row', paddingBottom: 8, gap: 8 },
+  dateRangeRow: { flexDirection: 'row', paddingBottom: 10, gap: 8 },
   filterPill: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: palette.border },
   filterPillText: { fontSize: 12, fontWeight: '700' },
   filterPillTextActive: { color: '#1A1A2E' },
+  dateRangePill: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 16, borderWidth: 1, borderColor: palette.borderVariant, backgroundColor: 'rgba(15,25,48,0.45)' },
+  dateRangePillActive: { borderColor: '#53DDFC', backgroundColor: 'rgba(83,221,252,0.18)' },
+  dateRangePillText: { fontSize: 12, fontWeight: '700' },
+  dateRangePillTextActive: { color: '#8EEBFF' },
   centerState: { minHeight: 220, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, gap: 10 },
   emptyTitle: { color: palette.text, textAlign: 'center', fontFamily: 'SpaceGrotesk_700Bold', fontSize: 28 },
   helperText: { color: palette.textSecondary, fontWeight: '600', textAlign: 'center' },
