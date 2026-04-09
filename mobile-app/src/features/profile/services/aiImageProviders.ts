@@ -1,10 +1,13 @@
 import * as FileSystem from 'expo-file-system/legacy';
 import { apiClient } from '../../../lib/apiClient';
+import type { DreamshotImageAspect, DreamshotImageQuality } from '../../generation/types';
 
 export type AiImageGenerationRequest = {
   imageUri: string;
   prompt: string;
   stylePreset: string;
+  aspect?: DreamshotImageAspect;
+  quality?: DreamshotImageQuality;
   backgroundImageUrl?: string;
 };
 
@@ -13,6 +16,12 @@ export type ImageSubmitResult = {
   status: string;
   statusUrl?: string;
   responseUrl?: string;
+};
+
+const SIZE_BY_ASPECT: Record<DreamshotImageAspect, string> = {
+  '16:9': '1536x1024',
+  '1:1': '1024x1024',
+  '9:16': '1024x1536',
 };
 
 const getMimeType = (imageUri: string): string => {
@@ -34,6 +43,9 @@ export const submitImageGeneration = async (request: AiImageGenerationRequest): 
   }
 
   const mimeType = getMimeType(localUri);
+  const normalizedAspect: DreamshotImageAspect = request.aspect ?? '1:1';
+  const size = SIZE_BY_ASPECT[normalizedAspect];
+  const quality: DreamshotImageQuality = request.quality ?? 'medium';
   const imageBase64 = await FileSystem.readAsStringAsync(localUri, {
     encoding: FileSystem.EncodingType.Base64,
   });
@@ -44,6 +56,8 @@ export const submitImageGeneration = async (request: AiImageGenerationRequest): 
     mimeType,
     stylePreset: request.stylePreset,
     backgroundImageUrl: request.backgroundImageUrl,
+    size,
+    quality,
   }) as ImageSubmitResult;
 
   if (!response?.requestId) {

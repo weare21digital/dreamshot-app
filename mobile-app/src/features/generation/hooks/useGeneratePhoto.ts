@@ -8,7 +8,7 @@ import {
 } from '../../profile/services/aiImageProviders';
 import { cacheRemoteImage } from '../../../utils/imageCache';
 import { ApiError } from '../../../lib/apiClient';
-import { DreamshotStylePreset } from '../types';
+import { DreamshotImageAspect, DreamshotStylePreset } from '../types';
 import { useGenerationJob } from './useGenerationJob';
 
 const POLL_INTERVAL_MS = 5000;
@@ -24,6 +24,7 @@ const mapProviderStatus = (status: string): 'queued' | 'processing' | 'completed
 type SubmitPhotoInput = {
   imageUri: string;
   style: DreamshotStylePreset;
+  aspect?: DreamshotImageAspect;
 };
 
 type UseGeneratePhotoResult = {
@@ -195,7 +196,7 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
       }
     };
   }, [isRestoring, pendingJobs, pollJob]);
-  const submitPhoto = useCallback(async ({ imageUri, style }: SubmitPhotoInput): Promise<string> => {
+  const submitPhoto = useCallback(async ({ imageUri, style, aspect }: SubmitPhotoInput): Promise<string> => {
     if (!(await hasEnough(style.photoCost))) {
       throw new Error(`Not enough coins. You need ${style.photoCost} coins.`);
     }
@@ -208,6 +209,8 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
         imageUri,
         prompt: style.prompt,
         stylePreset: style.id,
+        aspect,
+        quality: style.imageQuality ?? 'medium',
       });
 
       const spent = await spendCoins(style.photoCost, { source: 'generation', note: style.title });

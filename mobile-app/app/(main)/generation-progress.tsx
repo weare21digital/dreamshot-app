@@ -111,11 +111,12 @@ class ProgressErrorBoundary extends React.Component<React.PropsWithChildren, Pro
 }
 
 function GenerationProgressScreenContent(): React.JSX.Element | null {
-  const { styleId, mode, imageUri, animStyle } = useLocalSearchParams<{ styleId?: string; mode?: 'photo' | 'video'; imageUri?: string; animStyle?: string }>();
+  const { styleId, mode, imageUri, animStyle, aspect } = useLocalSearchParams<{ styleId?: string; mode?: 'photo' | 'video'; imageUri?: string; animStyle?: string; aspect?: '16:9' | '1:1' | '9:16' }>();
   const fallbackStyle = Object.values(DREAMSHOT_STYLE_PRESETS_BY_ID)[0];
   const style = (styleId && DREAMSHOT_STYLE_PRESETS_BY_ID[styleId]) || fallbackStyle || null;
   const generationMode = mode ?? 'photo';
   const sourceImageUri = imageUri || style?.exampleImageUrl;
+  const selectedAspect = aspect === '16:9' || aspect === '9:16' || aspect === '1:1' ? aspect : '1:1';
 
   const { submitPhoto, cancelPhoto, isSubmitting: isPhotoSubmitting } = useGeneratePhoto();
   const { submitVideo, cancelVideo, isSubmitting: isVideoSubmitting } = useGenerateVideo();
@@ -161,7 +162,7 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
           setRequestId(id);
           setStartedAt(Date.now());
         } else {
-          const id = await submitPhoto({ imageUri: sourceImageUri, style });
+          const id = await submitPhoto({ imageUri: sourceImageUri, style, aspect: selectedAspect });
           setRequestId(id);
           setStartedAt(Date.now());
         }
@@ -171,7 +172,7 @@ function GenerationProgressScreenContent(): React.JSX.Element | null {
     };
 
     void run();
-  }, [animStyle, generationMode, sourceImageUri, style, submitPhoto, submitVideo, retryCount]);
+  }, [animStyle, generationMode, selectedAspect, sourceImageUri, style, submitPhoto, submitVideo, retryCount]);
 
   useEffect(() => {
     if (!activeJob) return;
