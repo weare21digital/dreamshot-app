@@ -7,16 +7,7 @@ import { useAppTheme } from '../../../contexts/ThemeContext';
 import { useCoins } from '../hooks/useCoins';
 import { usePayments } from '../../../services/payments/usePayments';
 import { grantCoinsOnce } from '../utils/coinPurchaseLedger';
-
-const COIN_PACKAGES = [
-  { id: 'coins_100', label: 'Starter', coins: 100 },
-  { id: 'coins_300', label: 'Value', coins: 300 },
-] as const;
-
-const formatFallbackPrice = (coins: number): string => {
-  const usd = (coins / 100).toFixed(2);
-  return `$${usd}`;
-};
+import { COIN_PACKS } from '../../../config/iap';
 
 export function CoinsPurchaseScreen(): React.JSX.Element {
   const { palette, brand, theme } = useAppTheme();
@@ -31,7 +22,7 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [activePurchaseId, setActivePurchaseId] = useState<string | null>(null);
 
-  const productIds = useMemo(() => COIN_PACKAGES.map((pack) => pack.id), []);
+  const productIds = useMemo(() => COIN_PACKS.map((pack) => pack.sku), []);
 
   const {
     products,
@@ -98,7 +89,7 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
       if (!lastPurchase) return;
       const productId = lastPurchase.productId ?? '';
       const txId = lastPurchase.transactionId ?? null;
-      const matchedPack = COIN_PACKAGES.find((pack) => pack.id === productId);
+      const matchedPack = COIN_PACKS.find((pack) => pack.sku === productId);
 
       if (!matchedPack) return;
 
@@ -142,7 +133,7 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
       for (const purchase of restored) {
         const productId = purchase.productId ?? '';
         const txId = purchase.transactionId ?? null;
-        const matchedPack = COIN_PACKAGES.find((pack) => pack.id === productId);
+        const matchedPack = COIN_PACKS.find((pack) => pack.sku === productId);
 
         if (!matchedPack) continue;
 
@@ -185,15 +176,15 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
           </Card.Content>
         </Card>
 
-        {COIN_PACKAGES.map((pack) => {
-          const localizedPrice = productPriceMap.get(pack.id);
-          const price = localizedPrice || formatFallbackPrice(pack.coins);
+        {COIN_PACKS.map((pack) => {
+          const localizedPrice = productPriceMap.get(pack.sku);
+          const price = localizedPrice || pack.fallbackPrice;
 
           return (
             <Card
-              key={pack.id}
+              key={pack.sku}
               style={{ backgroundColor: palette.cardBackground }}
-              testID={`coins-pack-${pack.id}`}
+              testID={`coins-pack-${pack.sku}`}
             >
               <Card.Content>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -213,14 +204,14 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
                 <Button
                   mode="contained"
                   onPress={() => {
-                    void handlePurchase(pack.id);
+                    void handlePurchase(pack.sku);
                   }}
                   disabled={isLoading || isPurchasing || isRestoring}
-                  loading={isPurchasing && activePurchaseId === pack.id}
+                  loading={isPurchasing && activePurchaseId === pack.sku}
                   style={{ marginTop: 12 }}
                   buttonColor={brand.primary}
                   textColor={palette.onPrimary}
-                  testID={`coins-buy-${pack.id}`}
+                  testID={`coins-buy-${pack.sku}`}
                 >
                   Buy {pack.coins}
                 </Button>
