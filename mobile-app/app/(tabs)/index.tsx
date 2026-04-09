@@ -14,6 +14,7 @@ type StyleCategory = 'All' | 'Portraits' | 'Landscapes' | 'Abstract' | 'Fantasy'
 
 const STYLE_CATEGORIES: StyleCategory[] = ['All', 'Portraits', 'Landscapes', 'Abstract', 'Fantasy'];
 const FAVORITE_STYLE_ORDER_KEY = '@dreamshot/favorite_style_order';
+const FIRST_TIME_TOOLTIP_DISMISSED_KEY = '@dreamshot/first_time_tooltip_dismissed';
 
 const STYLE_CATEGORY_MAP: Record<string, Exclude<StyleCategory, 'All'>> = {
   'cinematic-vibe': 'Portraits',
@@ -34,26 +35,37 @@ export default function HomeScreen(): React.JSX.Element {
   const [loadedStyleImages, setLoadedStyleImages] = useState<Record<string, boolean>>({});
   const [favoriteStyleOrder, setFavoriteStyleOrder] = useState<string[]>([]);
   const [editMode, setEditMode] = useState(false);
+  const [showFirstTimeTooltip, setShowFirstTimeTooltip] = useState(false);
 
   useEffect(() => {
     let mounted = true;
 
-    const loadFavoriteStyleOrder = async (): Promise<void> => {
+    const hydrateScreenState = async (): Promise<void> => {
       try {
-        const raw = await AsyncStorage.getItem(FAVORITE_STYLE_ORDER_KEY);
-        if (!raw || !mounted) return;
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) return;
-        const validIds = parsed.filter(
-          (id): id is string => typeof id === 'string' && DREAMSHOT_STYLE_PRESETS.some((style) => style.id === id),
-        );
-        setFavoriteStyleOrder(Array.from(new Set(validIds)));
+        const [favoriteRaw, tooltipDismissedRaw] = await Promise.all([
+          AsyncStorage.getItem(FAVORITE_STYLE_ORDER_KEY),
+          AsyncStorage.getItem(FIRST_TIME_TOOLTIP_DISMISSED_KEY),
+        ]);
+
+        if (!mounted) return;
+
+        if (favoriteRaw) {
+          const parsed = JSON.parse(favoriteRaw);
+          if (Array.isArray(parsed)) {
+            const validIds = parsed.filter(
+              (id): id is string => typeof id === 'string' && DREAMSHOT_STYLE_PRESETS.some((style) => style.id === id),
+            );
+            setFavoriteStyleOrder(Array.from(new Set(validIds)));
+          }
+        }
+
+        setShowFirstTimeTooltip(tooltipDismissedRaw !== 'true');
       } catch (error) {
-        console.warn('[HomeScreen] failed to load favorite style order', error);
+        console.warn('[HomeScreen] failed to hydrate home screen state', error);
       }
     };
 
-    void loadFavoriteStyleOrder();
+    void hydrateScreenState();
     return () => {
       mounted = false;
     };
@@ -77,6 +89,13 @@ export default function HomeScreen(): React.JSX.Element {
       return nextOrder;
     });
   }, [persistFavoriteStyleOrder]);
+
+  const dismissFirstTimeTooltip = useCallback(() => {
+    setShowFirstTimeTooltip(false);
+    void AsyncStorage.setItem(FIRST_TIME_TOOLTIP_DISMISSED_KEY, 'true').catch((error) => {
+      console.warn('[HomeScreen] failed to persist tooltip dismissal', error);
+    });
+  }, []);
 
   const filteredStyles = useMemo(() => {
     const categoryFiltered = selectedCategory === 'All'
@@ -147,6 +166,29 @@ export default function HomeScreen(): React.JSX.Element {
             </Pressable>
           </View>
         </View>
+
+        {showFirstTimeTooltip ? (
+          <View style={styles.tooltipCard}>
+            <View style={styles.tooltipHeader}>
+              <MaterialIcons name="tips-and-updates" size={16} color="#F8D968" />
+              <Text style={styles.tooltipTitle}>Quick tip</Text>
+              <Pressable
+                onPress={dismissFirstTimeTooltip}
+                style={({ pressed }) => [styles.tooltipDismiss, pressed && styles.pressed]}
+                accessibilityRole="button"
+                accessibilityLabel="Dismiss first-time style tips"
+              >
+                <MaterialIcons name="close" size={14} color="#C8D0EA" />
+              </Pressable>
+            </View>
+            <Text style={styles.tooltipBody}>Styles with richer detail usually cost more coins. Start with simpler styles for faster, cheaper tests.</Text>
+            <View style={styles.tooltipBulletList}>
+              <Text style={styles.tooltipBullet}>• Photo generations use the style photo coin cost.</Text>
+              <Text style={styles.tooltipBullet}>• Premium cinematic/3D looks trade more coins for higher output detail.</Text>
+              <Text style={styles.tooltipBullet}>• Long-press any style to pin favorites to the top.</Text>
+            </View>
+          </View>
+        ) : null}
 
         <ScrollView
           horizontal
@@ -306,6 +348,49 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
       fontSize: 15,
       lineHeight: 22,
       maxWidth: 300,
+    },
+    tooltipCard: {
+      marginHorizontal: 16,
+      marginBottom: 14,
+      borderRadius: 16,
+      paddingHorizontal: 12,
+      paddingVertical: 11,
+      borderWidth: 1,
+      borderColor: 'rgba(248, 217, 104, 0.35)',
+      backgroundColor: 'rgba(18, 27, 49, 0.92)',
+    },
+    tooltipHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    tooltipTitle: {
+      color: '#F8D968',
+      fontFamily: 'Inter_700Bold',
+      fontSize: 12,
+      flex: 1,
+    },
+    tooltipDismiss: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    tooltipBody: {
+      marginTop: 7,
+      color: '#DFE6FF',
+      fontSize: 12,
+      lineHeight: 18,
+    },
+    tooltipBulletList: {
+      marginTop: 7,
+      gap: 4,
+    },
+    tooltipBullet: {
+      color: '#C8D0EA',
+      fontSize: 11,
+      lineHeight: 16,
     },
     categoriesScroll: {
       marginBottom: 16,
