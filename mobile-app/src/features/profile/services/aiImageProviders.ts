@@ -57,9 +57,9 @@ export const submitImageGeneration = async (request: AiImageGenerationRequest): 
 export const getImageStatus = async (
   requestId: string,
   statusUrl?: string,
-): Promise<{ status: string }> => {
+): Promise<{ status: string; errorMessage?: string; errorCode?: string; rejectionCategory?: string }> => {
   const params = statusUrl ? `?statusUrl=${encodeURIComponent(statusUrl)}` : '';
-  return apiClient.get(`/ai/image/status/${requestId}${params}`) as Promise<{ status: string }>;
+  return apiClient.get(`/ai/image/status/${requestId}${params}`) as Promise<{ status: string; errorMessage?: string; errorCode?: string; rejectionCategory?: string }>;
 };
 
 /** Get completed image result */

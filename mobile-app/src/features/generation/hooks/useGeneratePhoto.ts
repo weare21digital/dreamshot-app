@@ -7,6 +7,7 @@ import {
   submitImageGeneration,
 } from '../../profile/services/aiImageProviders';
 import { cacheRemoteImage } from '../../../utils/imageCache';
+import { ApiError } from '../../../lib/apiClient';
 import { DreamshotStylePreset } from '../types';
 import { useGenerationJob } from './useGenerationJob';
 
@@ -30,6 +31,39 @@ type UseGeneratePhotoResult = {
   submitPhoto: (input: SubmitPhotoInput) => Promise<string>;
   cancelPhoto: (requestId: string) => Promise<void>;
 };
+
+
+type PolicyRejectionDetails = {
+  category: string;
+  code: string;
+};
+
+const POLICY_REJECTION_MESSAGE = 'This style or photo was blocked by content policy.';
+
+function parsePolicyRejection(error: unknown): PolicyRejectionDetails | null {
+  const apiError = error instanceof ApiError ? error : null;
+  const code = (apiError?.code ?? '').toString();
+  const message = (apiError?.message ?? (typeof error === 'string' ? error : (error instanceof Error ? error.message : ''))).toString();
+  const combined = `${code} ${message}`.toLowerCase();
+
+  const matched =
+    combined.includes('content policy') ||
+    combined.includes('content_policy') ||
+    combined.includes('moderation') ||
+    combined.includes('safety') ||
+    combined.includes('policy_violation') ||
+    combined.includes('blocked_prompt');
+
+  if (!matched) return null;
+
+  const category =
+    (message.match(/category[:=]\s*([a-z0-9_.-]+)/i)?.[1] ||
+      code.match(/(?:content[_-]?policy|moderation|safety)[._-]?([a-z0-9_-]+)/i)?.[1] ||
+      'unknown')
+      .toLowerCase();
+
+  return { category, code: code || 'UNKNOWN_POLICY_REJECTION' };
+}
 
 export function useGeneratePhoto(): UseGeneratePhotoResult {
   const { hasEnough, spendCoins, addCoins } = useCoins();
@@ -87,16 +121,50 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
       }
 
       if (mappedStatus === 'failed') {
+        const rejectionCategory = statusRes.rejectionCategory || statusRes.errorCode || statusRes.errorMessage || 'unknown';
+        const policyRejected = parsePolicyRejection(statusRes.errorCode || statusRes.errorMessage) != null;
         const refunded = await refundIfNeeded(jobId);
+
+        if (policyRejected) {
+          console.info('[DreamShotTelemetry] image_policy_rejection', {
+            requestId,
+            jobId,
+            rejectionCategory,
+          });
+        }
+
         await patchJob(jobId, {
           status: 'failed',
-          errorMessage: refunded ? 'Generation failed. Coins refunded.' : 'Generation failed.',
+          errorMessage: policyRejected
+            ? (refunded ? `${POLICY_REJECTION_MESSAGE} Coins refunded.` : POLICY_REJECTION_MESSAGE)
+            : (refunded ? 'Generation failed. Coins refunded.' : 'Generation failed.'),
         });
         return;
       }
 
       await patchJob(jobId, { status: mappedStatus, pollFailures: 0 });
-    } catch {
+    } catch (error) {
+      const policyRejection = parsePolicyRejection(error);
+      if (policyRejection) {
+        const refunded = await refundIfNeeded(jobId);
+
+        console.info('[DreamShotTelemetry] image_policy_rejection', {
+          requestId,
+          jobId,
+          rejectionCategory: policyRejection.category,
+          errorCode: policyRejection.code,
+        });
+
+        await patchJob(jobId, {
+          status: 'failed',
+          errorMessage: refunded
+            ? `${POLICY_REJECTION_MESSAGE} Coins refunded.`
+            : POLICY_REJECTION_MESSAGE,
+          pollFailures: 0,
+        });
+        return;
+      }
+
       const failures = ((job?.pollFailures) || 0) + 1;
       await patchJob(jobId, { pollFailures: failures });
     }
@@ -171,6 +239,20 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
       if (coinsSpent && style.photoCost > 0) {
         await addCoins(style.photoCost, { source: 'refund', note: style.title });
       }
+
+      const policyRejection = parsePolicyRejection(error);
+      if (policyRejection) {
+        console.info('[DreamShotTelemetry] image_policy_rejection', {
+          styleId: style.id,
+          styleTitle: style.title,
+          rejectionCategory: policyRejection.category,
+          errorCode: policyRejection.code,
+          phase: 'submit',
+        });
+
+        throw new Error(coinsSpent ? `${POLICY_REJECTION_MESSAGE} Coins refunded.` : POLICY_REJECTION_MESSAGE);
+      }
+
       throw error;
     } finally {
       setIsSubmitting(false);
