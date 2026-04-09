@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Text } from 'react-native-paper';
@@ -6,12 +6,14 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Text as SvgText } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getStylePreviewSource, DREAMSHOT_STYLE_PRESETS } from '../../src/config/styles';
 import { useAppTheme } from '../../src/contexts/ThemeContext';
 
 type StyleCategory = 'All' | 'Portraits' | 'Landscapes' | 'Abstract' | 'Fantasy';
 
 const STYLE_CATEGORIES: StyleCategory[] = ['All', 'Portraits', 'Landscapes', 'Abstract', 'Fantasy'];
+const FAVORITE_STYLE_ORDER_KEY = '@dreamshot/favorite_style_order';
 
 const STYLE_CATEGORY_MAP: Record<string, Exclude<StyleCategory, 'All'>> = {
   'cinematic-vibe': 'Portraits',
@@ -30,14 +32,72 @@ export default function HomeScreen(): React.JSX.Element {
   const [selectedCategory, setSelectedCategory] = useState<StyleCategory>('All');
   const [selectedStyleId, setSelectedStyleId] = useState<string>(DREAMSHOT_STYLE_PRESETS[0]?.id ?? '');
   const [loadedStyleImages, setLoadedStyleImages] = useState<Record<string, boolean>>({});
+  const [favoriteStyleOrder, setFavoriteStyleOrder] = useState<string[]>([]);
+  const [editMode, setEditMode] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadFavoriteStyleOrder = async (): Promise<void> => {
+      try {
+        const raw = await AsyncStorage.getItem(FAVORITE_STYLE_ORDER_KEY);
+        if (!raw || !mounted) return;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return;
+        const validIds = parsed.filter(
+          (id): id is string => typeof id === 'string' && DREAMSHOT_STYLE_PRESETS.some((style) => style.id === id),
+        );
+        setFavoriteStyleOrder(Array.from(new Set(validIds)));
+      } catch (error) {
+        console.warn('[HomeScreen] failed to load favorite style order', error);
+      }
+    };
+
+    void loadFavoriteStyleOrder();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const persistFavoriteStyleOrder = useCallback(async (nextOrder: string[]): Promise<void> => {
+    try {
+      await AsyncStorage.setItem(FAVORITE_STYLE_ORDER_KEY, JSON.stringify(nextOrder));
+    } catch (error) {
+      console.warn('[HomeScreen] failed to persist favorite style order', error);
+    }
+  }, []);
+
+  const toggleFavorite = useCallback((styleId: string) => {
+    setFavoriteStyleOrder((currentOrder) => {
+      const isFavorite = currentOrder.includes(styleId);
+      const nextOrder = isFavorite
+        ? currentOrder.filter((id) => id !== styleId)
+        : [styleId, ...currentOrder.filter((id) => id !== styleId)];
+      void persistFavoriteStyleOrder(nextOrder);
+      return nextOrder;
+    });
+  }, [persistFavoriteStyleOrder]);
 
   const filteredStyles = useMemo(() => {
-    if (selectedCategory === 'All') {
-      return DREAMSHOT_STYLE_PRESETS;
-    }
+    const categoryFiltered = selectedCategory === 'All'
+      ? DREAMSHOT_STYLE_PRESETS
+      : DREAMSHOT_STYLE_PRESETS.filter((style) => STYLE_CATEGORY_MAP[style.id] === selectedCategory);
 
-    return DREAMSHOT_STYLE_PRESETS.filter((style) => STYLE_CATEGORY_MAP[style.id] === selectedCategory);
-  }, [selectedCategory]);
+    const favoriteSet = new Set(favoriteStyleOrder);
+    const favoriteStyles: typeof categoryFiltered = [];
+    const regularStyles: typeof categoryFiltered = [];
+
+    categoryFiltered.forEach((style) => {
+      if (favoriteSet.has(style.id)) {
+        favoriteStyles.push(style);
+      } else {
+        regularStyles.push(style);
+      }
+    });
+
+    favoriteStyles.sort((a, b) => favoriteStyleOrder.indexOf(a.id) - favoriteStyleOrder.indexOf(b.id));
+    return [...favoriteStyles, ...regularStyles];
+  }, [favoriteStyleOrder, selectedCategory]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -74,6 +134,18 @@ export default function HomeScreen(): React.JSX.Element {
           <Text style={styles.heroSubtitle}>
             Choose the visual language for your next generation.
           </Text>
+          <View style={styles.heroActions}>
+            <Text style={styles.helperCopy}>Long press a style to favorite it and pin it to the top.</Text>
+            <Pressable
+              style={({ pressed }) => [styles.editModeButton, editMode && styles.editModeButtonActive, pressed && styles.pressed]}
+              onPress={() => setEditMode((current) => !current)}
+            >
+              <MaterialIcons name={editMode ? 'check' : 'edit'} size={16} color={editMode ? '#0F1426' : '#C6D0EA'} />
+              <Text style={[styles.editModeButtonText, editMode && styles.editModeButtonTextActive]}>
+                {editMode ? 'Done' : 'Reorder Favorites'}
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
         <ScrollView
@@ -99,12 +171,22 @@ export default function HomeScreen(): React.JSX.Element {
         <View style={styles.grid}>
           {filteredStyles.map((stylePreset) => {
             const selected = selectedStyleId === stylePreset.id;
+            const isFavorite = favoriteStyleOrder.includes(stylePreset.id);
 
             return (
               <Pressable
                 key={stylePreset.id}
                 style={({ pressed }) => [styles.styleCard, pressed && styles.pressed]}
+                delayLongPress={220}
+                onLongPress={() => {
+                  if (!editMode) setEditMode(true);
+                  toggleFavorite(stylePreset.id);
+                }}
                 onPress={() => {
+                  if (editMode) {
+                    toggleFavorite(stylePreset.id);
+                    return;
+                  }
                   setSelectedStyleId(stylePreset.id);
                   router.push({ pathname: '/(main)/style-detail', params: { styleId: stylePreset.id } });
                 }}
@@ -128,10 +210,18 @@ export default function HomeScreen(): React.JSX.Element {
                   style={styles.styleGradientOverlay}
                 />
                 <View style={styles.styleFooter}>
+                  <View style={styles.styleBadgeRow}>
+                    <View style={[styles.favoritePill, isFavorite && styles.favoritePillActive]}>
+                      <MaterialIcons name={isFavorite ? 'star' : 'star-border'} size={13} color={isFavorite ? '#0E0A00' : '#E2E8FF'} />
+                      <Text style={[styles.favoritePillText, isFavorite && styles.favoritePillTextActive]}>
+                        {isFavorite ? 'Favorite' : 'Not favorite'}
+                      </Text>
+                    </View>
+                  </View>
                   <Text style={styles.styleName}>{stylePreset.title}</Text>
                   <View style={[styles.selectPill, selected && styles.selectPillActive]}>
                     <Text style={[styles.selectPillText, selected && styles.selectPillTextActive]}>
-                      {selected ? 'Selected' : 'Select'}
+                      {editMode ? (isFavorite ? 'Tap to Unpin' : 'Tap to Pin') : selected ? 'Selected' : 'Select'}
                     </Text>
                   </View>
                 </View>
@@ -168,6 +258,39 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
     heroWrap: {
       paddingHorizontal: 20,
       marginBottom: 16,
+    },
+    heroActions: {
+      marginTop: 12,
+      gap: 10,
+    },
+    helperCopy: {
+      color: palette.textSecondary,
+      fontSize: 12,
+      lineHeight: 18,
+    },
+    editModeButton: {
+      alignSelf: 'flex-start',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: 'rgba(99, 116, 153, 0.5)',
+      backgroundColor: 'rgba(16, 27, 49, 0.65)',
+    },
+    editModeButtonActive: {
+      backgroundColor: '#CC97FF',
+      borderColor: '#CC97FF',
+    },
+    editModeButtonText: {
+      color: '#C6D0EA',
+      fontFamily: 'Inter_700Bold',
+      fontSize: 12,
+    },
+    editModeButtonTextActive: {
+      color: '#0F1426',
     },
     heroTitle: {
       color: palette.text,
@@ -245,6 +368,30 @@ const createStyles = (palette: ReturnType<typeof useAppTheme>['palette']) =>
       paddingHorizontal: 12,
       paddingVertical: 11,
       backgroundColor: 'rgba(6, 14, 32, 0.25)',
+    },
+    styleBadgeRow: {
+      flexDirection: 'row',
+      marginBottom: 6,
+    },
+    favoritePill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      borderRadius: 999,
+      paddingHorizontal: 9,
+      paddingVertical: 4,
+      backgroundColor: 'rgba(18, 27, 49, 0.85)',
+    },
+    favoritePillActive: {
+      backgroundColor: '#F8D968',
+    },
+    favoritePillText: {
+      color: '#E2E8FF',
+      fontFamily: 'Inter_700Bold',
+      fontSize: 10,
+    },
+    favoritePillTextActive: {
+      color: '#0E0A00',
     },
     styleName: {
       color: '#FFFFFF',
