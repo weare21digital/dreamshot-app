@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
-import OpenAI from 'openai';
 import { ReplaceBackgroundDto } from './dto/replace-background.dto';
 import { VideoSubmitDto } from './dto/video-generation.dto';
 import { VideoImagePipelineDto } from './dto/video-image-pipeline.dto';
@@ -8,7 +7,6 @@ import { VideoImagePipelineDto } from './dto/video-image-pipeline.dto';
 export class AiService {
   private readonly imageModel = process.env.FAL_IMAGE_MODEL || 'fal-ai/pulid';
   private readonly openAiImageModel = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
-  private readonly openAiClient = new OpenAI({ apiKey: this.getOpenAiApiKey() });
   private readonly imageJobResults = new Map<string, { status: string; imageUrl?: string; error?: string; cancelled?: boolean }>();
 
   /** Upload a base64 image to fal.ai CDN and return the hosted URL */
@@ -83,15 +81,31 @@ export class AiService {
     const requestId = `openai-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
     try {
-      const result = await this.openAiClient.images.generate({
-        model: this.openAiImageModel,
-        prompt,
-        size: '1024x1536',
+      const mimeType = dto.mimeType || 'image/jpeg';
+      const imageBytes = Buffer.from(imageBase64, 'base64');
+
+      const form = new FormData();
+      form.append('model', this.openAiImageModel);
+      form.append('prompt', prompt);
+      form.append('size', '1024x1536');
+      form.append('image', new Blob([imageBytes], { type: mimeType }), `selfie.${mimeType.includes('png') ? 'png' : 'jpg'}`);
+
+      const response = await fetch('https://api.openai.com/v1/images/edits', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.getOpenAiApiKey()}`,
+        },
+        body: form,
       });
 
-      const imageUrl = result.data?.[0]?.url;
-      if (!imageUrl) {
-        throw new InternalServerErrorException('OpenAI image generation returned no image URL');
+      const data = (await response.json()) as {
+        data?: Array<{ url?: string }>;
+        error?: { message?: string };
+      };
+
+      const imageUrl = data?.data?.[0]?.url;
+      if (!response.ok || !imageUrl) {
+        throw new InternalServerErrorException(data?.error?.message || 'OpenAI image edit failed');
       }
 
       this.imageJobResults.set(requestId, { status: 'COMPLETED', imageUrl });

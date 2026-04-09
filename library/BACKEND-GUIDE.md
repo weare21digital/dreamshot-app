@@ -13,7 +13,8 @@ Documents backend conventions for DreamShot.
 - Location: `backend/src/modules/*/*.service.ts`
 - Pattern: provider-specific API calls and mapping stay in service layer
 - AI provider split:
-  - Image generation primary provider: OpenAI `gpt-image-1`
+  - Image generation primary provider: OpenAI `gpt-image-1` via `POST /v1/images/edits`
+  - Selfie preservation pattern: pass user selfie as `image` multipart input to OpenAI edits endpoint
   - Video generation provider: fal.ai (`fal-ai/wan/v2.2-5b/image-to-video`)
   - Image→video pipeline keeps fal.ai for video submit path
 
