@@ -22,10 +22,13 @@ Documents backend conventions for DreamShot.
 
 - Secrets come from environment variables (`.env`), never hardcoded
 - Current AI env vars:
-  - `OPENAI_API_KEY` for image generation
+  - `OPENAI_API_KEY` for OpenAI image generation
   - `OPENAI_IMAGE_MODEL` optional override (defaults to `gpt-image-1`)
-  - `FAL_API_KEY` for video generation and pipeline
+  - `FAL_API_KEY` for fal.ai image/video operations
+  - `FAL_IMAGE_MODEL` optional override for fallback image generation model
   - `FAL_VIDEO_MODEL` optional override for video model
+  - `IMAGE_BACKEND` rollout switch (`openai`, `fal`, `rollout`)
+  - `GPT_IMAGE_PERCENTAGE` percentage routing for OpenAI when `IMAGE_BACKEND=rollout`
 
 ## Database
 

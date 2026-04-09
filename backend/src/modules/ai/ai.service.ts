@@ -5,7 +5,10 @@ import { VideoImagePipelineDto } from './dto/video-image-pipeline.dto';
 
 @Injectable()
 export class AiService {
+  private readonly imageModel = process.env.FAL_IMAGE_MODEL || 'fal-ai/pulid';
   private readonly openAiImageModel = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
+  private readonly imageBackend = process.env.IMAGE_BACKEND || 'openai';
+  private readonly gptImagePercentage = Number(process.env.GPT_IMAGE_PERCENTAGE || '100');
   private readonly imageJobResults = new Map<string, { status: string; imageUrl?: string; error?: string; cancelled?: boolean }>();
 
   /** Upload a base64 image to fal.ai CDN and return the hosted URL */
@@ -103,6 +106,64 @@ export class AiService {
     return this.uploadToFal(base64, contentType);
   }
 
+  private async generateFalImageUrl(imageBase64: string, mimeType: string, prompt: string): Promise<string> {
+    const apiKey = this.getFalApiKey();
+    const imageUrl = await this.uploadToFal(imageBase64, mimeType);
+
+    const imageResponse = await fetch(`https://fal.run/${this.imageModel}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Key ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        reference_images: [{ image_url: imageUrl }],
+        prompt,
+        negative_prompt: 'extra arms, extra hands, extra fingers, extra limbs, multiple arms, four arms, 3 arms, duplicate limbs, fused limbs, malformed hands, bad anatomy, flaws in the eyes, flaws in the face, lowres, low quality, worst quality, artifacts, noise, text, watermark, glitch, deformed, mutated, ugly, disfigured, blurry, modern clothing, t-shirt, casual wear',
+        num_images: 1,
+        guidance_scale: 1.2,
+        num_inference_steps: 12,
+        image_size: { width: 1024, height: 1536 },
+        id_scale: 0.8,
+        mode: 'fidelity',
+      }),
+    });
+
+    const imageText = await imageResponse.text();
+    let imageData: { images?: Array<{ url?: string }>; detail?: string };
+    try {
+      imageData = JSON.parse(imageText);
+    } catch {
+      throw new InternalServerErrorException(`Unexpected fal.ai image response: ${imageText.slice(0, 200)}`);
+    }
+
+    if (!imageResponse.ok) {
+      throw new InternalServerErrorException(imageData?.detail || `Image generation failed (${imageResponse.status})`);
+    }
+
+    const generatedImageUrl = imageData?.images?.[0]?.url;
+    if (!generatedImageUrl) {
+      throw new InternalServerErrorException('Image generation returned no image');
+    }
+
+    return generatedImageUrl;
+  }
+
+  private shouldUseOpenAiForImage(): boolean {
+    const backend = this.imageBackend.toLowerCase();
+    if (backend === 'openai') {
+      return true;
+    }
+    if (backend === 'fal') {
+      return false;
+    }
+
+    const percentage = Number.isFinite(this.gptImagePercentage)
+      ? Math.max(0, Math.min(100, this.gptImagePercentage))
+      : 100;
+    return Math.random() * 100 < percentage;
+  }
+
   async submitImageGeneration(dto: ReplaceBackgroundDto): Promise<{
     requestId: string;
     status: string;
@@ -123,11 +184,13 @@ export class AiService {
 
     try {
       const mimeType = dto.mimeType || 'image/jpeg';
-      const imageUrl = await this.generateOpenAiImageUrl(imageBase64, mimeType, prompt);
+      const imageUrl = this.shouldUseOpenAiForImage()
+        ? await this.generateOpenAiImageUrl(imageBase64, mimeType, prompt)
+        : await this.generateFalImageUrl(imageBase64, mimeType, prompt);
 
       this.imageJobResults.set(requestId, { status: 'COMPLETED', imageUrl });
     } catch (error) {
-      this.imageJobResults.set(requestId, { status: 'FAILED', error: 'OpenAI image generation failed' });
+      this.imageJobResults.set(requestId, { status: 'FAILED', error: 'Image generation failed' });
       throw error;
     }
 

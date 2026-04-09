@@ -38,6 +38,12 @@ const envSchema = z.object({
 
   // AI / OpenAI
   OPENAI_API_KEY: z.string().optional(),
+  OPENAI_IMAGE_MODEL: z.string().optional(),
+  FAL_API_KEY: z.string().optional(),
+  FAL_IMAGE_MODEL: z.string().optional(),
+  FAL_VIDEO_MODEL: z.string().optional(),
+  IMAGE_BACKEND: z.enum(['fal', 'openai', 'rollout']).optional(),
+  GPT_IMAGE_PERCENTAGE: z.coerce.number().min(0).max(100).optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -100,6 +106,16 @@ export const environmentConfig = {
   // AI / OpenAI
   openai: {
     apiKey: env.OPENAI_API_KEY,
+    imageModel: env.OPENAI_IMAGE_MODEL,
+  },
+  fal: {
+    apiKey: env.FAL_API_KEY,
+    imageModel: env.FAL_IMAGE_MODEL,
+    videoModel: env.FAL_VIDEO_MODEL,
+  },
+  imageRouting: {
+    backend: env.IMAGE_BACKEND || 'openai',
+    gptImagePercentage: env.GPT_IMAGE_PERCENTAGE ?? 100,
   },
 } as const;
 
