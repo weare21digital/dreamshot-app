@@ -40,6 +40,7 @@ type PolicyRejectionDetails = {
 };
 
 const POLICY_REJECTION_MESSAGE = 'This style or photo was blocked by content policy.';
+const OPENAI_IMAGE_STYLES = new Set(['photoreal-pro']);
 
 function parsePolicyRejection(error: unknown): PolicyRejectionDetails | null {
   const apiError = error instanceof ApiError ? error : null;
@@ -205,12 +206,15 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
     let coinsSpent = false;
 
     try {
+      const pipelineId = OPENAI_IMAGE_STYLES.has(style.id) ? 'openai-image' : 'fal-image';
+
       const submitted = await submitImageGeneration({
         imageUri,
         prompt: style.prompt,
         stylePreset: style.id,
         aspect,
         quality: style.imageQuality ?? 'medium',
+        pipelineId,
       });
 
       const spent = await spendCoins(style.photoCost, { source: 'generation', note: style.title });

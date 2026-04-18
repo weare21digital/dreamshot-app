@@ -8,6 +8,7 @@ export type AiImageGenerationRequest = {
   backgroundImageUrl?: string;
   aspect?: string;
   quality?: string;
+  pipelineId?: 'openai-image' | 'fal-image';
 };
 
 export type ImageSubmitResult = {
@@ -35,9 +36,31 @@ export const submitImageGeneration = async (request: AiImageGenerationRequest): 
     localUri = download.uri;
   }
 
+  const mimeType = getMimeType(localUri);
   const imageBase64 = await FileSystem.readAsStringAsync(localUri, {
     encoding: FileSystem.EncodingType.Base64,
   });
+
+  const pipelineId = request.pipelineId ?? 'openai-image';
+
+  if (pipelineId === 'fal-image') {
+    const response = await apiClient.post('/generations/fal', {
+      prompt: request.prompt,
+      pipelineId: 'fal-image',
+      stylePreset: request.stylePreset,
+      inputImageUrl: `data:${mimeType};base64,${imageBase64}`,
+    }) as { id: string; status: string; outputUrl?: string };
+
+    if (!response?.id) {
+      throw new Error('Backend did not return a generation ID');
+    }
+
+    return {
+      requestId: response.id,
+      status: response.status,
+      responseUrl: response.outputUrl,
+    };
+  }
 
   const response = await apiClient.post('/generations/openai', {
     prompt: request.prompt,
