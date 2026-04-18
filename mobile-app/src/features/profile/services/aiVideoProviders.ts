@@ -18,6 +18,7 @@ export type VideoGenerationSubmitResult = {
 
 export type VideoGenerationStatusResult = {
   status: string;
+  outputUrl?: string;
 };
 
 export type VideoGenerationResult = {
@@ -31,22 +32,8 @@ const getMimeType = (imageUri: string): string => {
   return 'image/jpeg';
 };
 
-export type ImagePipelineVideoRequest = {
-  imageUri: string;
-  prompt: string;
-  videoPrompt: string;
-  stylePreset?: string;
-};
-
-export type ImagePipelineVideoSubmitResult = VideoGenerationSubmitResult & {
-  imageUrl?: string;
-};
-
-/** Pipeline: PuLID image generation → Wan video (backend handles both steps) */
-export const submitImagePipelineVideoGeneration = async (
-  request: ImagePipelineVideoRequest,
-): Promise<ImagePipelineVideoSubmitResult> => {
-  let localUri = request.imageUri;
+const toDataUri = async (imageUri: string): Promise<string> => {
+  let localUri = imageUri;
 
   if (localUri.startsWith('http://') || localUri.startsWith('https://')) {
     const ext = localUri.includes('.png') ? 'png' : 'jpg';
@@ -60,22 +47,36 @@ export const submitImagePipelineVideoGeneration = async (
     encoding: FileSystem.EncodingType.Base64,
   });
 
-  const response = await apiClient.post('/ai/video/image-pipeline', {
-    imageBase64,
-    prompt: request.prompt,
-    videoPrompt: request.videoPrompt,
-    mimeType,
-    stylePreset: request.stylePreset,
-  });
+  return `data:${mimeType};base64,${imageBase64}`;
+};
 
-  const data = response as unknown as ImagePipelineVideoSubmitResult;
+export type ImagePipelineVideoRequest = {
+  imageUri: string;
+  prompt: string;
+  videoPrompt: string;
+  stylePreset?: string;
+};
+
+export type ImagePipelineVideoSubmitResult = VideoGenerationSubmitResult & {
+  imageUrl?: string;
+};
+
+/** Pipeline: OpenAI image → Wan video (backend handles both steps) */
+export const submitImagePipelineVideoGeneration = async (
+  request: ImagePipelineVideoRequest,
+): Promise<ImagePipelineVideoSubmitResult> => {
+  const inputImageUrl = await toDataUri(request.imageUri);
+
+  const response = await apiClient.post('/generations/fal', {
+    prompt: request.videoPrompt || request.prompt,
+    pipelineId: 'openai-to-video',
+    stylePreset: request.stylePreset,
+    inputImageUrl,
+  }) as { id: string; status: string };
 
   return {
-    requestId: data.requestId,
-    status: data.status || 'IN_QUEUE',
-    statusUrl: data.statusUrl,
-    responseUrl: data.responseUrl,
-    imageUrl: data.imageUrl,
+    requestId: response.id,
+    status: response.status || 'QUEUED',
   };
 };
 
@@ -95,56 +96,35 @@ export const submitDreamshotImagePipeline = async (request: DreamshotImagePipeli
 
 /** Direct video from existing image (gallery animate flow) */
 export const submitVideoGeneration = async (request: VideoGenerationRequest): Promise<VideoGenerationSubmitResult> => {
-  let localUri = request.imageUri;
+  const inputImageUrl = await toDataUri(request.imageUri);
 
-  // If it's a remote URL, download to a local cache file first
-  if (localUri.startsWith('http://') || localUri.startsWith('https://')) {
-    const ext = localUri.includes('.png') ? 'png' : 'jpg';
-    const localPath = `${FileSystem.cacheDirectory}video-input-${Date.now()}.${ext}`;
-    const download = await FileSystem.downloadAsync(localUri, localPath);
-    localUri = download.uri;
-  }
-
-  const mimeType = getMimeType(localUri);
-  const imageBase64 = await FileSystem.readAsStringAsync(localUri, {
-    encoding: FileSystem.EncodingType.Base64,
-  });
-
-  const response = await apiClient.post('/ai/video/submit', {
-    imageBase64,
+  const response = await apiClient.post('/generations/fal', {
     prompt: request.prompt,
-    mimeType,
-  });
-
-  const data = response as unknown as { requestId: string; status: string; statusUrl?: string; responseUrl?: string; cancelUrl?: string };
+    pipelineId: 'openai-to-video',
+    inputImageUrl,
+  }) as { id: string; status: string };
 
   return {
-    requestId: data.requestId,
-    status: data.status || 'IN_QUEUE',
-    statusUrl: data.statusUrl,
-    responseUrl: data.responseUrl,
-    cancelUrl: data.cancelUrl,
+    requestId: response.id,
+    status: response.status || 'QUEUED',
   };
 };
 
-export const getVideoGenerationStatus = async (requestId: string, statusUrl?: string): Promise<VideoGenerationStatusResult> => {
-  const params = statusUrl ? `?statusUrl=${encodeURIComponent(statusUrl)}` : '';
-  const response = await apiClient.get(`/ai/video/status/${requestId}${params}`);
-  const data = response as unknown as { status: string };
-  return { status: data.status };
+export const getVideoGenerationStatus = async (requestId: string, _statusUrl?: string): Promise<VideoGenerationStatusResult> => {
+  const response = await apiClient.get(`/generations/${requestId}`) as { status: string; outputUrl?: string };
+  return { status: response.status, outputUrl: response.outputUrl };
 };
 
-export const getVideoGenerationResult = async (requestId: string, responseUrl?: string): Promise<VideoGenerationResult> => {
-  const params = responseUrl ? `?responseUrl=${encodeURIComponent(responseUrl)}` : '';
-  const response = await apiClient.get(`/ai/video/result/${requestId}${params}`);
-  const data = response as unknown as { videoUrl: string };
-  return { videoUrl: data.videoUrl };
+export const getVideoGenerationResult = async (requestId: string, _responseUrl?: string): Promise<VideoGenerationResult> => {
+  const response = await apiClient.get(`/generations/${requestId}`) as { outputUrl?: string };
+  if (!response.outputUrl) {
+    throw new Error('Generation is not complete yet');
+  }
+  return { videoUrl: response.outputUrl };
 };
 
-export const cancelVideoGeneration = async (requestId: string): Promise<{ cancelled: boolean }> => {
-  const response = await apiClient.put(`/ai/video/cancel/${requestId}`);
-  const data = response as unknown as { cancelled: boolean };
-  return { cancelled: data.cancelled };
+export const cancelVideoGeneration = async (_requestId: string): Promise<{ cancelled: boolean }> => {
+  return { cancelled: false };
 };
 
 export const aiVideoProvidersRegistry = {} as Record<string, unknown>;

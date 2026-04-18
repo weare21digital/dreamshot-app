@@ -2,6 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { NetworkConfig } from '../config/network';
 import { tokenService } from '../services/tokenService';
 import { APP_CONFIG } from '../config/app';
+import { getAiHeaders } from '../services/aiIdentityService';
 
 const DEBUG = __DEV__; // Only log in development
 
@@ -67,6 +68,15 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    if (config.url?.startsWith('/generations/')) {
+      const aiHeaders = await getAiHeaders();
+      config.headers = {
+        ...(config.headers || {}),
+        ...aiHeaders,
+      } as typeof config.headers;
+    }
+
     if (DEBUG) {
       console.log(
         `[API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`,

@@ -4,6 +4,13 @@ Cross-platform mobile app template with React Native (Expo) frontend and NestJS 
 
 > **📖 [Zero to App Store Guide →](docs/00-zero-to-store.md)** — Complete walkthrough from fork to live App Store app.
 
+
+## Backend
+
+DreamShot now uses the shared unified backend from `mobile-skeleton-app/backend` (same host used by mobile `.env` API URLs).
+
+There is no local `backend/` service in this repository anymore.
+
 ## Tech Stack
 
 | Layer | Technology |
