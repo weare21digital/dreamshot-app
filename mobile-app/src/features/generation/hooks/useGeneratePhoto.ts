@@ -8,6 +8,7 @@ import {
 } from '../../profile/services/aiImageProviders';
 import { cacheRemoteImage } from '../../../utils/imageCache';
 import { ApiError } from '../../../lib/apiClient';
+import { getPipelineCost } from '../../profile/services/aiConfig';
 import { DreamshotImageAspect, DreamshotStylePreset } from '../types';
 import { useGenerationJob } from './useGenerationJob';
 
@@ -203,6 +204,7 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
       });
 
       await applyServerBalance(submitted.balance);
+      const photoCost = await getPipelineCost(pipelineId, style.photoCost);
 
       const job = await createJob({
         requestId: submitted.requestId,
@@ -210,7 +212,7 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
         styleId: style.id,
         styleTitle: style.title,
         status: 'processing',
-        coinCost: style.photoCost,
+        coinCost: photoCost,
         statusUrl: submitted.statusUrl,
         responseUrl: submitted.responseUrl,
       });

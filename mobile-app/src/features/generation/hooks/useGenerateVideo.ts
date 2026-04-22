@@ -8,7 +8,9 @@ import {
 } from '../../profile/services/aiVideoProviders';
 import { cacheRemoteImage } from '../../../utils/imageCache';
 import { ApiError } from '../../../lib/apiClient';
-import { ANIMATION_STYLES } from '../../../config/styles';import { DreamshotStylePreset } from '../types';
+import { ANIMATION_STYLES } from '../../../config/styles';
+import { getPipelineCost } from '../../profile/services/aiConfig';
+import { DreamshotStylePreset } from '../types';
 import { useGenerationJob } from './useGenerationJob';
 
 const POLL_INTERVAL_MS = 5000;
@@ -137,6 +139,7 @@ export function useGenerateVideo(): UseGenerateVideoResult {
       const videoPrompt = `${themePrefix} ${basePrompt}. Maintain the painted image aesthetic and rich colors throughout the motion.`;
 
       const submitted = await submitVideoGeneration({ imageUri, prompt: videoPrompt });
+      const videoCost = await getPipelineCost('portrait-to-video', style.videoCost);
 
       const job = await createJob({
         requestId: submitted.requestId,
@@ -144,7 +147,7 @@ export function useGenerateVideo(): UseGenerateVideoResult {
         styleId: style.id,
         styleTitle: style.title,
         status: 'processing',
-        coinCost: style.videoCost,
+        coinCost: videoCost,
         statusUrl: submitted.statusUrl,
         responseUrl: submitted.responseUrl,
       });
