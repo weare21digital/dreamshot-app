@@ -69,12 +69,25 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    if (config.url?.startsWith('/generations/')) {
+    const isGenerationRequest = config.url?.startsWith('/generations/') ?? false;
+    const needsAiHeaders = isGenerationRequest || (config.url?.startsWith('/coins/') ?? false);
+
+    if (needsAiHeaders) {
       const aiHeaders = await getAiHeaders();
       config.headers = {
         ...(config.headers || {}),
         ...aiHeaders,
       } as typeof config.headers;
+    }
+
+    if (isGenerationRequest && config.method?.toLowerCase() === 'post') {
+      const headers = (config.headers || {}) as Record<string, unknown>;
+      const hasIdempotencyKey = Boolean(headers['Idempotency-Key'] || headers['idempotency-key']);
+
+      if (!hasIdempotencyKey) {
+        headers['Idempotency-Key'] = `gen-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        config.headers = headers as typeof config.headers;
+      }
     }
 
     if (DEBUG) {

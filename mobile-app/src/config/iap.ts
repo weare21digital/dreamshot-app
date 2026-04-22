@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 export const IAP_CONFIG = {
   // 'device' = StoreKit 2 on-device verification (no backend needed)
   // 'backend' = verify receipts via backend API
-  paymentMode: 'device' as 'device' | 'backend',
+  paymentMode: 'backend' as 'device' | 'backend',
   // 'freemium' = free app with optional premium upgrade
   // 'paid' = free download + IAP gate before access
   // 'unlocked' = paid App Store download — everything unlocked, no IAP/ads

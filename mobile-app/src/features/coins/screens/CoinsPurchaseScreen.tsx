@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card, Text } from 'react-native-paper';
@@ -6,12 +6,13 @@ import { useFocusEffect } from 'expo-router';
 import { useAppTheme } from '../../../contexts/ThemeContext';
 import { useCoins } from '../hooks/useCoins';
 import { usePayments } from '../../../services/payments/usePayments';
-import { grantCoinsOnce } from '../utils/coinPurchaseLedger';
 import { COIN_PACKS } from '../../../config/iap';
+import { redeemIapPurchase } from '../services/iapRedemption';
 
 export function CoinsPurchaseScreen(): React.JSX.Element {
   const { palette, brand, theme } = useAppTheme();
-  const { balance, addCoins, reload } = useCoins();
+  const { balance, applyServerBalance, reload } = useCoins();
+  const redeemedTransactionIdsRef = useRef(new Set<string>());
 
   useFocusEffect(
     useCallback(() => {
@@ -53,7 +54,7 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
   const completePurchase = useCallback(async (productId: string) => {
     try {
       await purchaseOneTime(productId);
-      setFeedback('Purchase completed. Finalizing...');
+      setFeedback('Purchase completed. Verifying and redeeming...');
     } catch {
       setFeedback('Purchase failed. Please try again.');
     }
@@ -80,34 +81,38 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
     } finally {
       setActivePurchaseId(null);
     }
-  }, [addCoins, completePurchase, isLoading, products, reload]);
+  }, [completePurchase, isLoading, products]);
 
   useEffect(() => {
     let cancelled = false;
 
     const finalize = async () => {
       if (!lastPurchase) return;
-      const productId = lastPurchase.productId ?? '';
-      const txId = lastPurchase.transactionId ?? null;
-      const matchedPack = COIN_PACKS.find((pack) => pack.sku === productId);
 
+      const productId = lastPurchase.productId ?? '';
+      const transactionId = lastPurchase.transactionId ?? null;
+
+      if (transactionId && redeemedTransactionIdsRef.current.has(transactionId)) {
+        return;
+      }
+
+      const matchedPack = COIN_PACKS.find((pack) => pack.sku === productId);
       if (!matchedPack) return;
 
-      const grant = await grantCoinsOnce({
-        transactionId: txId,
-        productId,
-        coins: matchedPack.coins,
-        source: 'purchase',
-      });
+      try {
+        const redeemed = await redeemIapPurchase(productId, lastPurchase);
+        if (transactionId) {
+          redeemedTransactionIdsRef.current.add(transactionId);
+        }
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      if (grant.granted) {
-        await addCoins(matchedPack.coins);
+        await applyServerBalance(redeemed.balance);
         await reload();
         setFeedback(`Purchase successful. Added ${matchedPack.coins} coins.`);
-      } else if (grant.reason === 'duplicate') {
-        setFeedback('Purchase already applied on this device.');
+      } catch {
+        if (cancelled) return;
+        setFeedback('Purchase completed, but redemption failed. Please use Restore Purchases.');
       }
     };
 
@@ -115,7 +120,7 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [addCoins, lastPurchase, reload]);
+  }, [applyServerBalance, lastPurchase, reload]);
 
   const handleRestore = useCallback(async () => {
     setFeedback(null);
@@ -128,38 +133,32 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
         return;
       }
 
-      let restoredCoins = 0;
+      let redeemedCount = 0;
 
       for (const purchase of restored) {
         const productId = purchase.productId ?? '';
-        const txId = purchase.transactionId ?? null;
         const matchedPack = COIN_PACKS.find((pack) => pack.sku === productId);
-
         if (!matchedPack) continue;
 
-        const grant = await grantCoinsOnce({
-          transactionId: txId,
-          productId,
-          coins: matchedPack.coins,
-          source: 'restore',
-        });
-
-        if (grant.granted) {
-          restoredCoins += matchedPack.coins;
+        try {
+          await redeemIapPurchase(productId, purchase);
+          redeemedCount += 1;
+        } catch {
+          // keep restoring remaining purchases
         }
       }
 
-      if (restoredCoins > 0) {
-        await addCoins(restoredCoins);
-        await reload();
-        setFeedback(`Restore successful. Added ${restoredCoins} coins.`);
+      await reload();
+
+      if (redeemedCount > 0) {
+        setFeedback(`Restore successful. Redeemed ${redeemedCount} purchase(s).`);
       } else {
-        setFeedback('Restore complete. No new coin purchases to apply.');
+        setFeedback('Restore complete. No redeemable purchases found.');
       }
     } catch {
       setFeedback('Restore failed. Please try again.');
     }
-  }, [addCoins, reload, restorePurchases]);
+  }, [reload, restorePurchases]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }}>
