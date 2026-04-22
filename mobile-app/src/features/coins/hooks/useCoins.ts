@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiClient } from '../../../lib/apiClient';
 import { recordCoinTransaction } from '../utils/coinTransactions';
 
 const COIN_BALANCE_KEY = '@coins/balance';
+const PROFILE_SYNC_TTL_MS = 30_000;
+
+let lastProfileSyncAt = 0;
+let profileSyncPromise: Promise<number | null> | null = null;
 
 async function loadBalanceFromStorage(): Promise<number> {
   try {
@@ -23,6 +28,59 @@ async function saveBalanceToStorage(balance: number): Promise<void> {
   await AsyncStorage.setItem(COIN_BALANCE_KEY, String(Math.max(0, Math.floor(balance))));
 }
 
+function extractServerBalance(payload: unknown): number | null {
+  if (!payload || typeof payload !== 'object') {
+    return null;
+  }
+
+  const root = payload as Record<string, unknown>;
+  const user = (root.user && typeof root.user === 'object' ? root.user : root) as Record<string, unknown>;
+  const coinAccount = user.coinAccount && typeof user.coinAccount === 'object'
+    ? (user.coinAccount as Record<string, unknown>)
+    : null;
+
+  const candidates = [
+    coinAccount?.balance,
+    user.coinBalance,
+    user.balance,
+  ];
+
+  for (const value of candidates) {
+    if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+      return Math.floor(value);
+    }
+  }
+
+  return null;
+}
+
+async function fetchServerBalance(force = false): Promise<number | null> {
+  const now = Date.now();
+
+  if (!force && now - lastProfileSyncAt < PROFILE_SYNC_TTL_MS) {
+    return null;
+  }
+
+  if (!profileSyncPromise) {
+    profileSyncPromise = (async () => {
+      try {
+        const profile = await apiClient.get('/users/profile');
+        const balance = extractServerBalance(profile);
+        if (balance !== null) {
+          lastProfileSyncAt = Date.now();
+        }
+        return balance;
+      } catch {
+        return null;
+      } finally {
+        profileSyncPromise = null;
+      }
+    })();
+  }
+
+  return profileSyncPromise;
+}
+
 export type UseCoinsResult = {
   balance: number;
   isLoading: boolean;
@@ -40,7 +98,12 @@ export function useCoins(): UseCoinsResult {
   const reload = useCallback(async (): Promise<void> => {
     setIsLoading(true);
     const storedBalance = await loadBalanceFromStorage();
-    setBalance(storedBalance);
+    const serverBalance = await fetchServerBalance();
+    const nextBalance = serverBalance ?? storedBalance;
+    setBalance(nextBalance);
+    if (serverBalance !== null) {
+      await saveBalanceToStorage(serverBalance);
+    }
     setIsLoading(false);
   }, []);
 
