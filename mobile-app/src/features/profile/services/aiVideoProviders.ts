@@ -14,6 +14,8 @@ export type VideoGenerationSubmitResult = {
   statusUrl?: string;
   responseUrl?: string;
   cancelUrl?: string;
+  balance?: number;
+  ledgerVersion?: number;
 };
 
 export type VideoGenerationStatusResult = {
@@ -72,11 +74,13 @@ export const submitImagePipelineVideoGeneration = async (
     pipelineId: 'openai-to-video',
     stylePreset: request.stylePreset,
     inputImageUrl,
-  }) as { id: string; status: string };
+  }) as { id: string; status: string; balance?: number; ledgerVersion?: number };
 
   return {
     requestId: response.id,
     status: response.status || 'QUEUED',
+    balance: response.balance,
+    ledgerVersion: response.ledgerVersion,
   };
 };
 
@@ -102,11 +106,13 @@ export const submitVideoGeneration = async (request: VideoGenerationRequest): Pr
     prompt: request.prompt,
     pipelineId: 'openai-to-video',
     inputImageUrl,
-  }) as { id: string; status: string };
+  }) as { id: string; status: string; balance?: number; ledgerVersion?: number };
 
   return {
     requestId: response.id,
     status: response.status || 'QUEUED',
+    balance: response.balance,
+    ledgerVersion: response.ledgerVersion,
   };
 };
 

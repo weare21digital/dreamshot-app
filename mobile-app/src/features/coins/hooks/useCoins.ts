@@ -3,8 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { recordCoinTransaction } from '../utils/coinTransactions';
 
 const COIN_BALANCE_KEY = '@coins/balance';
-const FIRST_LAUNCH_BONUS_FLAG_KEY = 'dreamshot_first_launch_bonus_given';
-const FIRST_LAUNCH_BONUS_COINS = 20;
 
 async function loadBalanceFromStorage(): Promise<number> {
   try {
@@ -25,32 +23,13 @@ async function saveBalanceToStorage(balance: number): Promise<void> {
   await AsyncStorage.setItem(COIN_BALANCE_KEY, String(Math.max(0, Math.floor(balance))));
 }
 
-async function ensureFirstLaunchBonus(currentBalance: number): Promise<number> {
-  try {
-    const bonusAlreadyGiven = await AsyncStorage.getItem(FIRST_LAUNCH_BONUS_FLAG_KEY);
-
-    if (bonusAlreadyGiven === 'true') {
-      return currentBalance;
-    }
-
-    const nextBalance = currentBalance + FIRST_LAUNCH_BONUS_COINS;
-    await AsyncStorage.multiSet([
-      [COIN_BALANCE_KEY, String(nextBalance)],
-      [FIRST_LAUNCH_BONUS_FLAG_KEY, 'true'],
-    ]);
-
-    return nextBalance;
-  } catch {
-    return currentBalance;
-  }
-}
-
 export type UseCoinsResult = {
   balance: number;
   isLoading: boolean;
   addCoins: (amount: number, metadata?: { source?: 'purchase' | 'refund' | 'bonus' | 'adjustment'; note?: string }) => Promise<number>;
   spendCoins: (amount: number, metadata?: { source?: 'generation' | 'adjustment'; note?: string }) => Promise<boolean>;
   hasEnough: (amount: number) => Promise<boolean>;
+  applyServerBalance: (balance: number | null | undefined) => Promise<number>;
   reload: () => Promise<void>;
 };
 
@@ -61,8 +40,7 @@ export function useCoins(): UseCoinsResult {
   const reload = useCallback(async (): Promise<void> => {
     setIsLoading(true);
     const storedBalance = await loadBalanceFromStorage();
-    const initializedBalance = await ensureFirstLaunchBonus(storedBalance);
-    setBalance(initializedBalance);
+    setBalance(storedBalance);
     setIsLoading(false);
   }, []);
 
@@ -124,12 +102,27 @@ export function useCoins(): UseCoinsResult {
     return current >= safeAmount;
   }, []);
 
+  const applyServerBalance = useCallback(async (nextBalance: number | null | undefined): Promise<number> => {
+    const parsed = Number(nextBalance);
+
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      const current = await loadBalanceFromStorage();
+      return current;
+    }
+
+    const safeBalance = Math.floor(parsed);
+    setBalance(safeBalance);
+    await saveBalanceToStorage(safeBalance);
+    return safeBalance;
+  }, []);
+
   return {
     balance,
     isLoading,
     addCoins,
     spendCoins,
     hasEnough,
+    applyServerBalance,
     reload,
   };
 }

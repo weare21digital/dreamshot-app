@@ -67,8 +67,15 @@ function parsePolicyRejection(error: unknown): PolicyRejectionDetails | null {
   return { category, code: code || 'UNKNOWN_POLICY_REJECTION' };
 }
 
+const getBalanceFromError = (error: unknown): number | undefined => {
+  if (!(error instanceof ApiError) || !error.details || typeof error.details !== 'object') return undefined;
+  const details = error.details as { balance?: unknown; error?: { balance?: unknown } };
+  const value = typeof details.balance === 'number' ? details.balance : details.error?.balance;
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+};
+
 export function useGeneratePhoto(): UseGeneratePhotoResult {
-  const { hasEnough, spendCoins, addCoins } = useCoins();
+  const { applyServerBalance } = useCoins();
   const { jobs, pendingJobs, createJob, patchJob, isRestoring } = useGenerationJob();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const jobsRef = useRef(jobs);
@@ -78,17 +85,6 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
     jobsRef.current = jobs;
   }, [jobs]);
 
-  const refundIfNeeded = useCallback(async (jobId: string): Promise<boolean> => {
-    const targetJob = jobsRef.current.find((job) => job.jobId === jobId);
-    if (!targetJob || targetJob.refundedAt || !targetJob.coinCost || targetJob.coinCost <= 0) {
-      return false;
-    }
-
-    await addCoins(targetJob.coinCost, { source: 'refund', note: targetJob.styleTitle });
-    await patchJob(jobId, { refundedAt: new Date().toISOString() });
-    return true;
-  }, [addCoins, patchJob]);
-
   const pollJob = useCallback(async (requestId: string, jobId: string, statusUrl?: string, responseUrl?: string): Promise<void> => {
     const job = jobsRef.current.find((j) => j.jobId === jobId);
 
@@ -97,10 +93,9 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
       const createdMs = new Date(job.createdAt).getTime();
       if (Date.now() - createdMs > QUEUE_TIMEOUT_MS) {
         try { await cancelImageGeneration(requestId); } catch { /* best effort */ }
-        const refunded = await refundIfNeeded(jobId);
         await patchJob(jobId, {
           status: 'failed',
-          errorMessage: refunded ? 'Timed out waiting in queue. Coins refunded.' : 'Timed out waiting in queue.',
+          errorMessage: 'Timed out waiting in queue.',
         });
         return;
       }
@@ -125,7 +120,6 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
       if (mappedStatus === 'failed') {
         const rejectionCategory = statusRes.rejectionCategory || statusRes.errorCode || statusRes.errorMessage || 'unknown';
         const policyRejected = parsePolicyRejection(statusRes.errorCode || statusRes.errorMessage) != null;
-        const refunded = await refundIfNeeded(jobId);
 
         if (policyRejected) {
           console.info('[DreamShotTelemetry] image_policy_rejection', {
@@ -138,8 +132,8 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
         await patchJob(jobId, {
           status: 'failed',
           errorMessage: policyRejected
-            ? (refunded ? `${POLICY_REJECTION_MESSAGE} Coins refunded.` : POLICY_REJECTION_MESSAGE)
-            : (refunded ? 'Generation failed. Coins refunded.' : 'Generation failed.'),
+            ? POLICY_REJECTION_MESSAGE
+            : 'Generation failed.',
         });
         return;
       }
@@ -148,8 +142,6 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
     } catch (error) {
       const policyRejection = parsePolicyRejection(error);
       if (policyRejection) {
-        const refunded = await refundIfNeeded(jobId);
-
         console.info('[DreamShotTelemetry] image_policy_rejection', {
           requestId,
           jobId,
@@ -159,9 +151,7 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
 
         await patchJob(jobId, {
           status: 'failed',
-          errorMessage: refunded
-            ? `${POLICY_REJECTION_MESSAGE} Coins refunded.`
-            : POLICY_REJECTION_MESSAGE,
+          errorMessage: POLICY_REJECTION_MESSAGE,
           pollFailures: 0,
         });
         return;
@@ -170,7 +160,7 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
       const failures = ((job?.pollFailures) || 0) + 1;
       await patchJob(jobId, { pollFailures: failures });
     }
-  }, [patchJob, refundIfNeeded]);
+  }, [patchJob]);
 
   useEffect(() => {
     if (pollIntervalRef.current) {
@@ -198,12 +188,7 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
     };
   }, [isRestoring, pendingJobs, pollJob]);
   const submitPhoto = useCallback(async ({ imageUri, style, aspect }: SubmitPhotoInput): Promise<string> => {
-    if (!(await hasEnough(style.photoCost))) {
-      throw new Error(`Not enough coins. You need ${style.photoCost} coins.`);
-    }
-
     setIsSubmitting(true);
-    let coinsSpent = false;
 
     try {
       const pipelineId = OPENAI_IMAGE_STYLES.has(style.id) ? 'openai-image' : 'fal-image';
@@ -217,16 +202,7 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
         pipelineId,
       });
 
-      const spent = await spendCoins(style.photoCost, { source: 'generation', note: style.title });
-      if (!spent) {
-        try {
-          await cancelImageGeneration(submitted.requestId);
-        } catch {
-          // best effort
-        }
-        throw new Error('Not enough coins. Please top up and try again.');
-      }
-      coinsSpent = true;
+      await applyServerBalance(submitted.balance);
 
       const job = await createJob({
         requestId: submitted.requestId,
@@ -243,8 +219,9 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
 
       return submitted.requestId;
     } catch (error) {
-      if (coinsSpent && style.photoCost > 0) {
-        await addCoins(style.photoCost, { source: 'refund', note: style.title });
+      if (error instanceof ApiError && error.status === 402) {
+        await applyServerBalance(getBalanceFromError(error));
+        throw new Error('Insufficient coins. Please top up and try again.');
       }
 
       const policyRejection = parsePolicyRejection(error);
@@ -257,14 +234,14 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
           phase: 'submit',
         });
 
-        throw new Error(coinsSpent ? `${POLICY_REJECTION_MESSAGE} Coins refunded.` : POLICY_REJECTION_MESSAGE);
+        throw new Error(POLICY_REJECTION_MESSAGE);
       }
 
       throw error;
     } finally {
       setIsSubmitting(false);
     }
-  }, [addCoins, createJob, hasEnough, pollJob, spendCoins]);
+  }, [applyServerBalance, createJob, pollJob]);
 
   const cancelPhoto = useCallback(async (requestId: string): Promise<void> => {
     const pendingPhotoJob = pendingJobs.find((job) => job.kind === 'photo' && job.requestId === requestId);
@@ -279,12 +256,11 @@ export function useGeneratePhoto(): UseGeneratePhotoResult {
       // best effort
     }
 
-    const refunded = await refundIfNeeded(pendingPhotoJob.jobId);
     await patchJob(pendingPhotoJob.jobId, {
       status: 'failed',
-      errorMessage: refunded ? 'Cancelled by user. Coins refunded.' : 'Cancelled by user.',
+      errorMessage: 'Cancelled by user.',
     });
-  }, [patchJob, pendingJobs, refundIfNeeded]);
+  }, [patchJob, pendingJobs]);
 
   return {
     isSubmitting,

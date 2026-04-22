@@ -7,8 +7,8 @@ import {
   submitVideoGeneration,
 } from '../../profile/services/aiVideoProviders';
 import { cacheRemoteImage } from '../../../utils/imageCache';
-import { ANIMATION_STYLES } from '../../../config/styles';
-import { DreamshotStylePreset } from '../types';
+import { ApiError } from '../../../lib/apiClient';
+import { ANIMATION_STYLES } from '../../../config/styles';import { DreamshotStylePreset } from '../types';
 import { useGenerationJob } from './useGenerationJob';
 
 const POLL_INTERVAL_MS = 5000;
@@ -33,8 +33,15 @@ type UseGenerateVideoResult = {
   cancelVideo: (requestId: string) => Promise<void>;
 };
 
+const getBalanceFromError = (error: unknown): number | undefined => {
+  if (!(error instanceof ApiError) || !error.details || typeof error.details !== 'object') return undefined;
+  const details = error.details as { balance?: unknown; error?: { balance?: unknown } };
+  const value = typeof details.balance === 'number' ? details.balance : details.error?.balance;
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+};
+
 export function useGenerateVideo(): UseGenerateVideoResult {
-  const { hasEnough, spendCoins, addCoins } = useCoins();
+  const { applyServerBalance } = useCoins();
   const { jobs, pendingJobs, createJob, patchJob, isRestoring } = useGenerationJob();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const jobsRef = useRef(jobs);
@@ -44,16 +51,6 @@ export function useGenerateVideo(): UseGenerateVideoResult {
     jobsRef.current = jobs;
   }, [jobs]);
 
-  const refundIfNeeded = useCallback(async (jobId: string): Promise<boolean> => {
-    const targetJob = jobsRef.current.find((job) => job.jobId === jobId);
-    if (!targetJob || targetJob.refundedAt || !targetJob.coinCost || targetJob.coinCost <= 0) {
-      return false;
-    }
-
-    await addCoins(targetJob.coinCost, { source: 'refund', note: targetJob.styleTitle });
-    await patchJob(jobId, { refundedAt: new Date().toISOString() });
-    return true;
-  }, [addCoins, patchJob]);
 
   const pollJob = useCallback(async (requestId: string, jobId: string, statusUrl?: string, responseUrl?: string): Promise<void> => {
     const job = jobsRef.current.find((j) => j.jobId === jobId);
@@ -63,10 +60,9 @@ export function useGenerateVideo(): UseGenerateVideoResult {
       const createdMs = new Date(job.createdAt).getTime();
       if (Date.now() - createdMs > QUEUE_TIMEOUT_MS) {
         try { await cancelVideoGeneration(requestId); } catch { /* best effort */ }
-        const refunded = await refundIfNeeded(jobId);
         await patchJob(jobId, {
           status: 'failed',
-          errorMessage: refunded ? 'Timed out waiting in queue. Coins refunded.' : 'Timed out waiting in queue.',
+          errorMessage: 'Timed out waiting in queue.',
         });
         return;
       }
@@ -89,10 +85,9 @@ export function useGenerateVideo(): UseGenerateVideoResult {
       }
 
       if (mappedStatus === 'failed') {
-        const refunded = await refundIfNeeded(jobId);
         await patchJob(jobId, {
           status: 'failed',
-          errorMessage: refunded ? 'Generation failed. Coins refunded.' : 'Generation failed.',
+          errorMessage: 'Generation failed.',
         });
         return;
       }
@@ -102,7 +97,7 @@ export function useGenerateVideo(): UseGenerateVideoResult {
       const failures = ((job?.pollFailures) || 0) + 1;
       await patchJob(jobId, { pollFailures: failures });
     }
-  }, [patchJob, refundIfNeeded]);
+  }, [patchJob]);
 
   useEffect(() => {
     if (pollIntervalRef.current) {
@@ -130,19 +125,9 @@ export function useGenerateVideo(): UseGenerateVideoResult {
     };
   }, [isRestoring, pendingJobs, pollJob]);
   const submitVideo = useCallback(async ({ imageUri, style, animStyleId }: SubmitVideoInput): Promise<string> => {
-    if (!(await hasEnough(style.videoCost))) {
-      throw new Error(`Not enough coins. You need ${style.videoCost} coins.`);
-    }
-
     setIsSubmitting(true);
-    let coinsSpent = false;
 
     try {
-      const spent = await spendCoins(style.videoCost, { source: 'generation', note: style.title });
-      if (!spent) {
-        throw new Error('Not enough coins. Please top up and try again.');
-      }
-      coinsSpent = true;
 
       const animStyle = animStyleId ? ANIMATION_STYLES.find((a) => a.id === animStyleId) : undefined;
       const themePrefix = `DreamShot image animation comes to life, cinematic atmosphere.`;
@@ -164,18 +149,20 @@ export function useGenerateVideo(): UseGenerateVideoResult {
         responseUrl: submitted.responseUrl,
       });
 
+      await applyServerBalance(submitted.balance);
       await pollJob(submitted.requestId, job.jobId, submitted.statusUrl, submitted.responseUrl);
 
       return submitted.requestId;
     } catch (error) {
-      if (coinsSpent && style.videoCost > 0) {
-        await addCoins(style.videoCost, { source: 'refund', note: style.title });
+      if (error instanceof ApiError && error.status === 402) {
+        await applyServerBalance(getBalanceFromError(error));
+        throw new Error('Insufficient coins. Please top up and try again.');
       }
       throw error;
     } finally {
       setIsSubmitting(false);
     }
-  }, [addCoins, createJob, hasEnough, pollJob, spendCoins]);
+  }, [applyServerBalance, createJob, pollJob]);
 
   const cancelVideo = useCallback(async (requestId: string): Promise<void> => {
     const pendingVideoJob = pendingJobs.find((job) => job.kind === 'video' && job.requestId === requestId);
@@ -190,12 +177,11 @@ export function useGenerateVideo(): UseGenerateVideoResult {
       // best effort
     }
 
-    const refunded = await refundIfNeeded(pendingVideoJob.jobId);
     await patchJob(pendingVideoJob.jobId, {
       status: 'failed',
-      errorMessage: refunded ? 'Cancelled by user. Coins refunded.' : 'Cancelled by user.',
+      errorMessage: 'Cancelled by user.',
     });
-  }, [patchJob, pendingJobs, refundIfNeeded]);
+  }, [patchJob, pendingJobs]);
 
   return {
     isSubmitting,

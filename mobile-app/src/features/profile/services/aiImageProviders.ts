@@ -16,6 +16,8 @@ export type ImageSubmitResult = {
   status: string;
   statusUrl?: string;
   responseUrl?: string;
+  balance?: number;
+  ledgerVersion?: number;
 };
 
 const getMimeType = (imageUri: string): string => {
@@ -49,7 +51,7 @@ export const submitImageGeneration = async (request: AiImageGenerationRequest): 
       pipelineId: 'fal-image',
       stylePreset: request.stylePreset,
       inputImageUrl: `data:${mimeType};base64,${imageBase64}`,
-    }) as { id: string; status: string; outputUrl?: string };
+    }) as { id: string; status: string; outputUrl?: string; balance?: number; ledgerVersion?: number };
 
     if (!response?.id) {
       throw new Error('Backend did not return a generation ID');
@@ -59,13 +61,15 @@ export const submitImageGeneration = async (request: AiImageGenerationRequest): 
       requestId: response.id,
       status: response.status,
       responseUrl: response.outputUrl,
+      balance: response.balance,
+      ledgerVersion: response.ledgerVersion,
     };
   }
 
   const response = await apiClient.post('/generations/openai', {
     prompt: request.prompt,
     inputImageBase64: imageBase64,
-  }) as { id: string; status: string; outputUrl?: string };
+  }) as { id: string; status: string; outputUrl?: string; balance?: number; ledgerVersion?: number };
 
   if (!response?.id) {
     throw new Error('Backend did not return a generation ID');
@@ -75,6 +79,8 @@ export const submitImageGeneration = async (request: AiImageGenerationRequest): 
     requestId: response.id,
     status: response.status,
     responseUrl: response.outputUrl,
+    balance: response.balance,
+    ledgerVersion: response.ledgerVersion,
   };
 };
 

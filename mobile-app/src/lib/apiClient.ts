@@ -183,10 +183,10 @@ apiClient.interceptors.response.use(
     }
 
     if (axios.isAxiosError(error)) {
-      const errorData = error.response?.data as { error?: { message?: string; code?: string } } | undefined;
-      const message = errorData?.error?.message || error.message;
-      const code = errorData?.error?.code || 'REQUEST_FAILED';
-      return Promise.reject(new ApiError(message, code, error.response?.status || 0));
+      const errorData = error.response?.data as { error?: { message?: string; code?: string }; message?: string; code?: string } | undefined;
+      const message = errorData?.error?.message || errorData?.message || error.message;
+      const code = errorData?.error?.code || errorData?.code || 'REQUEST_FAILED';
+      return Promise.reject(new ApiError(message, code, error.response?.status || 0, error.response?.data));
     }
     return Promise.reject(error);
   }
@@ -196,7 +196,8 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public code: string,
-    public status: number
+    public status: number,
+    public details?: unknown
   ) {
     super(message);
     this.name = 'ApiError';
