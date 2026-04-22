@@ -3,6 +3,7 @@ import { NetworkConfig } from '../config/network';
 import { tokenService } from '../services/tokenService';
 import { APP_CONFIG } from '../config/app';
 import { getAiHeaders } from '../services/aiIdentityService';
+import * as Crypto from 'expo-crypto';
 
 const DEBUG = __DEV__; // Only log in development
 
@@ -85,7 +86,7 @@ apiClient.interceptors.request.use(
       const hasIdempotencyKey = Boolean(headers['Idempotency-Key'] || headers['idempotency-key']);
 
       if (!hasIdempotencyKey) {
-        headers['Idempotency-Key'] = `gen-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        headers['Idempotency-Key'] = Crypto.randomUUID();
         config.headers = headers as typeof config.headers;
       }
     }

@@ -16,6 +16,17 @@ const toNonEmptyString = (value: unknown): string | null => {
   return trimmed.length > 0 ? trimmed : null;
 };
 
+
+const normalizeProductId = (productId: string): string => {
+  const trimmed = productId.trim();
+  if (!trimmed.includes('.')) {
+    return trimmed;
+  }
+
+  const lastSegment = trimmed.split('.').pop();
+  return lastSegment && lastSegment.length > 0 ? lastSegment : trimmed;
+};
+
 const extractReceipt = (purchase: PaymentPurchase): string | null => {
   const transactionReceipt = toNonEmptyString((purchase as { transactionReceipt?: unknown }).transactionReceipt);
   if (transactionReceipt) return transactionReceipt;
@@ -42,7 +53,7 @@ export const redeemIapPurchase = async (
 
   return apiClient.post('/coins/iap/redeem', {
     platform,
-    productId,
+    productId: normalizeProductId(productId),
     receipt,
   }) as Promise<RedeemResponse>;
 };

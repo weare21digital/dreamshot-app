@@ -1,4 +1,5 @@
 import * as FileSystem from 'expo-file-system/legacy';
+import * as Crypto from 'expo-crypto';
 import { apiClient } from '../../../lib/apiClient';
 
 export type AiVideoProviderName = 'backend';
@@ -6,6 +7,7 @@ export type AiVideoProviderName = 'backend';
 export type VideoGenerationRequest = {
   imageUri: string;
   prompt: string;
+  idempotencyKey?: string;
 };
 
 export type VideoGenerationSubmitResult = {
@@ -16,6 +18,7 @@ export type VideoGenerationSubmitResult = {
   cancelUrl?: string;
   balance?: number;
   ledgerVersion?: number;
+  idempotencyKey: string;
 };
 
 export type VideoGenerationStatusResult = {
@@ -57,6 +60,7 @@ export type ImagePipelineVideoRequest = {
   prompt: string;
   videoPrompt: string;
   stylePreset?: string;
+  idempotencyKey?: string;
 };
 
 export type ImagePipelineVideoSubmitResult = VideoGenerationSubmitResult & {
@@ -69,18 +73,21 @@ export const submitImagePipelineVideoGeneration = async (
 ): Promise<ImagePipelineVideoSubmitResult> => {
   const inputImageUrl = await toDataUri(request.imageUri);
 
+  const idempotencyKey = request.idempotencyKey ?? Crypto.randomUUID();
+
   const response = await apiClient.post('/generations/fal', {
     prompt: request.videoPrompt || request.prompt,
     pipelineId: 'openai-to-video',
     stylePreset: request.stylePreset,
     inputImageUrl,
-  }) as { id: string; status: string; balance?: number; ledgerVersion?: number };
+  }, { headers: { 'Idempotency-Key': idempotencyKey } }) as { id: string; status: string; balance?: number; ledgerVersion?: number };
 
   return {
     requestId: response.id,
     status: response.status || 'QUEUED',
     balance: response.balance,
     ledgerVersion: response.ledgerVersion,
+    idempotencyKey,
   };
 };
 
@@ -102,17 +109,20 @@ export const submitDreamshotImagePipeline = async (request: DreamshotImagePipeli
 export const submitVideoGeneration = async (request: VideoGenerationRequest): Promise<VideoGenerationSubmitResult> => {
   const inputImageUrl = await toDataUri(request.imageUri);
 
+  const idempotencyKey = request.idempotencyKey ?? Crypto.randomUUID();
+
   const response = await apiClient.post('/generations/fal', {
     prompt: request.prompt,
     pipelineId: 'openai-to-video',
     inputImageUrl,
-  }) as { id: string; status: string; balance?: number; ledgerVersion?: number };
+  }, { headers: { 'Idempotency-Key': idempotencyKey } }) as { id: string; status: string; balance?: number; ledgerVersion?: number };
 
   return {
     requestId: response.id,
     status: response.status || 'QUEUED',
     balance: response.balance,
     ledgerVersion: response.ledgerVersion,
+    idempotencyKey,
   };
 };
 

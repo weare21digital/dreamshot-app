@@ -1,4 +1,5 @@
 import * as FileSystem from 'expo-file-system/legacy';
+import * as Crypto from 'expo-crypto';
 import { apiClient } from '../../../lib/apiClient';
 
 export type AiImageGenerationRequest = {
@@ -9,6 +10,7 @@ export type AiImageGenerationRequest = {
   aspect?: string;
   quality?: string;
   pipelineId?: 'openai-image' | 'fal-image';
+  idempotencyKey?: string;
 };
 
 export type ImageSubmitResult = {
@@ -18,6 +20,7 @@ export type ImageSubmitResult = {
   responseUrl?: string;
   balance?: number;
   ledgerVersion?: number;
+  idempotencyKey: string;
 };
 
 const getMimeType = (imageUri: string): string => {
@@ -44,6 +47,7 @@ export const submitImageGeneration = async (request: AiImageGenerationRequest): 
   });
 
   const pipelineId = request.pipelineId ?? 'openai-image';
+  const idempotencyKey = request.idempotencyKey ?? Crypto.randomUUID();
 
   if (pipelineId === 'fal-image') {
     const response = await apiClient.post('/generations/fal', {
@@ -51,7 +55,7 @@ export const submitImageGeneration = async (request: AiImageGenerationRequest): 
       pipelineId: 'fal-image',
       stylePreset: request.stylePreset,
       inputImageUrl: `data:${mimeType};base64,${imageBase64}`,
-    }) as { id: string; status: string; outputUrl?: string; balance?: number; ledgerVersion?: number };
+    }, { headers: { 'Idempotency-Key': idempotencyKey } }) as { id: string; status: string; outputUrl?: string; balance?: number; ledgerVersion?: number };
 
     if (!response?.id) {
       throw new Error('Backend did not return a generation ID');
@@ -63,13 +67,14 @@ export const submitImageGeneration = async (request: AiImageGenerationRequest): 
       responseUrl: response.outputUrl,
       balance: response.balance,
       ledgerVersion: response.ledgerVersion,
+      idempotencyKey,
     };
   }
 
   const response = await apiClient.post('/generations/openai', {
     prompt: request.prompt,
     inputImageBase64: imageBase64,
-  }) as { id: string; status: string; outputUrl?: string; balance?: number; ledgerVersion?: number };
+  }, { headers: { 'Idempotency-Key': idempotencyKey } }) as { id: string; status: string; outputUrl?: string; balance?: number; ledgerVersion?: number };
 
   if (!response?.id) {
     throw new Error('Backend did not return a generation ID');
@@ -81,6 +86,7 @@ export const submitImageGeneration = async (request: AiImageGenerationRequest): 
     responseUrl: response.outputUrl,
     balance: response.balance,
     ledgerVersion: response.ledgerVersion,
+    idempotencyKey,
   };
 };
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card, Text } from 'react-native-paper';
@@ -12,7 +12,6 @@ import { redeemIapPurchase } from '../services/iapRedemption';
 export function CoinsPurchaseScreen(): React.JSX.Element {
   const { palette, brand, theme } = useAppTheme();
   const { balance, applyServerBalance, reload } = useCoins();
-  const redeemedTransactionIdsRef = useRef(new Set<string>());
 
   useFocusEffect(
     useCallback(() => {
@@ -90,20 +89,12 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
       if (!lastPurchase) return;
 
       const productId = lastPurchase.productId ?? '';
-      const transactionId = lastPurchase.transactionId ?? null;
-
-      if (transactionId && redeemedTransactionIdsRef.current.has(transactionId)) {
-        return;
-      }
 
       const matchedPack = COIN_PACKS.find((pack) => pack.sku === productId);
       if (!matchedPack) return;
 
       try {
         const redeemed = await redeemIapPurchase(productId, lastPurchase);
-        if (transactionId) {
-          redeemedTransactionIdsRef.current.add(transactionId);
-        }
 
         if (cancelled) return;
 
