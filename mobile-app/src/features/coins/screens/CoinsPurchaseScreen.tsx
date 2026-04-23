@@ -3,11 +3,21 @@ import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card, Text } from 'react-native-paper';
 import { useFocusEffect } from 'expo-router';
+import type { PaymentPurchase } from '../../../services/payments/paymentTypes';
 import { useAppTheme } from '../../../contexts/ThemeContext';
 import { useCoins } from '../hooks/useCoins';
 import { usePayments } from '../../../services/payments/usePayments';
 import { COIN_PACKS } from '../../../config/iap';
 import { redeemIapPurchase } from '../services/iapRedemption';
+import {
+  clearPendingIapReceipt,
+  loadPendingIapReceipt,
+  savePendingIapReceipt,
+} from '../utils/pendingIapReceipt';
+
+const getPurchaseKey = (purchase: { transactionId?: string | null; productId?: string | null }): string => {
+  return purchase.transactionId?.trim() || purchase.productId?.trim() || '';
+};
 
 export function CoinsPurchaseScreen(): React.JSX.Element {
   const { palette, brand, theme } = useAppTheme();
@@ -21,6 +31,7 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
 
   const [feedback, setFeedback] = useState<string | null>(null);
   const [activePurchaseId, setActivePurchaseId] = useState<string | null>(null);
+  const [pendingReceipt, setPendingReceipt] = useState<PaymentPurchase | null>(null);
 
   const productIds = useMemo(() => COIN_PACKS.map((pack) => pack.sku), []);
 
@@ -39,6 +50,23 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
     subscriptionIds: [],
     consumableProductIds: productIds,
   });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const hydratePendingReceipt = async () => {
+      const persisted = await loadPendingIapReceipt();
+      if (!cancelled) {
+        setPendingReceipt(persisted as PaymentPurchase | null);
+      }
+    };
+
+    void hydratePendingReceipt();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const productPriceMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -93,17 +121,25 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
       const matchedPack = COIN_PACKS.find((pack) => pack.sku === productId);
       if (!matchedPack) return;
 
+      if (getPurchaseKey(lastPurchase) === getPurchaseKey(pendingReceipt || {})) {
+        return;
+      }
+
       try {
         const redeemed = await redeemIapPurchase(productId, lastPurchase);
 
         if (cancelled) return;
 
+        await clearPendingIapReceipt();
+        setPendingReceipt(null);
         await applyServerBalance(redeemed.balance);
         await reload();
         setFeedback(`Purchase successful. Added ${matchedPack.coins} coins.`);
       } catch {
         if (cancelled) return;
-        setFeedback('Purchase completed, but redemption failed. Please use Restore Purchases.');
+        await savePendingIapReceipt(lastPurchase);
+        setPendingReceipt(lastPurchase);
+        setFeedback('Purchase completed but coins not yet credited. Tap to retry.');
       }
     };
 
@@ -111,37 +147,101 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [applyServerBalance, lastPurchase, reload]);
+  }, [applyServerBalance, lastPurchase, pendingReceipt, reload]);
+
+  const redeemPurchase = useCallback(async (purchase: PaymentPurchase): Promise<boolean> => {
+    const productId = purchase.productId ?? '';
+    if (!productId) {
+      return false;
+    }
+
+    const matchedPack = COIN_PACKS.find((pack) => pack.sku === productId);
+    if (!matchedPack) {
+      return false;
+    }
+
+    const redeemed = await redeemIapPurchase(productId, purchase);
+    await applyServerBalance(redeemed.balance);
+    return true;
+  }, [applyServerBalance]);
+
+  const handleRetryPending = useCallback(async () => {
+    if (!pendingReceipt) {
+      return;
+    }
+
+    setFeedback(null);
+
+    try {
+      const ok = await redeemPurchase(pendingReceipt);
+      if (!ok) {
+        setFeedback('Pending purchase data is invalid. Please use Restore Purchases.');
+        return;
+      }
+
+      await clearPendingIapReceipt();
+      setPendingReceipt(null);
+      await reload();
+      setFeedback('Pending purchase redeemed successfully.');
+    } catch {
+      setFeedback('Purchase completed but coins not yet credited. Tap to retry.');
+    }
+  }, [pendingReceipt, redeemPurchase, reload]);
 
   const handleRestore = useCallback(async () => {
     setFeedback(null);
 
     try {
       const restored = await restorePurchases();
+      const queue: PaymentPurchase[] = [];
 
-      if (restored.length === 0) {
+      if (pendingReceipt) {
+        queue.push(pendingReceipt);
+      }
+
+      queue.push(...restored);
+
+      if (queue.length === 0) {
         setFeedback('No previous purchases found.');
         return;
       }
 
       let redeemedCount = 0;
+      let pendingFailed = false;
+      const visited = new Set<string>();
 
-      for (const purchase of restored) {
-        const productId = purchase.productId ?? '';
-        const matchedPack = COIN_PACKS.find((pack) => pack.sku === productId);
-        if (!matchedPack) continue;
+      for (const purchase of queue) {
+        const key = getPurchaseKey(purchase);
+        if (key && visited.has(key)) {
+          continue;
+        }
+        if (key) {
+          visited.add(key);
+        }
 
         try {
-          await redeemIapPurchase(productId, purchase);
-          redeemedCount += 1;
+          const redeemed = await redeemPurchase(purchase);
+          if (redeemed) {
+            redeemedCount += 1;
+            if (pendingReceipt && getPurchaseKey(purchase) === getPurchaseKey(pendingReceipt)) {
+              await clearPendingIapReceipt();
+              setPendingReceipt(null);
+            }
+          }
         } catch {
-          // keep restoring remaining purchases
+          if (pendingReceipt && getPurchaseKey(purchase) === getPurchaseKey(pendingReceipt)) {
+            pendingFailed = true;
+            await savePendingIapReceipt(purchase);
+            setPendingReceipt(purchase);
+          }
         }
       }
 
       await reload();
 
-      if (redeemedCount > 0) {
+      if (pendingFailed) {
+        setFeedback('Some purchases still need redemption. Tap retry to try again.');
+      } else if (redeemedCount > 0) {
         setFeedback(`Restore successful. Redeemed ${redeemedCount} purchase(s).`);
       } else {
         setFeedback('Restore complete. No redeemable purchases found.');
@@ -149,7 +249,7 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
     } catch {
       setFeedback('Restore failed. Please try again.');
     }
-  }, [reload, restorePurchases]);
+  }, [pendingReceipt, redeemPurchase, reload, restorePurchases]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }}>
@@ -209,6 +309,19 @@ export function CoinsPurchaseScreen(): React.JSX.Element {
             </Card>
           );
         })}
+
+        {pendingReceipt && (
+          <Button
+            mode="contained"
+            onPress={() => {
+              void handleRetryPending();
+            }}
+            disabled={isRestoring || isPurchasing}
+            testID="coins-retry-pending"
+          >
+            Retry Pending Redemption
+          </Button>
+        )}
 
         <Button
           mode="outlined"
